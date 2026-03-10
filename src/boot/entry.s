@@ -1,0 +1,12 @@
+.syntax unified
+.cpu cortex-m4
+.thumb
+
+.section .text
+.global entry_point
+.thumb_func
+start_app:
+    @ r0 = pc					 @ app reset address	
+    @ r1 = sp					 @ stack pointer
+    msr  msp, r1            @ load app stack pointer into MSP
+    bx   r0                 @ jump to app — no return
