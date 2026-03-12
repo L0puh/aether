@@ -5,7 +5,7 @@
 .section .text
 .global entry_point
 .thumb_func
-start_app:
+entry_point:
     @ r0 = pc					 @ app reset address	
     @ r1 = sp					 @ stack pointer
     msr  msp, r1            @ load app stack pointer into MSP

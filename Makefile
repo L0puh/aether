@@ -36,10 +36,14 @@ APP_OBJS  = $(patsubst src/app/%.c,  $(BUILD_DIR)/app/%.o,  $(APP_SRCS_C))
 INCL   = -I./include
 CFLAGS = -mcpu=$(CHIP)\
 			-mthumb\
-			-O2\
+			-O0\
 			-Wall\
 			-Wextra\
 			-nostdlib\
+			-fno-builtin\
+			-ffreestanding\
+         -fdata-sections\
+         -ffunction-sections\
 			$(INCL)
 			
 ASFLAGS = -mcpu=$(CHIP)\
@@ -75,7 +79,6 @@ $(BUILD_DIR)/boot $(BUILD_DIR)/app:
 $(BUILD_DIR)/boot/%.o: src/boot/%.c | $(BUILD_DIR)/boot
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-
 $(BUILD_DIR)/boot/%.o: src/boot/%.s | $(BUILD_DIR)/boot
 	$(AS) $(ASFLAGS) -c -o $@ $<
 
@@ -93,11 +96,11 @@ $(BUILD_DIR)/app/%.o: src/app/%.c | $(BUILD_DIR)/app
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/app/%.o: src/app/%.s | $(BUILD_DIR)/app
-	$(AS) $(ASFLAGS) -o $@ $
+	$(AS) $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/$(PROJECT)-app.elf: $(APP_OBJS)
 	$(CC) $(CFLAGS) $(APP_LDFLAGS) -o $@ $^
-	$(SZ) $@
+	$(SIZE) $@
 
 $(BUILD_DIR)/$(PROJECT)-app.bin: $(BUILD_DIR)/$(PROJECT)-app.elf
 	$(OBJCPY) -O binary $< $@
