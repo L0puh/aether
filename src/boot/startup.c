@@ -1,7 +1,7 @@
+#include <aether.h>
 #include <stdint.h>
 
-typedef uint32_t u32;
-
+extern u32 _stext;
 extern u32 _estack;
 extern u32 _etext;
 extern u32 _sdata;
@@ -25,14 +25,13 @@ void systick_handler(void) __attribute__((weak, alias("default_handler")));
 
 
 __attribute__((section(".isr_vectors")))  
-u32 vector_tbl[] = {
-   (u32)&_estack,           
-   (u32)reset_handler,      
-   (u32)nmi_handler,        
-   (u32)hardfault_handler,  
-   (u32)memmanage_handler,  
-   (u32)busfault_handler,   
-   (u32)usagefault_handler, 
+const device_vectors_t vector_tbl = {
+   .p_stack                = (void*) (&_estack), 
+   
+   .pfn_reset_handler     = (void*) reset_handler,
+   .pfn_nmi_handler       = (void*) nmi_handler,
+   .pfn_hardfault_handler = (void*) hardfault_handler,
+
 };
 
 
@@ -58,6 +57,8 @@ void reset_handler(void)
    for (u32 i = 0; i < bss_sz; i++) {
       *p_dest++ = 0;
    }
+
+   p_src = (u32*) &_stext;
 
    main();
 }

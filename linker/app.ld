@@ -2,14 +2,9 @@ INCLUDE memory_map.ld
 
 SECTIONS 
 {
-    .vectors :
-    {
-        . = ALIGN(4);
-        KEEP(*(.vectors .vectors.*))
-    } > app_rom
-
     .text :
     {
+        _stext = .;
         . = ALIGN(4);
         *(.text*)
         *(.rodata*)

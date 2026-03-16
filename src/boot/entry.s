@@ -10,3 +10,4 @@ entry_point:
     @ r1 = sp					 @ stack pointer
     msr  msp, r1            @ load app stack pointer into MSP
     bx   r0                 @ jump to app — no return
+

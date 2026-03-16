@@ -7,11 +7,12 @@ SECTIONS
    .text :
    {
       . = ALIGN(4);
+      _stext = .;
       *(.isr_vectors)
-      *(.text*)
-      *(.rodata*)
-      . = ALIGN(4);
-      _etext = .;
+         *(.text*)
+         *(.rodata*)
+         . = ALIGN(4);
+         _etext = .;
    } > boot_rom
 
    .data :

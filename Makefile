@@ -7,6 +7,7 @@ LD 	 = $(PREFIX)ld
 OBJCPY = $(PREFIX)objcopy
 OBJDMP = $(PREFIX)objdump
 SIZE   = $(PREFIX)size
+GENCFG = tools/gencfg.sh
 
 #----------------------- TARGET -----------------------#
 
@@ -125,5 +126,8 @@ erase:
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+gen-config:
+	$(GENCFG) $(CURDIR)
 
 .PHONY: all flash erase clean dump-boot dump-app sym-boot 
