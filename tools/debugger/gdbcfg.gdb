@@ -1,12 +1,15 @@
 target extended-remote :3333
-
 monitor reset halt
-monitor flash erase_address 0x08000000 0x20000
-
-file build/aether-app.elf
-load
 
 file build/aether-boot.elf
 load
+file build/aether-app.elf
+load
 
-monitor reset run
+symbol-file build/aether-boot.elf
+add-symbol-file build/aether-app.elf 0x08004000
+
+monitor reset halt
+break reset_handler
+layout asm
+continue

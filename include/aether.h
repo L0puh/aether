@@ -9,6 +9,8 @@ typedef uint64_t u64;
 #include "memory.h"
 #include "debug.h"
 
+static void delay(volatile u32 count);
+
 typedef struct _device_vectors {
    
    void *p_stack;       

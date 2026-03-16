@@ -24,7 +24,7 @@ void pendsv_handler(void) __attribute__((weak, alias("default_handler")));
 void systick_handler(void) __attribute__((weak, alias("default_handler")));
 
 
-__attribute__((section(".isr_vectors")))  
+__attribute__((section(".vectors")))  
 const device_vectors_t vector_tbl = {
    .p_stack                = (void*) (&_estack), 
    

@@ -7,7 +7,7 @@ LD 	 = $(PREFIX)ld
 OBJCPY = $(PREFIX)objcopy
 OBJDMP = $(PREFIX)objdump
 SIZE   = $(PREFIX)size
-GENCFG = tools/gencfg.sh
+DEBUG  = tools/debugger/debugger.sh
 
 #----------------------- TARGET -----------------------#
 
@@ -55,12 +55,12 @@ ASFLAGS = -mcpu=$(CHIP)\
 BOOT_LDFLAGS = -T $(BOOTLOADER_LINKER)\
 					-L $(LINKER_DIR)\
 					-nostdlib\
-					-Wl,--gc-sections				
+					-Wl,--no-gc-sections
 
 APP_LDFLAGS = -T $(APP_LINKER)\
 			     -L $(LINKER_DIR)\
 				  -nostdlib\
-				  -Wl,--gc-sections 	
+				  -Wl,--no-gc-sections 	
 
 
 #----------------------- BUILD -----------------------#
@@ -88,7 +88,7 @@ $(BUILD_DIR)/$(PROJECT)-boot.elf: $(BOOT_OBJS)
 	$(SIZE) $@
 
 $(BUILD_DIR)/$(PROJECT)-boot.bin: $(BUILD_DIR)/$(PROJECT)-boot.elf
-	$(OBJCPY) --pad-to=0x4000 --gap-fill=0xFF -O binary $< $@
+	$(OBJCPY) --pad-to=0x08004000 --gap-fill=0xFF -O binary $< $@
 
 
 # --------------------------------------------------- APP
@@ -127,7 +127,7 @@ erase:
 clean:
 	rm -rf $(BUILD_DIR)
 
-gen-config:
-	$(GENCFG) $(CURDIR)
+debug:
+	${DEBUG} all
 
 .PHONY: all flash erase clean dump-boot dump-app sym-boot 

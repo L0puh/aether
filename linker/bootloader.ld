@@ -1,18 +1,17 @@
 INCLUDE memory_map.ld
 
-ENTRY(reset_handler)
 
 SECTIONS 
 {
    .text :
    {
-      . = ALIGN(4);
       _stext = .;
-      *(.isr_vectors)
-         *(.text*)
-         *(.rodata*)
-         . = ALIGN(4);
-         _etext = .;
+      . = ALIGN(4);
+      KEEP(*(.vectors .vectors.*))
+      *(.text*)
+      *(.rodata*)
+      . = ALIGN(4);
+      _etext = .;
    } > boot_rom
 
    .data :
