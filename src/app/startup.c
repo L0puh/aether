@@ -23,26 +23,15 @@ void debugmon_handler(void) __attribute__((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute__((weak, alias("default_handler")));
 void systick_handler(void) __attribute__((weak, alias("default_handler")));
 
-__attribute__((section(".vectors"), used))
-const device_vectors_t vector_table = {
-    .p_stack = (void*)&_estack,
-    
-    .pfn_reset_handler = reset_handler,
-    .pfn_nmi_handler = nmi_handler,
-    .pfn_hardfault_handler = hardfault_handler,
-    .pfn_memmanage_handler = memmanage_handler,
-    .pfn_busfault_handler = busfault_handler,
-    .pfn_usagefault_handler = usagefault_handler,
-    
-    .reserved_0 = {0, 0, 0, 0},
-    
-    .pfn_svc_handler = svc_handler,
-    .pfn_debugmon_handler = debugmon_handler,
-    .reserved_1 = 0,
-    .pfn_pendsv_handler = pendsv_handler,
-    .pfn_systick_handler = systick_handler,
-    
-    .pfn_irq_handlers = { [0 ... 63] = default_handler }
+
+__attribute__((section(".vectors")))  
+const device_vectors_t vector_tbl = {
+   .p_stack                = (void*) (&_estack), 
+   
+   .pfn_reset_handler     = (void*) reset_handler,
+   .pfn_nmi_handler       = (void*) nmi_handler,
+   .pfn_hardfault_handler = (void*) hardfault_handler,
+
 };
 
 

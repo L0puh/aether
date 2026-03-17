@@ -14,21 +14,32 @@ SECTIONS
       _etext = .;
    } > boot_rom
 
-   .data :
+   .data : AT(_etext)
    {
       . = ALIGN(4);
       _sdata = .;
       *(.data)
       . = ALIGN(4);
       _edata = .;
-   } > ram AT> boot_rom
+   } > ram 
 
-   .bss : 
+   
+   .bss (NOLOAD) :
    {
       . = ALIGN(4);
       _sbss = .;
-      *(.bss)
+      *(.bss*)
+      *(COMMON)
       . = ALIGN(4);
       _ebss = .;
+   } > ram
+
+   .stack :
+   {
+      . = ALIGN(8);
+      _sstack = .;
+      . = . + STACK_SIZE;
+      . = ALIGN(8);
+      _estack = .;
    } > ram
 }

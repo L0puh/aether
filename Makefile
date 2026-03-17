@@ -14,7 +14,7 @@ DEBUG  = tools/debugger/debugger.sh
 PROJECT    = aether
 BUILD_DIR  = build
 LINKER_DIR = linker
-CHIP       = cortex-m4
+CHIP       = cortex-m3 
 
 #----------------------- SOURCES  -----------------------#
 
@@ -60,7 +60,8 @@ BOOT_LDFLAGS = -T $(BOOTLOADER_LINKER)\
 APP_LDFLAGS = -T $(APP_LINKER)\
 			     -L $(LINKER_DIR)\
 				  -nostdlib\
-				  -Wl,--no-gc-sections 	
+				  -Wl,--no-gc-sections\
+				  -Wl,-Map=$(BUILD_DIR)/$(PROJECT)-app.map
 
 
 #----------------------- BUILD -----------------------#
