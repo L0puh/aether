@@ -1,7 +1,7 @@
 #ifndef AETHER_H
 #define AETHER_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
 typedef uint32_t u32;
 typedef uint64_t u64;
