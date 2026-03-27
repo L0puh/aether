@@ -43,6 +43,18 @@ BOOT_OBJS += $(BOOT_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
 APP_OBJS  = $(APP_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
 APP_OBJS += $(CORE_LIB) 
 
+#----------------------- OTHER -----------------------#
+RED    = \033[0;31m
+GREEN  = \033[0;32m
+YELLOW = \033[0;33m
+BLUE   = \033[0;34m
+MAGENTA= \033[0;35m
+CYAN   = \033[0;36m
+BOLD   = \033[1;37m
+RESET  = \033[0m
+BRED   = \033[1;35m
+
+START_TIME := $(shell date +%s)
 #----------------------- FLAGS -----------------------#
 
 
@@ -81,9 +93,11 @@ APP_LDFLAGS = -T $(APP_LINKER)\
 all: $(BUILD_DIR)/$(PROJECT).bin
 
 $(BUILD_DIR)/$(PROJECT).bin: $(BUILD_DIR)/$(PROJECT)-boot.bin\
-									  $(BUILD_DIR)/$(PROJECT)-app.bin 
+									  $(BUILD_DIR)/$(PROJECT)-app.bin
 	cat $^ > $@
-	@echo "FINAL IMAGE: $@ ($$(wc -c < $@) bytes)"
+	@echo -e "\n\n$(BRED) FINAL IMAGE:$(CYAN)\n\t...path: $@\n\t...size: $$(wc -c < $@) bytes"
+	@echo -e "\t...total time: $$(($$(date +%s) - $(START_TIME))) seconds${RESET}"
+
 
 $(BUILD_DIR)/app:
 	mkdir -p $@
@@ -95,32 +109,35 @@ $(BUILD_DIR)/core/%/:
 # --------------------------------------------- CORE
 
 $(CORE_LIB): $(CORE_OBJS)
-	@echo "> creating core library: $@"
 	$(AR) rcs $@ $^
-	@echo "> core library created: $$(wc -c < $@) bytes"
+	@echo -e "$(GREEN)[+] core library created: $$(wc -c < $@) bytes$(RESET)"
 
 $(BUILD_DIR)/core/%.o: src/core/%.c
+	@echo -e "$(YELLOW)> [CORE]: $@ $@$(RESET)"
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/core/%.o: src/core/%.s
+	@echo -e "$(YELLOW)> [CORE]: $@ $@$(RESET)"
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -c -o $@ $<
 
 # --------------------------------------------- BOOTLOADER
 
 $(BUILD_DIR)/boot/%.o: src/boot/%.c
-	@echo "> compiling bootload: $@"
+	@echo -e "$(CYAN)> [BOOTLOADER]: $@ $@$(RESET)"
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/boot/%.o: src/boot/%.s
+	@echo -e "$(CYAN)> [BOOTLOADER]: $@ $@$(RESET)"
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/$(PROJECT)-boot.elf: $(BOOT_OBJS)
 	$(CC) $(CFLAGS) $(BOOT_LDFLAGS) -o $@ $^
-	$(SIZE) $@
+	@echo -e "$(GREEN)[+] $@ is done!$(RESET)"
+	@echo -e "$(BLUE)size:\n$$($(SIZE) $@)$(RESET)\n"
 
 $(BUILD_DIR)/$(PROJECT)-boot.bin: $(BUILD_DIR)/$(PROJECT)-boot.elf
 	$(OBJCPY) -O binary $< $@
@@ -128,15 +145,17 @@ $(BUILD_DIR)/$(PROJECT)-boot.bin: $(BUILD_DIR)/$(PROJECT)-boot.elf
 # --------------------------------------------------- APP
 
 $(BUILD_DIR)/app/%.o: src/app/%.c | $(BUILD_DIR)/app
-	@echo "> compiling app: $@"
+	@echo -e "$(MAGENTA)> [APP]: $@ $@$(RESET)"
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/app/%.o: src/app/%.s | $(BUILD_DIR)/app
+	@echo -e "$(MAGENTA)> [APP]: $@ $@$(RESET)"
 	$(AS) $(ASFLAGS) -o $@ $<
 
 $(BUILD_DIR)/$(PROJECT)-app.elf: $(APP_OBJS)
 	$(CC) $(CFLAGS) $(APP_LDFLAGS) -o $@ $^
-	$(SIZE) $@
+	@echo -e "$(GREEN)[+] $@ is done!$(RESET)\n"
+	@echo -e "$(BLUE)size:\n$$($(SIZE) $@)$(RESET)\n"
 
 $(BUILD_DIR)/$(PROJECT)-app.bin: $(BUILD_DIR)/$(PROJECT)-app.elf
 	$(OBJCPY) -O binary $< $@
@@ -164,5 +183,6 @@ clean:
 
 debug:
 	${DEBUG} all
+
 
 .PHONY: all flash erase clean dump-boot dump-app sym-boot 
