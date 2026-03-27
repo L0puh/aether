@@ -1,5 +1,4 @@
 #include <aether.h>
-#include <stdint.h>
 
 extern u32 _stext;
 extern u32 _estack;

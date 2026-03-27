@@ -1,5 +1,4 @@
-#include "aether.h"
-#include "gpio.h"
+#include <aether.h>
 
 void main(void) {
 
@@ -9,7 +8,7 @@ void main(void) {
 
    while(1) {
       GPIOC->ODR ^= (1 << 13);
-      delay(1000000);
+      systick_msec_delay(5000);
    }
 }
 
