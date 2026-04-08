@@ -37,6 +37,18 @@ typedef struct _USART {
    u32 GUARD;  // guard time and prescaler 
 } USART_t;
 
+typedef struct _FLASH {
+   u32 ACR;
+   u32 KEYR;
+   u32 OPTKEYR;
+   u32 SR;
+   u32 CR;
+   u32 AR;
+   u32 RESERVED;
+   u32 OBR;
+   u32 WRPR;
+} FLASH_t;
+
 #define PIN0            (u8) 0x0000
 #define PIN1            (u8) 0x0001
 #define PIN2            (u8) 0x0002
@@ -57,9 +69,11 @@ typedef struct _USART {
 #define PERIPH_BASE       0x40000000UL
 
 #define RCC_BASE          PERIPH_BASE + 0x21000
+#define FLASH_BASE        PERIPH_BASE + 0x22000
 #define GPIOA_BASE        PERIPH_BASE + 0x10800
 #define GPIOB_BASE        PERIPH_BASE + 0x10C00
 #define GPIOC_BASE        PERIPH_BASE + 0x11000
+#define USART1_BASE       PERIPH_BASE + 0x13800
 #define USART3_BASE       PERIPH_BASE + 0x04800
 #define USART2_BASE       PERIPH_BASE + 0x04400
 
@@ -67,6 +81,8 @@ typedef struct _USART {
 #define GPIOA             ((GPIO_t*)  GPIOA_BASE)
 #define GPIOB             ((GPIO_t*)  GPIOB_BASE)
 #define GPIOC             ((GPIO_t*)  GPIOC_BASE)
+#define USART1            ((USART_t*) USART1_BASE)
 #define USART2            ((USART_t*) USART2_BASE)
+#define FLASH             ((FLASH_t*) FLASH_BASE) 
 
 #endif 
