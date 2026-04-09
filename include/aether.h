@@ -15,5 +15,10 @@
 #include "aether/device_vectors.h"
 #include "aether/memory.h"
 
+int blink_led(int count);
+void delay(volatile u32 count);
+int bootloader_entry(void);
+int app_entry(void);
 
 #endif
+

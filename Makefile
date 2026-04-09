@@ -38,6 +38,7 @@ CORE_OBJS += $(CORE_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
 
 BOOT_OBJS = $(BOOT_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
 BOOT_OBJS += $(BOOT_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
+BOOT_OBJS += $(CORE_LIB) 
 
 
 APP_OBJS  = $(APP_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
@@ -173,7 +174,9 @@ sym-boot: $(BUILD_DIR)/$(PROJECT)-boot.elf
 	$(OBJDMP) -t $< | sort
 
 flash: $(BUILD_DIR)/$(PROJECT).bin
+	st-flash erase
 	st-flash write $< 0x08000000
+	st-flash reset
 
 erase:
 	st-flash erase

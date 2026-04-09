@@ -49,6 +49,23 @@ typedef struct _FLASH {
    u32 WRPR;
 } FLASH_t;
 
+typedef struct _SCB {
+    u32 CPUID;    
+    u32 ICSR;     
+    u32 VTOR;     
+    u32 AIRCR;    
+    u32 SCR;      
+    u32 CCR;      
+    u32 SHPR[3];  
+    u32 SHCSR;   
+    u32 CFSR;     
+    u32 HFSR;     
+    u32 DFSR;     
+    u32 MMFAR;     
+    u32 BFAR;       
+    u32 AFSR;       
+} SCB_t;
+
 #define PIN0            (u8) 0x0000
 #define PIN1            (u8) 0x0001
 #define PIN2            (u8) 0x0002
@@ -67,6 +84,7 @@ typedef struct _FLASH {
 #define PIN15           (u8) 0x000F
 
 #define PERIPH_BASE       0x40000000UL
+#define SCS_BASE          0xE000E000UL
 
 #define RCC_BASE          PERIPH_BASE + 0x21000
 #define FLASH_BASE        PERIPH_BASE + 0x22000
@@ -84,5 +102,9 @@ typedef struct _FLASH {
 #define USART1            ((USART_t*) USART1_BASE)
 #define USART2            ((USART_t*) USART2_BASE)
 #define FLASH             ((FLASH_t*) FLASH_BASE) 
+
+#define SCB_BASE          SCS_BASE + 0x0D00
+#define SCB               ((SCB_t*) SCB_BASE)
+
 
 #endif 
