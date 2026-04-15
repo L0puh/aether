@@ -1,0 +1,78 @@
+.
+├── build
+│   ├── aether-app.bin
+│   ├── aether-app.elf
+│   ├── aether-app.map
+│   ├── aether.bin
+│   ├── aether-boot.bin
+│   ├── aether-boot.elf
+│   ├── app
+│   │   ├── app.o
+│   │   └── app_startup.o
+│   ├── boot
+│   │   ├── bootloader.o
+│   │   ├── boot_startup.o
+│   │   ├── entry.o
+│   │   └── startup.o
+│   ├── core
+│   │   ├── clock
+│   │   │   └── clock.o
+│   │   ├── gpio
+│   │   │   └── gpio.o
+│   │   ├── serial
+│   │   │   └── uart.o
+│   │   └── systick
+│   │       └── systick.o
+│   └── libcore.a
+├── compile_commands.json
+├── dir
+├── include
+│   ├── aether
+│   │   ├── device_vectors.h
+│   │   └── memory.h
+│   ├── aether.h
+│   ├── core
+│   │   ├── clock.h
+│   │   ├── gpio.h
+│   │   ├── systick.h
+│   │   └── uart.h
+│   ├── defs.h
+│   └── utils
+│       └── debug.h
+├── libs
+├── LICENSE
+├── linker
+│   ├── app.ld
+│   ├── bootloader.ld
+│   ├── memory_map.ld
+│   └── target.h
+├── Makefile
+├── README.md
+├── src
+│   ├── app
+│   │   ├── app.c
+│   │   └── app_startup.c
+│   ├── boot
+│   │   ├── bootloader.c
+│   │   ├── boot_startup.c
+│   │   ├── entry.s
+│   │   └── startup.c
+│   └── core
+│       ├── clock
+│       │   └── clock.c
+│       ├── clock.c
+│       ├── gpio
+│       │   └── gpio.c
+│       ├── serial
+│       │   └── uart.c
+│       └── systick
+│           └── systick.c
+└── tools
+    ├── base.sh
+    ├── debugger
+    │   ├── debugger.sh
+    │   ├── gdbcfg.gdb
+    │   └── openocd.cfg
+    └── gencfg.sh
+
+25 directories, 51 files

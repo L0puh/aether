@@ -1,15 +1,16 @@
 #include <aether.h>
 
+void delay(volatile u32 count);
+
 void main(void) {
+    RCC->APB2ENR |= (1 << 4);
+    GPIOC->CRH &= ~(0xF << 20);
+    GPIOC->CRH |= (0x2 << 20);
 
-   RCC->AHBENR |= (1 << 4);       // enable clock for pin C
-   GPIOC->CRH &= ~(0xF << 20);    // clean bits
-   GPIOC->CRH &=  (0x2 << 20);    // set CNF[00]MODE[10]
-
-   while(1) {
-      GPIOC->ODR ^= (1 << 13);
-      systick_msec_delay(5000);
-   }
+    while(1) {
+        GPIOC->ODR ^= (1 << 13);
+        systick_msec_delay(100);
+    }
 }
 
 void delay(volatile u32 count) {

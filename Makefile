@@ -80,7 +80,7 @@ ASFLAGS = -mcpu=$(CHIP)\
 BOOT_LDFLAGS = -T $(BOOTLOADER_LINKER)\
 					-L $(LINKER_DIR)\
 					-nostdlib\
-					-Wl,--gc-sections
+					-Wl,--no-gc-sections
 
 APP_LDFLAGS = -T $(APP_LINKER)\
 			     -L $(LINKER_DIR)\
@@ -93,12 +93,12 @@ APP_LDFLAGS = -T $(APP_LINKER)\
 
 all: $(BUILD_DIR)/$(PROJECT).bin
 
-$(BUILD_DIR)/$(PROJECT).bin: $(BUILD_DIR)/$(PROJECT)-boot.bin\
-									  $(BUILD_DIR)/$(PROJECT)-app.bin
-	cat $^ > $@
+$(BUILD_DIR)/$(PROJECT).bin: $(BUILD_DIR)/$(PROJECT)-boot.bin $(BUILD_DIR)/$(PROJECT)-app.bin
+	cp $(BUILD_DIR)/$(PROJECT)-boot.bin $@
+	dd if=/dev/zero bs=1 count=$$((0x8000 - $$(stat -c%s $(BUILD_DIR)/$(PROJECT)-boot.bin))) >> $@
+	cat $(BUILD_DIR)/$(PROJECT)-app.bin >> $@
 	@echo -e "\n\n$(BRED) FINAL IMAGE:$(CYAN)\n\t...path: $@\n\t...size: $$(wc -c < $@) bytes"
 	@echo -e "\t...total time: $$(($$(date +%s) - $(START_TIME))) seconds${RESET}"
-
 
 $(BUILD_DIR)/app:
 	mkdir -p $@

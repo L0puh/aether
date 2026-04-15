@@ -8,7 +8,7 @@ extern u32 _edata;
 extern u32 _sbss;
 extern u32 _ebss;
 
-int  main(void);
+extern void main(void);
 void reset_handler(void);
 void default_handler(void);
 
@@ -52,23 +52,21 @@ void default_handler(void)
 
 void reset_handler(void)
 {
-
    u32 data_sz = (u32)&_edata - (u32)&_sdata;
-   u32 bss_sz  = (u32)&_ebss  - (u32)&_sbss;
+   u32 bss_sz = (u32)&_ebss  - (u32)&_sbss;
  
-   /* copy data from rom to ram */
-   u32 *p_src  = (u32*)&_etext;
-   u32 *p_dest = (u32*)&_sdata;
+   u8 *p_src  = (u8*)&_etext;
+   u8 *p_dest = (u8*)&_sdata;
    for (u32 i = 0; i < data_sz; i++) {
       *p_dest++ = *p_src++;
    }
 
-   p_dest = (u32*)&_sbss;
+   p_dest = (u8*)&_sbss;
    for (u32 i = 0; i < bss_sz; i++) {
       *p_dest++ = 0;
    }
 
-   p_src = (u32*) &_stext;
-
    main();
+   
+   while(1);
 }

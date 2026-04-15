@@ -86,14 +86,14 @@ typedef struct _SCB {
 #define PERIPH_BASE       0x40000000UL
 #define SCS_BASE          0xE000E000UL
 
-#define RCC_BASE          PERIPH_BASE + 0x21000
-#define FLASH_BASE        PERIPH_BASE + 0x22000
-#define GPIOA_BASE        PERIPH_BASE + 0x10800
-#define GPIOB_BASE        PERIPH_BASE + 0x10C00
-#define GPIOC_BASE        PERIPH_BASE + 0x11000
-#define USART1_BASE       PERIPH_BASE + 0x13800
-#define USART3_BASE       PERIPH_BASE + 0x04800
-#define USART2_BASE       PERIPH_BASE + 0x04400
+#define RCC_BASE          (PERIPH_BASE + 0x21000)
+#define FLASH_BASE        (PERIPH_BASE + 0x22000)
+#define GPIOA_BASE        (PERIPH_BASE + 0x10800)
+#define GPIOB_BASE        (PERIPH_BASE + 0x10C00)
+#define GPIOC_BASE        (PERIPH_BASE + 0x11000)
+#define USART1_BASE       (PERIPH_BASE + 0x13800)
+#define USART3_BASE       (PERIPH_BASE + 0x04800)
+#define USART2_BASE       (PERIPH_BASE + 0x04400)
 
 #define RCC               ((RCC_t*)   RCC_BASE) 
 #define GPIOA             ((GPIO_t*)  GPIOA_BASE)
@@ -106,5 +106,8 @@ typedef struct _SCB {
 #define SCB_BASE          SCS_BASE + 0x0D00
 #define SCB               ((SCB_t*) SCB_BASE)
 
+
+void enable_irqq(void);
+void disable_irq(void);
 
 #endif 
