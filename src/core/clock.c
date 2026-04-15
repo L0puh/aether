@@ -23,4 +23,3 @@ void set_system_clock(u8 freq)
    
    while (!(RCC->CR & PLL_SWITCH_ON));
 }
-
