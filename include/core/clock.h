@@ -31,5 +31,7 @@
 
 void set_system_clock(u8 freq);
 void AF_enable(GPIO_t *pin);
+ret rcc_init_uart_clock(USART_t* uart, GPIO_t *tx, GPIO_t *rx);
+ret rcc_enable_clock_pin(GPIO_t* pin);
 
 #endif 

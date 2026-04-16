@@ -94,6 +94,7 @@ typedef struct _SCB {
 #define USART1_BASE       (PERIPH_BASE + 0x13800)
 #define USART3_BASE       (PERIPH_BASE + 0x04800)
 #define USART2_BASE       (PERIPH_BASE + 0x04400)
+#define USART3_BASE       (PERIPH_BASE + 0x04800)
 
 #define RCC               ((RCC_t*)   RCC_BASE) 
 #define GPIOA             ((GPIO_t*)  GPIOA_BASE)
@@ -101,15 +102,18 @@ typedef struct _SCB {
 #define GPIOC             ((GPIO_t*)  GPIOC_BASE)
 #define USART1            ((USART_t*) USART1_BASE)
 #define USART2            ((USART_t*) USART2_BASE)
+#define USART3            ((USART_t*) USART3_BASE)
 #define FLASH             ((FLASH_t*) FLASH_BASE) 
 
 #define SCB_BASE          SCS_BASE + 0x0D00
 #define SCB               ((SCB_t*) SCB_BASE)
 
 #define RCC_GPIOAEN           (1U << 2)
+#define RCC_GPIOBEN           (1U << 3)
 #define RCC_GPIOCEN           (1U << 4)
-#define RCC_USART2EN          (1U << 17)
 #define RCC_USART1EN          (1U << 14)
+#define RCC_USART2EN          (1U << 17)
+#define RCC_USART3EN          (1U << 18)
 
 void enable_irqq(void);
 void disable_irq(void);

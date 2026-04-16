@@ -5,6 +5,10 @@ extern void entry_point(void* pc, void* sp);
 int main() {
     device_vectors_t *vectors;
     vectors = (device_vectors_t*) &_app_rom_start;
+
+    disable_irq();
+    SCB->VTOR = (u32)vectors;
+    systick_reset();
     
     entry_point(vectors->pfn_reset_handler, vectors->p_stack);
     

@@ -15,3 +15,9 @@ void systick_msec_delay(u64 delay)
    SYSTICK->CTRL = 0;
 }
 
+void systick_reset()
+{
+    SYSTICK->CTRL = 0;
+    SYSTICK->LOAD = 0;
+    SYSTICK->VAL = 0;
+}
