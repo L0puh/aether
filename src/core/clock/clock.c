@@ -24,3 +24,9 @@ void set_system_clock(u8 freq)
    while (!(RCC->CR & PLL_SWITCH_ON));
 }
 
+
+void AF_enable(GPIO_t *pin)
+{
+    pin->CRH &= ~(0xF << 4);
+    pin->CRH |= (0xB << 4);
+}

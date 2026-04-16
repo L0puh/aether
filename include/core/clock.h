@@ -2,6 +2,7 @@
 #define CLOCK_H
 
 #include "defs.h"
+#include "core/gpio.h"
 
 #define SYSTEM_CLOCK_25Mhz 0b1
 #define SYSTEM_CLOCK_72Mhz 0b0
@@ -28,7 +29,7 @@
 #define PLLSRC_HSE            (1      << 16)
 #define PLL_SWITCH_ON         (0b10   << 2)
 
-
 void set_system_clock(u8 freq);
+void AF_enable(GPIO_t *pin);
 
 #endif 

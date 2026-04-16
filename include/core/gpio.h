@@ -106,6 +106,10 @@ typedef struct _SCB {
 #define SCB_BASE          SCS_BASE + 0x0D00
 #define SCB               ((SCB_t*) SCB_BASE)
 
+#define RCC_GPIOAEN           (1U << 2)
+#define RCC_GPIOCEN           (1U << 4)
+#define RCC_USART2EN          (1U << 17)
+#define RCC_USART1EN          (1U << 14)
 
 void enable_irqq(void);
 void disable_irq(void);
