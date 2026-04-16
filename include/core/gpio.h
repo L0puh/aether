@@ -25,6 +25,8 @@ typedef struct _RCC {
    u32 APB1ENR;       // apb1 peripheral clock enable
    u32 BDCR;          // backup domain control 
    u32 CSR;           // control/status 
+   u32 AHBSTR;
+   u32 CFGR2;
 } RCC_t;
 
 typedef struct _USART {
@@ -92,7 +94,6 @@ typedef struct _SCB {
 #define GPIOB_BASE        (PERIPH_BASE + 0x10C00)
 #define GPIOC_BASE        (PERIPH_BASE + 0x11000)
 #define USART1_BASE       (PERIPH_BASE + 0x13800)
-#define USART3_BASE       (PERIPH_BASE + 0x04800)
 #define USART2_BASE       (PERIPH_BASE + 0x04400)
 #define USART3_BASE       (PERIPH_BASE + 0x04800)
 
@@ -114,6 +115,23 @@ typedef struct _SCB {
 #define RCC_USART1EN          (1U << 14)
 #define RCC_USART2EN          (1U << 17)
 #define RCC_USART3EN          (1U << 18)
+
+#define GENERAL_PUSHPULL   (0b00 << 22)
+#define ALTER_PUSHPULL     (0b01 << 22)
+#define GENERAL_OPENDRAIN  (0b10 << 22)
+#define ALTER_OPENDRAIN    (0b11 << 22) 
+#define OUTPUT_50MHZ       (0b11 << 20)
+#define OUTPUT_10MHZ       (0b01 << 20)
+#define OUTPUT_2MHZ        (0b10 << 20)
+#define INPUT_MODE         (0b00 << 20)
+
+// FLASH
+#define PREFETCH_STATUS_ON  (1U << 5)
+#define PREFETCH_STATUS_OFF (0U << 5)
+#define PREFETCH_ENABLE     (1U << 4)
+#define PREFETCH_DISABLE    (0U << 4)
+#define HALF_CYCLE_ACCESS_ENABLE  (1U << 3)
+#define HALF_CYCLE_ACCESS_DISABLE (0U << 3)
 
 void enable_irqq(void);
 void disable_irq(void);

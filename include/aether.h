@@ -1,7 +1,11 @@
 #ifndef AETHER_H
 #define AETHER_H
 
+#define __INT32_C(c)  c ## L
+#define __UINT32_C(c) c ## UL
+
 #include <stdint.h>
+
 #include <stdbool.h>
 
 #include "defs.h"

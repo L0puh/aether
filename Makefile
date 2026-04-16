@@ -59,7 +59,8 @@ START_TIME := $(shell date +%s)
 #----------------------- FLAGS -----------------------#
 
 
-INCL   = -I./include
+INCL   = -I./include\
+			-I./linker
 CFLAGS = -mcpu=$(CHIP)\
 			-mthumb\
 			-O0\
