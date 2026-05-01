@@ -15,11 +15,6 @@
 #define PLL_READY  (1 << 25)
 #define PLL2_READY  (1 << 27)
 
-#define PREDIV2SRC_PLL2 (1 << 16)
-#define PREDIV2SRC_HSE  (1 << 16)
-#define PLLSRC_HSI      (0 << 16)
-#define PLLSRC_PREDIV1  (1 << 16)
-
 #define HSE_AS_SYSTEMCLOCK (0b01 << 0)
 #define HSI_AS_SYSTEMCLOCK (0b00 << 0)
 #define PLL_AS_SYSTEMCLOCK (0b10 << 0)
@@ -27,19 +22,6 @@
 #define LATENCY_2   (0b010 << 0)
 #define LATENCY_1   (0b001 << 0)
 #define LATENCY_0   (0b000 << 0)
-#define HPRE_DIV1             (0b000 << 4)
-#define PPRE2_DIV1            (0b100 << 11)
-#define PPRE1_DIV2            (0b100 << 8)
-
-#define CLEAR_PREDIV1 (0b0000 << 0)
-#define PREDIV2_FACTOR(num)  (((num) - 1) << 4)
-#define PREDIV1_FACTOR(num)  (((num) - 1) << 0)
-#define PLL2MULL_FACTOR(num) (((num) - 2) << 8)
-
-#define PLLMULL9              (0b0111 << 18)
-#define PLLSRC_HSE            (1      << 16)
-#define PLL_SWITCH_ON         (0b10   << 2)
-#define APB1_DIV2             (0b100  << 8)
 
 
 void AF_enable(GPIO_t *port, u8 num);

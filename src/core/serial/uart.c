@@ -38,10 +38,53 @@ static void uart_putchar(int ch)
    while (!(opened_usart_g->STATUS & TX_COMPLETE));
 }
 
-void uart_write(char* str) {
+void uart_write(char* str) 
+{
    while(*str) {
       uart_putchar(*str++);
    }
+}
+
+bool uart_rx_ready()
+{
+   return opened_usart_g && (opened_usart_g->STATUS & RXNE);
+}
+
+ret uart_getchar(char *c)
+{
+   if (uart_rx_ready()) { // TODO: add watchdog (?)
+      *c = opened_usart_g->DATA;
+      return SUCCESS;
+   }
+   
+   return NOT_FOUND;
+}
+
+ret uart_getline(char* buffer, u64 size)
+{
+   ret res;
+   u64 i = 0;
+
+   while (i < size - 2)
+   {
+      res = uart_getchar(&buffer[i]);
+      if (res == NOT_FOUND)
+      {
+         continue; //TODO: current read is blocking, add non-blocking
+      }
+      if (buffer[i] == '\n' || buffer[i] == '\r') {
+         break;
+      }
+      i++;
+   }
+
+   if (i == 0) {
+      return WRONG_DATA;
+   }
+
+   buffer[++i] = '\n';
+   buffer[++i] = '\0';
+   return SUCCESS;
 }
 
 int __io_putchar(int ch)

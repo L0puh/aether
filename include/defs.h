@@ -14,6 +14,8 @@ typedef uint64_t    u64;
 #define IS_ERROR(ret) (ret > SUCCESS)
 #define CLEAR_BITS(n, pos) (~(((1UL << (n)) - 1) << (pos)))
 
+#define MAX_BUFFER_SIZE 1024
+
 typedef enum _ret_codes {
    SUCCESS,
    NOT_FOUND,
@@ -22,7 +24,8 @@ typedef enum _ret_codes {
    INVALID_PARAMETER,
    TIMEOUT,
    BUSY,
-   ERROR
+   ERROR,
+   WRONG_DATA
 } ret;
 
 #endif 

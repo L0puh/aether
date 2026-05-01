@@ -29,16 +29,24 @@ void main(void)
 #else 
    status = set_system_clock_25MHz();
 #endif 
-   
+  
    if (IS_ERROR(status)) {
       uart_write("error in setting up clock\n");
       return;
    }
-
+   
+   uart_write("LOADING APP ... OK\r\n");
+   char buffer[MAX_BUFFER_SIZE];
    while(1) 
    {
+
       toggle_degug_led();
-      uart_write("HELLO THERE\r\n");
+      status = uart_getline(buffer, MAX_BUFFER_SIZE);
+      if (status == SUCCESS) 
+      {
+         uart_write("NEW MESSAGE!\r\n");
+         uart_write(buffer);
+      }
       systick_msec_delay(1000);
    }
 }
