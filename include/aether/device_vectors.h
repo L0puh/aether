@@ -1,6 +1,8 @@
 #ifndef DEVICE_VECTORS_H
 #define DEVICE_VECTORS_H
 
+#include <stdint.h>
+
 typedef struct _device_vectors {
    void *p_stack;                         // 0x00: initial stack pointer
    

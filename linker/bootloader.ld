@@ -21,7 +21,7 @@ SECTIONS
       *(.data)
       . = ALIGN(4);
       _edata = .;
-   } > ram 
+   } > boot_ram 
 
    
    .bss (NOLOAD) :
@@ -32,7 +32,7 @@ SECTIONS
       *(COMMON)
       . = ALIGN(4);
       _ebss = .;
-   } > ram
+   } > boot_ram
 
    .stack :
    {
@@ -41,5 +41,5 @@ SECTIONS
       . = . + STACK_SIZE;
       . = ALIGN(8);
       _estack = .;
-   } > ram
+   } > boot_ram
 }

@@ -8,7 +8,7 @@ extern u32 _edata;
 extern u32 _sbss;
 extern u32 _ebss;
 
-extern int  main(void);
+extern int bootloader_entry(void);
 void reset_handler(void);
 void default_handler(void);
 
@@ -49,6 +49,7 @@ void default_handler(void)
 {
    while(1);
 }
+
 void reset_handler(void)
 {
    u32 data_sz = (u32)&_edata - (u32)&_sdata;
@@ -65,7 +66,7 @@ void reset_handler(void)
       *p_dest++ = 0;
    }
 
-   main();
+   bootloader_entry();
    
    while(1);
 }

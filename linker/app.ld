@@ -6,7 +6,7 @@ SECTIONS
    {
       . = ALIGN(4);
       _stext = .;
-      KEEP(*(.vectors .vectors.*))
+      KEEP(*(.app_desc))
 
       *(.text*)
       *(.rodata*)
@@ -21,7 +21,7 @@ SECTIONS
       *(.data*)
       . = ALIGN(4);
       _edata = .;
-    } > ram 
+    } > app_ram 
 
     .bss (NOLOAD) :
     {
@@ -31,7 +31,7 @@ SECTIONS
       *(COMMON)
       . = ALIGN(4);
       _ebss = .;
-    } > ram
+    } > app_ram
 
     .stack :
     {
@@ -40,6 +40,6 @@ SECTIONS
        . = . + STACK_SIZE;
        . = ALIGN(8);
        _estack = .;
-    } > ram
+    } > app_ram
  }
 

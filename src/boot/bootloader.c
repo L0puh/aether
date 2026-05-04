@@ -1,17 +1,40 @@
 #include <aether.h>
 
-extern void entry_point(void* pc, void* sp);
+__attribute__((naked))
+static void jump_to_app(uint32_t pc, uint32_t sp) {
+    __asm volatile(
+        "msr msp, r1\n"
+        "dsb\n"
+        "isb\n"
+        "bx  r0\n"
+    );
+}
 
-int main() {
-    device_vectors_t *vectors;
-    vectors = (device_vectors_t*) &_app_rom_start;
+void load_from_flash(u32 addr, u32 id)
+{
+    app_desc_t *desc = (app_desc_t*)addr;
+    
+    uint32_t pc = desc->entry_point;
+    uint32_t sp = desc->p_stack;
+    
+    if ((pc & 0xFFE00000) != 0x08000000) {
+        while(1);  
+    }
+    if ((sp & 0xFFF00000) != 0x20000000) {
+        while(1); 
+    }
+    if (desc->id != id) {
+        while(1);
+    }
+    
+    jump_to_app(pc, sp);
+}
 
-    disable_irq();
-    SCB->VTOR = (u32)vectors;
-    systick_reset();
-    
-    entry_point(vectors->pfn_reset_handler, vectors->p_stack);
-    
-    BOOTLOADER_DEBUG("=== POINT OF NO REACH ===\n");
-    return 0;
+int bootloader_entry() 
+{
+   u32 app_addr = (u32)&_app_rom_start;
+   load_from_flash(app_addr, 1);
+
+   BOOTLOADER_DEBUG("=== POINT OF NO REACH ===\n");
+   return 0;
 }

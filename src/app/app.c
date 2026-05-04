@@ -12,7 +12,7 @@ void toggle_degug_led()
    GPIOC->ODR ^= (1 << 13);
 }
 
-void main(void) 
+int app_entry(void) 
 {
    ret status;
 
@@ -20,7 +20,7 @@ void main(void)
    status = rcc_init_uart_clock(USART1, GPIOA, 9, GPIOA, 10);
    if (IS_ERROR(status)) {
       toggle_degug_led();
-      return;
+      return -1;
    }
    uart_init(USART1, 0);
 
@@ -32,7 +32,7 @@ void main(void)
   
    if (IS_ERROR(status)) {
       uart_write("error in setting up clock\n");
-      return;
+      return -1;
    }
    
    uart_write("LOADING APP ... OK\r\n");
@@ -49,5 +49,7 @@ void main(void)
       }
       systick_msec_delay(1000);
    }
+
+   return 0;
 }
 

@@ -3,9 +3,11 @@
 
 
 /* MEMORY MAP */
-extern int _boot_rom_start;
-extern int _boot_rom_size;
-extern int _app_rom_start;
-extern int _app_rom_size;
+#include <stdint.h>
+
+extern const uint8_t _boot_rom_start;
+extern const uint8_t _boot_rom_size;
+extern const uint8_t _app_rom_start;
+extern const uint8_t _app_rom_size;
 
 #endif
