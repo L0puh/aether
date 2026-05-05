@@ -8,16 +8,24 @@
 
 #include <stdbool.h>
 
+/* UTILS */
 #include "defs.h"
 #include "utils/debug.h"
+#include "utils/config.h"
 
+/* CORE */
 #include "core/gpio.h"
 #include "core/systick.h"
 #include "core/uart.h"
 #include "core/clock.h"
 
+/* PLATFORM SPECIFIC */
 #include "aether/device_vectors.h"
 #include "aether/memory.h"
+
+/* HYPERVISOR */
+#include "hv/hv.h"
+
 
 #endif
 

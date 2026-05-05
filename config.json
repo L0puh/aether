@@ -1,0 +1,31 @@
+{
+   "origin": "0x20000000", 
+   "stack_size": "2KB", 
+   "modules" :
+   [
+      { 
+         "name": "puller",
+         "info": "pulls data from sensors",
+         "entry_point": "puller_entry",
+         "priority": 5,
+         "length": "15KB",
+         "shared": false
+      },
+      {
+         "name": "broadcast",
+         "info": "sends data to station",
+         "entry_point": "broadcast_entry",
+         "priority": 1,
+         "length": "15KB",
+         "shared": false
+      },
+      {
+         "name": "flasher",
+         "info": "updates modules OTA",
+         "entry_point": "flasher_entry",
+         "priority": 1,
+         "length": "", 
+         "shared": true 
+      }
+   ]
+}
