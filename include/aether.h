@@ -4,8 +4,9 @@
 #define __INT32_C(c)  c ## L
 #define __UINT32_C(c) c ## UL
 
-#include <stdint.h>
+#include "target.h"
 
+#include <stdint.h>
 #include <stdbool.h>
 
 /* UTILS */
@@ -26,6 +27,8 @@
 /* HYPERVISOR */
 #include "core/hv.h"
 #include "core/scheduler.h"
+
+void toggle_degug_led();
 
 #endif
 

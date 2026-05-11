@@ -27,7 +27,7 @@
 void AF_enable(GPIO_t *port, u8 num);
 ret rcc_enable_clock_pin(GPIO_t* pin);
 ret set_system_clock_25Mhz();
-ret set_system_clock_72MHz();
+ret set_system_clock_72Mhz();
 ret reset_system_clock();
 ret rcc_init_uart_clock(USART_t* uart, GPIO_t *tx, u8 tx_num, GPIO_t *rx, u8 rx_num);
 u32 get_tick_rate();

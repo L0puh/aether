@@ -18,10 +18,11 @@ bool uart_init(USART_t* uart, u16 flags)
    uart_enable(uart);
 #ifdef SYSTEM_CLOCK_72Mhz
    uart_set_baudrate(uart, 72000000, DBG_UART_BAUDRATE);
-#else 
+#elif defined(SYSTEM_CLOCK_25Mhz)
+   uart_set_baudrate(uart, 25000000, DBG_UART_BAUDRATE);
+#else
    uart_set_baudrate(uart, 8000000, DBG_UART_BAUDRATE);
-#endif 
-
+#endif
    systick_msec_delay(100); 
    return 1;
 }

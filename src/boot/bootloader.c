@@ -1,23 +1,27 @@
 #include <aether.h>
+#include <module_info.h>
 
 __attribute__((naked))
-static void jump_to_app(uint32_t pc, uint32_t sp) {
-   USED(pc); USED(sp);
-
+static void jump_to_app(uint32_t pc, uint32_t sp)
+{
     __asm volatile(
-        "msr msp, r1\n"
-        "dsb\n"
-        "isb\n"
-        "bx  r0\n"
+        "msr msp, r1      \n"   // set stack
+        "mov r2, r0       \n"   // pc
+        "bx  r2           \n"
     );
 }
 
 void load_from_desc(const app_desc_t *desc) 
 {
+    BOOTLOADER_DEBUG("loading entry point!");
+
     uint32_t pc = desc->entry_point;
     uint32_t sp = desc->p_stack;
-    
+
+    BOOTLOADER_DEBUG("jummping to module!");
+    disable_irq();
     jump_to_app(pc, sp);
+    enable_irq();
 }
 
 void load_from_flash(u32 addr)
@@ -45,28 +49,32 @@ void toggle_degug_led()
 ret setup_system() 
 {
    ret status;
-
+   
    init_debug_led();
+   
+#ifdef SYSTEM_CLOCK_72Mhz
+   status = set_system_clock_72Mhz();
+#else 
+   status = set_system_clock_25Mhz();
+#endif 
+   
+   systick_init();
+
    status = rcc_init_uart_clock(USART1, GPIOA, 9, GPIOA, 10);
    if (IS_ERROR(status)) {
       toggle_degug_led();
       return status;
    }
    uart_init(USART1, 0);
-
-#ifdef SYSTEM_CLOCK_72Mhz
-   status = set_system_clock_72MHz();
-#else 
-   status = set_system_clock_25MHz();
-#endif 
   
    if (IS_ERROR(status)) {
-      BOOTLOADER_ERROR("error in setting up clock\n");
+      toggle_degug_led();
       return status;
    }
    
    BOOTLOADER_DEBUG("SETUP SYSTEM ... OK\r\n");
 
+   toggle_degug_led();
    return status;
 }
 
@@ -74,7 +82,6 @@ int bootloader_entry()
 {
    ret res;
    u32 count;
-   module_t mods[MAX_MODULES];
 
    res = setup_system();
    if (IS_ERROR(res)) {
@@ -82,21 +89,7 @@ int bootloader_entry()
       return -1;
    }
 
-   count = config_lookup_mods_count();
-   
-   if (count > MAX_MODULES || count == 0) {
-      BOOTLOADER_ERROR("count of modules exceeds max value or equals zero!\n");
-      return -1;
-   }
-
-   res = config_parse_mods(mods, count);
-
-   if (IS_ERROR(res)) {
-      BOOTLOADER_ERROR("failed to parse mods\n");
-      return -1;
-   }
-
-   run_scheduler(mods, count);
+   run_scheduler(MODULES, MODULES_COUNT);
 
    BOOTLOADER_ERROR("=== POINT OF NO REACH ===\n");
    return 0;

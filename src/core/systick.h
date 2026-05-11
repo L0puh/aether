@@ -20,6 +20,7 @@ typedef struct _systick {
 
 void systick_msec_delay(u64 delay);
 void systick_reset();
+void systick_init();
 
 void cpu_wait_for_interrupt();
 extern volatile u32 system_ticks_g;

@@ -15,7 +15,7 @@ void reset_handler(void);
 void default_handler(void);
 
 void nmi_handler(void) __attribute__((weak, alias("default_handler")));
-void hardfault_handler(void) __attribute__((weak, alias("default_handler")));
+void hardfault_handler(void);
 void memmanage_handler(void) __attribute__((weak, alias("default_handler")));
 void busfault_handler(void) __attribute__((weak, alias("default_handler")));
 void usagefault_handler(void) __attribute__((weak, alias("default_handler")));
@@ -54,6 +54,12 @@ void systick_handler(void)
 void default_handler(void)
 {
    while(1);
+}
+
+void hardfault_handler(void)
+{
+   while(1) {
+   }
 }
 
 void reset_handler(void)

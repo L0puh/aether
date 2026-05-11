@@ -1,6 +1,5 @@
 INCLUDE memory_map.ld
 
-
 SECTIONS 
 {
    .text :

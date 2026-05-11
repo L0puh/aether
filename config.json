@@ -1,6 +1,7 @@
 {
-   "origin": "0x20000000", 
-   "stack_size": "2KB", 
+   "origin": "0x08008000", 
+   "ram_origin": "0x20004000",
+   "stack_size": "4KB", 
    "modules" :
    [
       { 
@@ -8,7 +9,8 @@
          "info": "pulls data from sensors",
          "entry_point": "puller_entry",
          "priority": 5,
-         "length": "15KB",
+         "rom": "16KB",
+         "ram": "4KB",
          "shared": false
       },
       {
@@ -16,7 +18,8 @@
          "info": "sends data to station",
          "entry_point": "broadcast_entry",
          "priority": 1,
-         "length": "15KB",
+         "rom": "16KB",
+         "ram": "4KB",
          "shared": false
       },
       {
@@ -24,7 +27,8 @@
          "info": "updates modules OTA",
          "entry_point": "flasher_entry",
          "priority": 1,
-         "length": "", 
+         "rom": "32KB",
+         "ram": "8KB",
          "shared": true 
       }
    ]

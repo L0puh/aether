@@ -1,7 +1,9 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <core/uart.h>
+#include "target.h"
+#include "core/uart.h"
+
 #ifdef _DEBUG
    #define DEBUG_PRINT(...)      uart_write(__VA_ARGS__);
    #define BOOTLOADER_DEBUG(...) uart_write(__VA_ARGS__);
@@ -10,6 +12,7 @@
    #define UART_DEBUG(...)       uart_write(__VA_ARGS__);
    #define APP_ERROR(...)        uart_write(__VA_ARGS__);
 #else 
+   #define DEBUG_PRINT(...)     
    #define BOOTLOADER_DEBUG(...)
    #define BOOTLOADER_ERROR(...)
    #define UART_ERROR(...)
@@ -17,6 +20,7 @@
    #define APP_ERROR(...)
 #endif 
 
-#define DBG_UART_BAUDRATE 115200
+#define DBG_UART_BAUDRATE 115200 
+//#define DBG_UART_BAUDRATE 9600
 
 #endif

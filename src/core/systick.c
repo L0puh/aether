@@ -1,13 +1,20 @@
 #include <core/systick.h>
 
-void systick_msec_delay(u64 delay)
+void systick_init() 
 {
+   systick_reset();
+
    u32 ticks = get_tick_rate() / 1000;
    SYSTICK->LOAD = ticks -1;
    SYSTICK->VAL = 0;
    SYSTICK->CTRL  = (1U << 2); //internal clock
    SYSTICK->CTRL |= (1U << 0); //enable clock
-   
+   SYSTICK->CTRL |= (1U << 1); //enable interrupt  
+                               
+}
+
+void systick_msec_delay(u64 delay)
+{
    for (u64 i = 0; i < delay; i++){
       while ((SYSTICK->CTRL & CTRL_COUNTFLAG) == 0) {
       }

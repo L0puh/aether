@@ -43,7 +43,7 @@ ret set_system_clock_25Mhz()
    return SUCCESS;
 }
 
-ret set_system_clock_72MHz()
+ret set_system_clock_72Mhz()
 {
    u64 timeout = DEFAULT_CLOCK_TIMEOUT;
 

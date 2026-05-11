@@ -133,7 +133,7 @@ typedef struct _SCB {
 #define HALF_CYCLE_ACCESS_ENABLE  (1U << 3)
 #define HALF_CYCLE_ACCESS_DISABLE (0U << 3)
 
-void enable_irqq(void);
+void enable_irq(void);
 void disable_irq(void);
 
 #endif 
