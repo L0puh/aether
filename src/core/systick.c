@@ -2,7 +2,8 @@
 
 void systick_msec_delay(u64 delay)
 {
-   SYSTICK->LOAD = ONE_MSEC_LOAD -1;
+   u32 ticks = get_tick_rate() / 1000;
+   SYSTICK->LOAD = ticks -1;
    SYSTICK->VAL = 0;
    SYSTICK->CTRL  = (1U << 2); //internal clock
    SYSTICK->CTRL |= (1U << 0); //enable clock
@@ -21,3 +22,9 @@ void systick_reset()
     SYSTICK->LOAD = 0;
     SYSTICK->VAL = 0;
 }
+
+void cpu_wait_for_interrupt() 
+{
+   __asm volatile ("wfi");
+}
+ 

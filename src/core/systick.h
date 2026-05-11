@@ -6,6 +6,7 @@
 #define ONE_MSEC_LOAD      16000 // 16Mhz
 
 #include <defs.h>
+#include <core/clock.h>
 
 // cortex m3
 typedef struct _systick {
@@ -19,5 +20,8 @@ typedef struct _systick {
 
 void systick_msec_delay(u64 delay);
 void systick_reset();
+
+void cpu_wait_for_interrupt();
+extern volatile u32 system_ticks_g;
 
 #endif 

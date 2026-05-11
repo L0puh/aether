@@ -24,9 +24,8 @@ BOOTLOADER_LINKER = linker/bootloader.ld
 APP_LINKER			= linker/app.ld
 CORE_LIB 			= $(BUILD_DIR)/libcore.a
 
-CORE_SRCS_C = $(wildcard src/core/*/*.c)
-CORE_SRCS_S = $(wildcard src/core/*/*.s)
-CORE_SUBDIRS = $(patsubst src/core/%, $(BUILD_DIR)/core/%, $(dir $(BOOT_SRCS_C)))
+CORE_SRCS_C = $(wildcard src/core/*.c)
+CORE_SRCS_S = $(wildcard src/core/*.s)
 
 BOOT_SRCS_C = $(wildcard src/boot/*.c)
 BOOT_SRCS_S = $(wildcard src/boot/*.s)
@@ -60,7 +59,9 @@ START_TIME := $(shell date +%s)
 
 
 INCL   = -I./include\
-			-I./linker
+			-I./linker \
+			-I./src 
+
 CFLAGS = -mcpu=$(CHIP)\
 			-mthumb\
 			-O0\

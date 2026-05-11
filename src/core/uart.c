@@ -1,5 +1,5 @@
-#include "core/systick.h"
 #include <aether.h>
+#include <core/systick.h>
 
 USART_t *opened_usart_g = 0;
 

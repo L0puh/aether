@@ -30,5 +30,6 @@ ret set_system_clock_25Mhz();
 ret set_system_clock_72MHz();
 ret reset_system_clock();
 ret rcc_init_uart_clock(USART_t* uart, GPIO_t *tx, u8 tx_num, GPIO_t *rx, u8 rx_num);
+u32 get_tick_rate();
 
 #endif 

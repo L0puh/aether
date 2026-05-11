@@ -10,8 +10,8 @@
 
 /* UTILS */
 #include "defs.h"
-#include "utils/debug.h"
-#include "utils/config.h"
+#include "core/debug.h"
+#include "core/config.h"
 
 /* CORE */
 #include "core/gpio.h"
@@ -24,8 +24,8 @@
 #include "aether/memory.h"
 
 /* HYPERVISOR */
-#include "hv/hv.h"
-
+#include "core/hv.h"
+#include "core/scheduler.h"
 
 #endif
 

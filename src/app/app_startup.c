@@ -2,6 +2,7 @@
 
 extern u32 _estack;
 
+extern int app_entry(void);
 extern int pull_entry(void);
 extern int broadcast_entry(void);
 

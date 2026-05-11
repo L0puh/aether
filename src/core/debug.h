@@ -3,6 +3,7 @@
 
 #include <core/uart.h>
 #ifdef _DEBUG
+   #define DEBUG_PRINT(...)      uart_write(__VA_ARGS__);
    #define BOOTLOADER_DEBUG(...) uart_write(__VA_ARGS__);
    #define BOOTLOADER_ERROR(...) uart_write(__VA_ARGS__);
    #define UART_ERROR(...)       uart_write(__VA_ARGS__);

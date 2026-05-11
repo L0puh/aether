@@ -1,5 +1,7 @@
 #include <aether.h>
 
+volatile u32 system_ticks_g = 0;
+
 extern u32 _stext;
 extern u32 _estack;
 extern u32 _etext;
@@ -20,7 +22,7 @@ void usagefault_handler(void) __attribute__((weak, alias("default_handler")));
 void svc_handler(void) __attribute__((weak, alias("default_handler")));
 void debugmon_handler(void) __attribute__((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute__((weak, alias("default_handler")));
-void systick_handler(void) __attribute__((weak, alias("default_handler")));
+void systick_handler(void);
 
 __attribute__((section(".vectors"), used))
 const device_vectors_t vector_table = {
@@ -44,6 +46,10 @@ const device_vectors_t vector_table = {
     .pfn_irq_handlers = { [0 ... 63] = default_handler }
 };
 
+void systick_handler(void)
+{
+   system_ticks_g++;
+}
 
 void default_handler(void)
 {

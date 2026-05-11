@@ -42,17 +42,22 @@ typedef enum {
 
 typedef struct {
    u8 id;
+   app_desc_t *desc;
    char tag[MODULE_TAG_LEN];
    state_e state;
    memory_t memory;
    context_t context;
-   u32 timeslice_remain;
-   u32 time_total;
+   u64 next_time;
+   u64 period_time;
 } module_t;
 
 // flags
 #define FLAG_UART    (1 << 0)
 #define FLAG_TIMER   (1 << 1)
 //...
+
+
+void load_from_desc(const app_desc_t *desc);
+void load_from_flash(u32 addr);
 
 #endif 

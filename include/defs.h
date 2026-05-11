@@ -11,6 +11,7 @@ typedef uint64_t    u64;
 
 #define NULL 0
 #define UNUSED(x)((void)(x))
+#define USED(x)((void)(x))
 #define IS_ERROR(ret) (ret > SUCCESS)
 #define CLEAR_BITS(n, pos) (~(((1UL << (n)) - 1) << (pos)))
 
@@ -25,7 +26,8 @@ typedef enum _ret_codes {
    TIMEOUT,
    BUSY,
    ERROR,
-   WRONG_DATA
+   WRONG_DATA,
+   SKIP_EXECUTION
 } ret;
 
 #endif 
