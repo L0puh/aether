@@ -21,7 +21,7 @@ CHIP       = cortex-m3
 
 
 
-BOOTLOADER_LINKER = linker/bootloader.ld
+BOOTLOADER_LINKER = $(LINKER_DIR)/bootloader.ld
 CORE_LIB 			= $(BUILD_DIR)/libcore.a
 
 CORE_SRCS_C = $(wildcard src/core/*.c)
@@ -60,6 +60,7 @@ INCL   = -I./include\
 
 CFLAGS = -mcpu=$(CHIP)\
 			-mthumb\
+			-g\
 			-O0\
 			-Wall\
 			-Wextra\
@@ -69,16 +70,26 @@ CFLAGS = -mcpu=$(CHIP)\
          -fdata-sections\
          -ffunction-sections\
 			$(INCL)
+#			-Werror
 			
 ASFLAGS = -mcpu=$(CHIP)\
 			 -mthumb\
 			 -g\
 			 -W 				  				
 
+BOOT_CFLAGS = $(CFLAGS) -DHV_API_VERSION=1
+
 BOOT_LDFLAGS = -T $(BOOTLOADER_LINKER)\
 					-L $(LINKER_DIR)\
 					-nostdlib\
-					-Wl,--no-gc-sections
+					-Wl,--no-gc-sections\
+					-Wl,--print-memory-usage\
+					-Wl,-Map=$(BUILD_DIR)/$(PROJECT)-boot.map
+
+APP_LDFLAGS = -nostdlib\
+			  -Wl,--no-gc-sections\
+			  -Wl,--print-memory-usage\
+			  -Wl,-Map=$(BUILD_DIR)/$(@F:.elf=.map)
 
 
 #----------------------- BUILD -----------------------#
@@ -115,7 +126,8 @@ $(BUILD_DIR)/boot/%.o: src/boot/%.s
 	$(AS) $(ASFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/$(PROJECT)-boot.elf: $(BOOT_OBJS)
-	$(CC) $(CFLAGS) $(BOOT_LDFLAGS) -o $@ $^
+	$(CC) $(BOOT_CFLAGS) $(BOOT_LDFLAGS) -o $@ $^
+
 	@echo -e "$(GREEN)[+] $@ is done!$(RESET)"
 	@echo -e "$(BLUE)size:\n$$($(SIZE) $@)$(RESET)\n"
 
@@ -137,10 +149,8 @@ flash: $(BUILD_DIR)/$(PROJECT)-boot.bin
 	st-flash reset
 
 flash-modules: modules
-	@echo -e "$(CYAN)[FLASH] loading modules to RAM addresses...$(RESET)"
-	st-flash write $(PULLER_BIN) $(PULLER_ADDR)
-	st-flash write $(BROADCAST_BIN) $(BROADCAST_ADDR)
-	st-flash write $(FLASHER_BIN) $(FLASHER_ADDR)
+	@echo -e "$(CYAN)[FLASH] loading modules to flash addresses...$(RESET)"
+	st-flash --reset write $(BUILD_DIR)/$(MODULE_NAME).bin $(APP_SLOT_ADDR)
 
 erase:
 	st-flash erase
@@ -152,5 +162,9 @@ clean:
 debug:
 	${DEBUG} all
 
+check-hvapi: $(BUILD_DIR)/$(PROJECT)-boot.elf
+	@echo -e "$(CYAN)checking HV API section...$(RESET)"
+	@$(OBJDMP) -h $< | grep hv_api || echo "WARNING: no .hv_api section found!"
+	@$(OBJDMP) -t $< | grep hv_api
 
 .PHONY: all flash erase clean dump-boot sym-boot 

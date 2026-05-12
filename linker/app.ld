@@ -1,45 +1,59 @@
-INCLUDE memory_map.ld
+/* memory configuration - application is offset from bootloader */
 
-SECTIONS 
+MEMORY
 {
-   .text :
-   {
-      . = ALIGN(4);
-      _stext = .;
-      KEEP(*(.app_desc))
+   ROM (rx) : ORIGIN = 0x08002000, LENGTH = 8K
+   RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 10208
+}
 
-      *(.text*)
-      *(.rodata*)
-      . = ALIGN(4);
-      _etext = .;
-    } > app_rom
+_estack = ORIGIN(RAM) + LENGTH(RAM);
+hv_api = 0x200027E0;
 
-    .data : AT (_etext)
+ENTRY(_start)
+
+SECTIONS
+{
+    .app_desc : ALIGN(4)
     {
-      . = ALIGN(4);
-      _sdata = .;
-      *(.data*)
-      . = ALIGN(4);
-      _edata = .;
-    } > app_ram 
+        KEEP(*(.app_desc))
+    } > ROM
 
-    .bss (NOLOAD) :
+    .text : ALIGN(4)
     {
-      . = ALIGN(4);
-      _sbss = .;
-      *(.bss*)
-      *(COMMON)
-      . = ALIGN(4);
-      _ebss = .;
-    } > app_ram
+        _stext = .;
+        *(.text*)
+        *(.rodata*)
+        _etext = .;
+    } > ROM
 
-    .stack :
+    .data : AT(_etext)
     {
-       . = ALIGN(8);
-       _sstack = .;
-       . = . + STACK_SIZE;
-       . = ALIGN(8);
-       _estack = .;
-    } > app_ram
- }
+        _sdata = .;
+        *(.data)
+        _edata = .;
+    } > RAM
 
+    .bss (NOLOAD) : ALIGN(4)
+    {
+        _sbss = .;
+        *(.bss*)
+        *(COMMON)
+        _ebss = .;
+    } > RAM
+
+    .heap (NOLOAD) : ALIGN(8)
+    {
+        _sheap = .;
+        . = . + 0x200;
+        _eheap = .;
+    } > RAM
+
+    .stack (NOLOAD) : ALIGN(8)
+    {
+        _sstack = .;
+        . = . + 0x400;
+        _estack = .;
+    } > RAM
+}
+
+ASSERT((_etext - ORIGIN(ROM)) <= LENGTH(ROM), "application too large for slot!")

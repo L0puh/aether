@@ -3,9 +3,9 @@
 
 USART_t *opened_usart_g = 0;
 
-void uart_set_baudrate(USART_t *uart, u32 periph_clk, u32 baudrate)
+void uart_set_baudrate(USART_t *uart, u32 pclk, u32 baudrate)
 {
-   uart->BAUD = ((periph_clk + (baudrate/2U))/baudrate);
+    uart->BAUD= (pclk + (baudrate / 2U)) / baudrate;
 }
 
 bool uart_init(USART_t* uart, u16 flags)
@@ -14,8 +14,8 @@ bool uart_init(USART_t* uart, u16 flags)
    opened_usart_g = uart;
 
    uart_reset(uart);
-   
    uart_enable(uart);
+
 #ifdef SYSTEM_CLOCK_72Mhz
    uart_set_baudrate(uart, 72000000, DBG_UART_BAUDRATE);
 #elif defined(SYSTEM_CLOCK_25Mhz)
@@ -23,11 +23,10 @@ bool uart_init(USART_t* uart, u16 flags)
 #else
    uart_set_baudrate(uart, 8000000, DBG_UART_BAUDRATE);
 #endif
-   systick_msec_delay(100); 
    return 1;
 }
 
-static void uart_putchar(int ch)
+void uart_putchar(int ch)
 {
    if (!opened_usart_g)
       return;
@@ -39,7 +38,7 @@ static void uart_putchar(int ch)
    while (!(opened_usart_g->STATUS & TX_COMPLETE));
 }
 
-void uart_write(char* str) 
+void uart_write(const char* str) 
 {
    while(*str) {
       uart_putchar(*str++);

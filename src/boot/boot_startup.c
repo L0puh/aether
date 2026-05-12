@@ -1,3 +1,5 @@
+#include "core/gpio.h"
+#include "core/systick.h"
 #include <aether.h>
 
 volatile u32 system_ticks_g = 0;
@@ -53,32 +55,48 @@ void systick_handler(void)
 
 void default_handler(void)
 {
-   while(1);
+   while(1) {
+      cpu_wait_for_interrupt();
+   }
 }
 
 void hardfault_handler(void)
 {
-   while(1) {
-   }
+    uint32_t hfsr = SCB->HFSR;    /* hard fault status register */
+    uint32_t cfsr = SCB->CFSR;    /* configurable fault status register */
+    uint32_t mmfar = SCB->MMFAR;  /* mem manage fault address register */
+    uint32_t bfar = SCB->BFAR;    /* bus fault address register */
+
+    //TODO: add debugging 
+    UNUSED(hfsr);
+    UNUSED(cfsr);
+    UNUSED(mmfar);
+    UNUSED(bfar);
+
+    while(1) {
+       cpu_wait_for_interrupt();
+    }
 }
 
 void reset_handler(void)
 {
    u32 data_sz = (u32)&_edata - (u32)&_sdata;
    u32 bss_sz = (u32)&_ebss  - (u32)&_sbss;
- 
-   u8 *p_src  = (u8*)&_etext;
-   u8 *p_dest = (u8*)&_sdata;
-   for (u32 i = 0; i < data_sz; i++) {
-      *p_dest++ = *p_src++;
+
+   if (data_sz > 0) {
+       u8 *p_src  = (u8*)&_etext;
+       u8 *p_dest = (u8*)&_sdata;
+       for (u32 i = 0; i < data_sz; i++) {
+           *p_dest++ = *p_src++;
+       }
    }
 
-   p_dest = (u8*)&_sbss;
-   for (u32 i = 0; i < bss_sz; i++) {
-      *p_dest++ = 0;
+   if (bss_sz > 0) {
+       u8 *p_dest = (u8*)&_sbss;
+       for (u32 i = 0; i < bss_sz; i++) {
+           *p_dest++ = 0;
+       }
    }
 
    bootloader_entry();
-   
-   while(1);
 }

@@ -12,7 +12,6 @@
 /* UTILS */
 #include "defs.h"
 #include "core/debug.h"
-#include "core/config.h"
 
 /* CORE */
 #include "core/gpio.h"
@@ -25,10 +24,10 @@
 #include "aether/memory.h"
 
 /* HYPERVISOR */
-#include "core/hv.h"
+#include "boot/hv.h"
 #include "core/scheduler.h"
 
-void toggle_degug_led();
+#define APP_MAGIC (0xDEADBEEF)
 
 #endif
 

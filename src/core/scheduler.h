@@ -7,9 +7,9 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <core/hv.h>
+#include "boot/hv.h"
+#include "defs.h"
 
-ret process_state(state_e state) ;
-void run_scheduler(module_t mods[], u64 count);
+void run_scheduler();
 
 #endif 
