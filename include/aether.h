@@ -18,6 +18,7 @@
 #include "core/systick.h"
 #include "core/uart.h"
 #include "core/clock.h"
+#include "core/mpu.h"
 
 /* PLATFORM SPECIFIC */
 #include "aether/device_vectors.h"
@@ -28,6 +29,9 @@
 #include "core/scheduler.h"
 
 #define APP_MAGIC (0xDEADBEEF)
+
+#define ADD_ADDR    0x08002000   
+#define HV_API_ADDR 0x20002400  
 
 #endif
 

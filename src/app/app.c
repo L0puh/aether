@@ -1,6 +1,5 @@
 #include <aether.h>
 
-#define HV_API_ADDR 0x20002400
 volatile hv_api_t* hv = (volatile hv_api_t*)HV_API_ADDR;
 
 void app_main(void);

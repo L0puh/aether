@@ -68,6 +68,15 @@ typedef struct _SCB {
     u32 AFSR;       
 } SCB_t;
 
+typedef struct _MPU {
+   u32 TYPE;
+   u32 CTRL;
+   u32 REGNUM;
+   u32 REGBASE;
+   u32 ATTR_AND_SIZE;
+} MPU_t;
+
+
 #define PIN0            (u8) 0x0000
 #define PIN1            (u8) 0x0001
 #define PIN2            (u8) 0x0002
@@ -88,6 +97,12 @@ typedef struct _SCB {
 #define PERIPH_BASE       0x40000000UL
 #define SCS_BASE          0xE000E000UL
 
+#define SCB_BASE          (SCS_BASE + 0x0D00)
+#define MPU_BASE          (SCS_BASE + 0x0D90)
+
+#define SCB               ((SCB_t*) SCB_BASE)
+#define MPU               ((MPU_t*) MPU_BASE)
+
 #define RCC_BASE          (PERIPH_BASE + 0x21000)
 #define FLASH_BASE        (PERIPH_BASE + 0x22000)
 #define GPIOA_BASE        (PERIPH_BASE + 0x10800)
@@ -105,9 +120,6 @@ typedef struct _SCB {
 #define USART2            ((USART_t*) USART2_BASE)
 #define USART3            ((USART_t*) USART3_BASE)
 #define FLASH             ((FLASH_t*) FLASH_BASE) 
-
-#define SCB_BASE          SCS_BASE + 0x0D00
-#define SCB               ((SCB_t*) SCB_BASE)
 
 #define RCC_GPIOAEN           (1U << 2)
 #define RCC_GPIOBEN           (1U << 3)
@@ -135,5 +147,7 @@ typedef struct _SCB {
 
 void enable_irq(void);
 void disable_irq(void);
+void data_sync_barrier(void);
+void instr_sync_barrier(void);
 
 #endif 
