@@ -33,5 +33,5 @@ u8 uart_read_impl(void)
 
 void led_toggle_impl(void) 
 {
-   toggle_degug_led();
+   toggle_debug_led();
 }

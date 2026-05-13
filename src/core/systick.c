@@ -1,26 +1,27 @@
+#include "core/debug.h"
 #include <core/systick.h>
 
-void systick_init() 
+void systick_init()
 {
-   systick_reset();
-
    u32 ticks = get_tick_rate() / 1000;
-   SYSTICK->LOAD = ticks -1;
+
+   SYSTICK->LOAD = ticks - 1;
    SYSTICK->VAL = 0;
-   SYSTICK->CTRL  = (1U << 2); //internal clock
-   SYSTICK->CTRL |= (1U << 0); //enable clock
-   SYSTICK->CTRL |= (1U << 1); //enable interrupt  
-                               
+
+   SYSTICK->CTRL =
+      (1U << 2) |  // CLKSOURCE
+      (1U << 1) |  // TICKINT
+      (1U << 0);   // ENABLE
 }
 
-void systick_msec_delay(u64 delay)
+void systick_msec_delay(u32 delay)
 {
-   for (u64 i = 0; i < delay; i++){
-      while ((SYSTICK->CTRL & CTRL_COUNTFLAG) == 0) {
-      }
-   }
+   u32 start = system_ticks_g;
 
-   SYSTICK->CTRL = 0;
+   DEBUG_PRINT("DELAY: %d\r\n", delay);
+   DEBUG_PRINT("START: %d\r\n", start);
+   while ((system_ticks_g - start) < delay) {
+   }
 }
 
 void systick_reset()
@@ -28,6 +29,12 @@ void systick_reset()
     SYSTICK->CTRL = 0;
     SYSTICK->LOAD = 0;
     SYSTICK->VAL = 0;
+}
+
+void wait_interrupt() {
+   while(1) {
+      cpu_wait_for_interrupt();
+   }
 }
 
 void cpu_wait_for_interrupt() 

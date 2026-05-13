@@ -30,7 +30,7 @@ typedef struct _hv_api {
 extern volatile hv_api_t hv_api;
 
 void init_debug_led();
-void toggle_degug_led();
+void toggle_debug_led();
 ret setup_system();
 void led_blink(int count, int time);
 

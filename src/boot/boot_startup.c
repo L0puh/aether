@@ -78,6 +78,7 @@ void hardfault_handler(void)
     }
 }
 
+__attribute__((noreturn))
 void reset_handler(void)
 {
    u32 data_sz = (u32)&_edata - (u32)&_sdata;
