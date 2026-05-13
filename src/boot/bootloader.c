@@ -4,9 +4,8 @@ __attribute__((naked))
 static void jump_to_app(uint32_t pc, uint32_t sp)
 {
     __asm volatile(
-        "msr msp, r1           \n"  // set main stack pointer
-        "msr psp, r1           \n"  // set process stack pointer  
-        "mov r2, #0            \n"  // 
+        "msr msp, r1           \n"  // set main stack pointer FIRST
+        "mov r2, #0            \n"
         "msr control, r2       \n"  // use msp, privileged mode
         "isb                   \n"  // instruction sync barrier
         "dsb                   \n"  // data sync barrier
@@ -14,6 +13,7 @@ static void jump_to_app(uint32_t pc, uint32_t sp)
         ::: "r0", "r1", "r2", "memory"
     );
 }
+
 
 void init_debug_led()
 {
@@ -78,6 +78,9 @@ void scan_for_apps()
 
       if (desc->magic == APP_MAGIC){
          BOOTLOADER_DEBUG("app found!\r\n");
+         BOOTLOADER_DEBUG("MAGIC: 0x%08x at 0x%08x !\r\n", desc->magic, addr);
+         BOOTLOADER_DEBUG("STACK: 0x%08x; ENTRY: 0x%08x !\r\n", desc->p_stack, desc->entry);
+      
          disable_irq();
          jump_to_app((u32)desc->entry, (u32)desc->p_stack);
       }

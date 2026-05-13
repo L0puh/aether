@@ -5,12 +5,12 @@
 #include "core/uart.h"
 
 #ifdef _DEBUG
-   #define DEBUG_PRINT(...)      uart_write(__VA_ARGS__);
-   #define BOOTLOADER_DEBUG(...) uart_write(__VA_ARGS__);
-   #define BOOTLOADER_ERROR(...) uart_write(__VA_ARGS__);
-   #define UART_ERROR(...)       uart_write(__VA_ARGS__);
-   #define UART_DEBUG(...)       uart_write(__VA_ARGS__);
-   #define APP_ERROR(...)        uart_write(__VA_ARGS__);
+   #define DEBUG_PRINT(...)      uart_writef(__VA_ARGS__);
+   #define BOOTLOADER_DEBUG(...) uart_writef(__VA_ARGS__);
+   #define BOOTLOADER_ERROR(...) uart_writef(__VA_ARGS__);
+   #define UART_ERROR(...)       uart_writef(__VA_ARGS__);
+   #define UART_DEBUG(...)       uart_writef(__VA_ARGS__);
+   #define APP_ERROR(...)        uart_writef(__VA_ARGS__);
 #else 
    #define DEBUG_PRINT(...)     
    #define BOOTLOADER_DEBUG(...)
