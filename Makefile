@@ -19,8 +19,6 @@ CHIP       = cortex-m3
 
 #----------------------- SOURCES  -----------------------#
 
-
-
 BOOTLOADER_LINKER = $(LINKER_DIR)/bootloader.ld
 CORE_LIB 			= $(BUILD_DIR)/libcore.a
 
@@ -40,6 +38,7 @@ BOOT_OBJS += $(CORE_LIB)
 
 
 #----------------------- OTHER -----------------------#
+
 RED    = \033[0;31m
 GREEN  = \033[0;32m
 YELLOW = \033[0;33m
@@ -51,6 +50,7 @@ RESET  = \033[0m
 BRED   = \033[1;35m
 
 START_TIME := $(shell date +%s)
+
 #----------------------- FLAGS -----------------------#
 
 
@@ -147,10 +147,6 @@ flash: $(BUILD_DIR)/$(PROJECT)-boot.bin
 	st-flash erase
 	st-flash write $< 0x08000000
 	st-flash reset
-
-flash-modules: modules
-	@echo -e "$(CYAN)[FLASH] loading modules to flash addresses...$(RESET)"
-	st-flash --reset write $(BUILD_DIR)/$(MODULE_NAME).bin $(APP_SLOT_ADDR)
 
 erase:
 	st-flash erase
