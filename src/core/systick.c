@@ -31,14 +31,5 @@ void systick_reset()
     SYSTICK->VAL = 0;
 }
 
-void wait_interrupt() {
-   while(1) {
-      cpu_wait_for_interrupt();
-   }
-}
 
-void cpu_wait_for_interrupt() 
-{
-   __asm volatile ("wfi");
-}
  

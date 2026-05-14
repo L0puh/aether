@@ -27,6 +27,7 @@
 /* HYPERVISOR */
 #include "boot/hv.h"
 #include "core/scheduler.h"
+#include "boot/flasher.h"
 
 #define APP_MAGIC (0xDEADBEEF)
 

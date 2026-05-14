@@ -22,8 +22,6 @@ void systick_msec_delay(u32 delay);
 void systick_reset();
 void systick_init();
 
-void cpu_wait_for_interrupt();
 extern volatile u32 system_ticks_g;
-void wait_interrupt();
 
 #endif 

@@ -15,8 +15,8 @@ static void run_app(app_desc_t* desc)
 
 void scan_for_apps()
 {
-   u32 start = 0x08002000;
-   u32 end   = 0x08008000;
+   u32 start = START_APP_SLOT;
+   u32 end   = END_APP_SLOT;
 
    for (u32 addr = start; addr < end; addr += 4)
    {
@@ -43,7 +43,7 @@ void scan_for_apps()
    wait_interrupt();
 }
 
-   __attribute__((noreturn))
+__attribute__((noreturn))
 int bootloader_entry()
 {
    enable_irq();

@@ -15,6 +15,11 @@ void hv_api_init(void)
 
 void delay_impl(u32 ms)
 {
+   if (!is_valid_app_call()){
+      DEBUG_PRINT("THE CALL IS INVALID!\n");
+      return;
+   }
+
    systick_msec_delay(ms);
 }
 
@@ -23,15 +28,28 @@ void uart_write_impl(const char* str)
    if (!str) {
       return;
    }
+   if (!is_valid_app_call()){
+      DEBUG_PRINT("THE CALL IS INVALID!\n");
+      return;
+   }
    uart_write(str);
 }
 
 u8 uart_read_impl(void)
 {
+   //TODO
+   if (!is_valid_app_call()){
+      DEBUG_PRINT("THE CALL IS INVALID!\n");
+      return 0;
+   }
    return 0;
 }
 
 void led_toggle_impl(void) 
 {
+   if (!is_valid_app_call()){
+      DEBUG_PRINT("THE CALL IS INVALID!\n");
+      return;
+   }
    toggle_debug_led();
 }

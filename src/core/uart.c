@@ -106,3 +106,10 @@ void uart_reset(USART_t *uart)
    uart->CR2 = 0;
    uart->CR3 = 0;
 }
+
+u32 uart_data() {
+   if (!opened_usart_g){
+      return 0;
+   }
+   return opened_usart_g->DATA;
+}

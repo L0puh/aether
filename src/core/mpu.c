@@ -1,5 +1,6 @@
 #include <aether.h> 
 
+
 void mpu_init(void)
 {
     MPU->CTRL = 0;
@@ -31,3 +32,19 @@ void mpu_init(void)
     data_sync_barrier();
     instr_sync_barrier();
 }
+
+void mpu_disable(void)
+{
+   MPU->CTRL = 0;
+   data_sync_barrier();
+   instr_sync_barrier();
+}
+
+
+void mpu_enable(void)
+{
+   MPU->CTRL = MPU_ENABLE | PRIV_DEFAULT_ENABLE;
+   data_sync_barrier();
+   instr_sync_barrier();
+}
+

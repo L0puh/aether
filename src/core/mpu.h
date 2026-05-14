@@ -23,9 +23,10 @@
 #define XN_DISABLE          (0 << 28)     /* execute allowed */
 
 
-void mpu_init();
 
-//TODO:
-//mpu_lock();
-//mpu_unlock();
+void mpu_init();
+void mpu_disable(void);
+void mpu_enable(void);
+
+
 #endif 

@@ -10,7 +10,7 @@
    #define BOOTLOADER_ERROR(...) uart_writef(__VA_ARGS__);
    #define UART_ERROR(...)       uart_writef(__VA_ARGS__);
    #define UART_DEBUG(...)       uart_writef(__VA_ARGS__);
-   #define APP_ERROR(...)        uart_writef(__VA_ARGS__);
+   #define FLASHER_DEBUG(...)     uart_writef(__VA_ARGS__);
 #else 
    #define DEBUG_PRINT(...)     
    #define BOOTLOADER_DEBUG(...)
@@ -18,6 +18,7 @@
    #define UART_ERROR(...)
    #define UART_DEBUG(...)
    #define APP_ERROR(...)
+   #define FLASHER_DEBUG(...)  
 #endif 
 
 #define DBG_UART_BAUDRATE 115200 

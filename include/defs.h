@@ -17,6 +17,8 @@ typedef uint64_t    u64;
 #define CLEAR_BITS(n, pos) (~(((1UL << (n)) - 1) << (pos)))
 
 #define MAX_BUFFER_SIZE 1024
+#define START_APP_SLOT 0x08002000
+#define END_APP_SLOT 0x08008000
 
 typedef enum _ret_codes {
    SUCCESS,

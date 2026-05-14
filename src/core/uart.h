@@ -24,5 +24,6 @@ ret uart_getline(char* buffer, u64 size);
 ret uart_getchar(char *c);
 bool uart_rx_ready();
 void uart_writef(const char* str, ...);
+u32 uart_data();
 
 #endif 
