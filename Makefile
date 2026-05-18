@@ -15,6 +15,7 @@ DEBUG  = tools/debugger/debugger.sh
 PROJECT    = aether
 BUILD_DIR  = build
 LINKER_DIR = linker
+LIB_DIR    = libs
 CHIP       = cortex-m3 
 
 #----------------------- SOURCES  -----------------------#
@@ -22,12 +23,13 @@ CHIP       = cortex-m3
 BOOTLOADER_LINKER = $(LINKER_DIR)/bootloader.ld
 CORE_LIB 			= $(BUILD_DIR)/libcore.a
 
+LIB_DIRS = $(wildcard $(LIB_DIR)/*)
+
 CORE_SRCS_C = $(wildcard src/core/*.c)
 CORE_SRCS_S = $(wildcard src/core/*.s)
 
 BOOT_SRCS_C = $(wildcard src/boot/*.c)
 BOOT_SRCS_S = $(wildcard src/boot/*.s)
-
 
 CORE_OBJS = $(CORE_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
 CORE_OBJS += $(CORE_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)

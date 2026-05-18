@@ -10,8 +10,6 @@
 #define FLASH_PAGE_ERASE_MODE  (1 << 1)
 #define FLASH_START_ERASE      (1 << 6)
 
-void flash_app_by_uart(void);
-
 void flash_unlock(void);
 void flash_lock(void);
 

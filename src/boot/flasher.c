@@ -56,54 +56,6 @@ void flash_lock(void)
    FLASH->CR |= FLASH_CR_LOCK;
 }
 
-void flash_app_by_uart(void)
-{
-   mpu_disable();
-   static u8 buff[MAX_APP_SIZE];
-   u32 size, addr;
-
-   uart_flush_rx();
-   FLASHER_DEBUG("waiting for uart binary via UART...\r\n");
-
-   size = uart_read_word();
-
-   if (size == 0 || size > MAX_APP_SIZE) {
-      FLASHER_DEBUG("invalid size: %lu\r\n", size);
-      return;
-   }
-
-   FLASHER_DEBUG("size received: %lu\r\n", size);
-   
-   addr = uart_read_word();
-   if (addr < START_APP_SLOT || addr > END_APP_SLOT){
-      FLASHER_DEBUG("invalid addr: 0x%x\r\n", addr);
-      return;
-   }
-
-   FLASHER_DEBUG("addr received: 0x%x\r\n", addr);
-
-   for (u32 i = 0; i < size; i++) {
-      if (!uart_wait_rx_ready(FLASHER_WAIT_TIMEOUT)){
-         FLASHER_DEBUG("receive data timeout!\r\n");
-         flash_erase_app_slot(addr, size);
-         mpu_enable();
-         return;
-      }
-         
-      buff[i] = uart_data();
-   }
-  
-   FLASHER_DEBUG("data received! flashing...\r\n");
-   
-   flash_erase_app_slot(addr, size);
-   flash_write_buffer(addr, buff, size);
-
-   FLASHER_DEBUG("flashing done!\r\n");
-   mpu_enable();
-   return;
-}
-
-
 void flash_erase_app_slot(u32 addr, u32 size)
 {
    flash_unlock();

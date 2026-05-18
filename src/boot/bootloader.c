@@ -48,19 +48,15 @@ void scan_for_apps()
 //FIXME: this is damn insecure
 void check_for_updates()
 {
-   if (!uart_wait_rx_ready(6000)){
+   if (!uart_wait_rx_ready(1000)){
       BOOTLOADER_DEBUG("timeout of waiting for updates is out\r\n");
       return;
    }
 
-   u8 cmd = uart_data();
-   if (cmd == 'F') {
-        BOOTLOADER_DEBUG("flash command received!\r\n");
-        flash_app_by_uart();
-        return;
-    }
-   
-   BOOTLOADER_DEBUG("wrong ACK recieved (%c), skipping updates\r\n", cmd);
+   if (!cmd_update())
+   {
+      BOOTLOADER_DEBUG("wrong ACK recieved, skipping updates\r\n");
+   }
 }
 
 __attribute__((noreturn))

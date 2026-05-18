@@ -20,6 +20,7 @@
 #include "core/clock.h"
 #include "core/mpu.h"
 #include "core/utils.h"
+#include "core/crypto.h"
 
 /* PLATFORM SPECIFIC */
 #include "aether/device_vectors.h"
@@ -29,6 +30,7 @@
 #include "boot/hv.h"
 #include "core/scheduler.h"
 #include "boot/flasher.h"
+#include "boot/cmd.h"
 
 #define APP_MAGIC (0xDEADBEEF)
 
