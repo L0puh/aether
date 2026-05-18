@@ -38,6 +38,7 @@ ret setup_system()
    ret status;
 
    mpu_init();
+   flash_lock();
 
 #ifdef SYSTEM_CLOCK_72Mhz
    status = set_system_clock_72Mhz();
@@ -60,6 +61,7 @@ ret setup_system()
    uart_init(USART1, 0);
 
    hv_api_init();
+   flash_lock();
 
    BOOTLOADER_DEBUG("SYSTEM OK\r\n");
 

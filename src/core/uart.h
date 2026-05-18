@@ -22,6 +22,7 @@ void uart_enable(USART_t *uart);
 void uart_putchar(int ch);
 ret uart_getline(char* buffer, u64 size);
 ret uart_getchar(char *c);
+u32 uart_read_word(void);
 bool uart_rx_ready();
 bool uart_wait_rx_ready(u32 timeout);
 void uart_writef(const char* str, ...);

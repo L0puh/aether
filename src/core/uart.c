@@ -146,3 +146,20 @@ void uart_flush(void)
     uart_flush_rx();
     uart_flush_tx();
 }
+
+u32 uart_read_word(void) 
+{
+   u32 word = 0;
+   bool res;
+   
+   for (u8 i = 0; i < 4; i++){
+      res = uart_wait_rx_ready(FLASHER_WAIT_TIMEOUT);
+      if (!res) {
+         FLASHER_ERROR("recv_addr timeout\r\n");
+         return 0;
+      }
+      word |= (uart_data() << (i*8));
+   }
+
+   return word;
+}

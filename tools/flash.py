@@ -1,7 +1,10 @@
 """
 flash application binary to bootloader via UART
-usage:   python3 flasher.py <app.bin> [serial_port] [baud]
-example: python3 flasher.py build/main_app.bin /dev/ttyUSB0 115200
+usage:   python3 flasher.py <app.bin> [serial_port] [baud] [addr]
+example: python3 flasher.py build/main_app.bin /dev/ttyUSB0 115200 0x08002000
+
+format:
+[F][KEY][SIZE][ADDR][APP]
 """
 
 import serial
@@ -9,12 +12,13 @@ import struct
 import sys
 import time
 
-def send_app(bin_file, port='/dev/ttyUSB0', baud=115200):
+def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
     with open(bin_file, 'rb') as f:
         data = f.read()
 
     size = len(data)
 
+    print(f"addr: {hex(addr)}")
     print(f"app size: {size} bytes")
 
     ser = serial.Serial(port, baud, timeout=5)
@@ -23,12 +27,22 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200):
     ser.write(b'F')
     time.sleep(0.1)
 
+    #TODO: implement key here...
+
     ser.write(struct.pack('<I', size))
     
     while True:
         line = ser.readline().decode().strip()
-        print(f"\t> UART DATA: {line}")
+        print(f"\t>: {line}")
         if f"size received: {size}" in line:
+            break
+    
+    ser.write(struct.pack('<I', addr))
+    
+    while True:
+        line = ser.readline().decode().strip()
+        print(f"\t>: {line}")
+        if f"addr received: {hex(addr)}" in line:
             break
 
     total_sent = 0

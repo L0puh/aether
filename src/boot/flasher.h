@@ -15,9 +15,8 @@ void flash_app_by_uart(void);
 void flash_unlock(void);
 void flash_lock(void);
 
-void flash_erase_app_slot();
 void flash_write_buffer(u32 addr, u8* data, u32 size);
-
+void flash_erase_app_slot(u32 addr, u32 size);
 
 //TODO: 
 //void remove_app_by_addr(u32 addr, u32 size);
