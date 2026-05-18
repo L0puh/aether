@@ -19,6 +19,7 @@
 #include "core/uart.h"
 #include "core/clock.h"
 #include "core/mpu.h"
+#include "core/utils.h"
 
 /* PLATFORM SPECIFIC */
 #include "aether/device_vectors.h"

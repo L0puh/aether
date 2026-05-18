@@ -11,6 +11,7 @@
    #define UART_ERROR(...)       uart_writef(__VA_ARGS__);
    #define UART_DEBUG(...)       uart_writef(__VA_ARGS__);
    #define FLASHER_DEBUG(...)     uart_writef(__VA_ARGS__);
+   #define FLASHER_ERROR(...)     uart_writef(__VA_ARGS__);
 #else 
    #define DEBUG_PRINT(...)     
    #define BOOTLOADER_DEBUG(...)

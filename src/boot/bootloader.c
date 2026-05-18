@@ -1,3 +1,5 @@
+#include "boot/flasher.h"
+#include "core/uart.h"
 #include "defs.h"
 #include <aether.h>
 
@@ -43,6 +45,24 @@ void scan_for_apps()
    wait_interrupt();
 }
 
+//FIXME: this is damn insecure
+void check_for_updates()
+{
+   if (!uart_wait_rx_ready(6000)){
+      BOOTLOADER_DEBUG("timeout of waiting for updates is out\r\n");
+      return;
+   }
+
+   u8 cmd = uart_data();
+   if (cmd == 'F') {
+        BOOTLOADER_DEBUG("flash command received!\r\n");
+        flash_app_by_uart();
+        return;
+    }
+   
+   BOOTLOADER_DEBUG("wrong ACK recieved (%c), skipping updates\r\n", cmd);
+}
+
 __attribute__((noreturn))
 int bootloader_entry()
 {
@@ -52,6 +72,9 @@ int bootloader_entry()
    }
 
    BOOTLOADER_DEBUG("BOOTLOADER START\r\n");
+
+   check_for_updates();
+
    while(true) {
       scan_for_apps();
    }

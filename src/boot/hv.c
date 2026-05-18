@@ -2,11 +2,8 @@
 
 bool is_valid_app_call(void)
 {
-   u32 lr;
-   __asm volatile("mov %0, lr" : "=r"(lr));
-   u32 addr = lr & ~1;
-
-   return (addr >= START_APP_SLOT && addr <= END_APP_SLOT);
+   //TODO: check crc and stuff
+   return true;
 }
 
 void init_debug_led()

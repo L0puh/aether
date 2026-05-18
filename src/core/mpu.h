@@ -8,10 +8,11 @@
 #define REGION_BASE_ADDR(a) ((a) & 0xFFFFFFE0)
 
 #define REGION_ENABLE       (1 << 0)
-#define REGION_SIZE_256B    (0x7 << 1)    /* 256 bytes */
-#define REGION_SIZE_4KB     (0xD << 1)    /* 4KB */
-#define REGION_SIZE_8KB     (0xE << 1)    /* 8KB */
-#define REGION_SIZE_32KB    (0x10 << 1)   /* 32KB */
+#define REGION_SIZE_256B    (0x7 << 1)   
+#define REGION_SIZE_4KB     (0xB << 1)   
+#define REGION_SIZE_8KB     (0xC << 1)   
+#define REGION_SIZE_32KB    (0xE << 1)   
+#define REGION_SIZE_4GB     (31 << 1)   
 
 #define AP_NO_ACCESS        (0x0 << 24)   /* no access */
 #define AP_PRIV_RW          (0x1 << 24)   /* privileged read/write */

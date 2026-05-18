@@ -50,6 +50,19 @@ bool uart_rx_ready()
    return opened_usart_g && (opened_usart_g->STATUS & RXNE);
 }
 
+bool uart_wait_rx_ready(u32 timeout_ms)
+{
+    u32 start = system_ticks_g;  
+
+    while (!uart_rx_ready()) {
+        if ((system_ticks_g - start) > timeout_ms) {
+            return false;  
+        }
+    }
+
+    return true;  
+}
+
 ret uart_getchar(char *c)
 {
    if (uart_rx_ready()) { // TODO: add watchdog (?)
@@ -77,7 +90,7 @@ ret uart_getline(char* buffer, u64 size)
       }
       i++;
    }
-
+   
    if (i == 0) {
       return WRONG_DATA;
    }
@@ -112,4 +125,24 @@ u32 uart_data() {
       return 0;
    }
    return opened_usart_g->DATA;
+}
+
+void uart_flush_rx(void)
+{
+    while (uart_rx_ready()) {
+        volatile u8 dummy = uart_data(); 
+        UNUSED(dummy);
+    }
+}
+
+void uart_flush_tx(void)
+{
+    while (!(opened_usart_g->STATUS & TX_EMPTY));
+    while (!(opened_usart_g->STATUS & TX_COMPLETE));
+}
+
+void uart_flush(void)
+{
+    uart_flush_rx();
+    uart_flush_tx();
 }

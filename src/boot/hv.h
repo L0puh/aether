@@ -2,6 +2,7 @@
 #define HV_H
 
 #include "defs.h"
+#include <stdbool.h>
 
 typedef struct _app_desc {
    u32 magic;
@@ -31,9 +32,9 @@ typedef struct _hv_api {
 extern volatile hv_api_t hv_api;
 
 bool is_valid_app_call(void);
-void init_debug_led();
-void toggle_debug_led();
-ret setup_system();
+void init_debug_led(void);
+void toggle_debug_led(void);
+ret setup_system(void);
 void led_blink(int count, int time);
 
 void delay_impl(u32 ms);
