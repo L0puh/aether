@@ -76,8 +76,6 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
         ser.write(bytes([byte]))
         time.sleep(0.0005)
         total_sent += 1
-        if total_sent % 50 == 0:
-            print(f"\rprogress: {total_sent}/{size} bytes ({100*total_sent/size:.1f}%)", end='')
 
     print()
     
@@ -100,8 +98,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if not os.path.exists(PRIVATE_KEY):
-        print(f"Error: private key not found at {PRIVATE_KEY}")
-        print("Run tools/keys.sh first to generate keys")
+        print(f"error: private key not found at {PRIVATE_KEY}")
+        print("run tools/keys.sh first to generate keys")
         sys.exit(1)
 
     bin_file = sys.argv[1]

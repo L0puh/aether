@@ -3,6 +3,7 @@
 
 #include "defs.h"
 #include <stdbool.h>
+#include <ed25519.h>
 
 //auto-generated public key with tools/gen_keys.sh
 #include <public_key.h> 

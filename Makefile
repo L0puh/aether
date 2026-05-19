@@ -99,6 +99,27 @@ APP_LDFLAGS = -nostdlib\
 all: $(CORE_LIB) $(BUILD_DIR)/$(PROJECT)-boot.bin modules 
 -include modules.mk
 
+#----------------------- COMPACT25519 -----------------------#
+
+COMPACT25519_DIR  = libs/compact25519/src
+COMPACT25519_SRCS = $(COMPACT25519_DIR)/compact_ed25519.c \
+                    $(COMPACT25519_DIR)/compact_wipe.c \
+                    $(wildcard $(COMPACT25519_DIR)/c25519/*.c)
+
+COMPACT25519_OBJS = $(COMPACT25519_SRCS:$(COMPACT25519_DIR)/%.c=$(BUILD_DIR)/thirdparty/compact25519/%.o)
+
+CFLAGS += -I$(COMPACT25519_DIR) -I$(COMPACT25519_DIR)/c25519
+CORE_OBJS += $(COMPACT25519_OBJS)
+
+$(BUILD_DIR)/thirdparty/compact25519/%.o: $(COMPACT25519_DIR)/%.c
+	@mkdir -p $(dir $@)
+	@echo -e "$(YELLOW)> [COMPACT]: $<$(RESET)"
+	$(CC) -mcpu=$(CHIP) -mthumb -Os -fno-builtin -ffreestanding \
+	      -I$(COMPACT25519_DIR) -I$(COMPACT25519_DIR)/c25519 \
+	      -DCOMPACT_DISABLE_X25519 -DCOMPACT_DISABLE_X25519_DERIVE \
+	      -c -o $@ $<
+
+
 # --------------------------------------------- CORE
 
 $(CORE_LIB): $(CORE_OBJS)

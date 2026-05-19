@@ -1,0 +1,3 @@
+[submodule "libs/compact25519"]
+	path = libs/compact25519
+	url = https://github.com/DavyLandman/compact25519

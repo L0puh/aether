@@ -9,8 +9,7 @@ const app_desc_t app_desc =
 {
    .magic  = APP_MAGIC,
    .version = 0x0100,
-   .entry = app_main,
-   .crc = 0
+   .entry = app_main
 };
 
 void app_main(void)
@@ -19,7 +18,6 @@ void app_main(void)
 
    hv->led_toggle();
    hv->delay_ms(100);
-
 
    hv->uart_write( "APP DONE\r\n");
 }

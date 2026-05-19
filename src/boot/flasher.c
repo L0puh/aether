@@ -37,7 +37,7 @@ void flash_write_buffer(u32 addr, u8* data, u32 size)
 
         FLASH->CR &= ~FLASH_CR_PROGMODE;
 
-        FLASHER_DEBUG("write %lu/%lu at 0x%x ok\r\n", i/2, size/i, (addr+i));
+        FLASHER_DEBUG("write %lu/%lu at 0x%x ok\r\n", i/2, size/2, (addr+i));
     }
 
     flash_lock();
