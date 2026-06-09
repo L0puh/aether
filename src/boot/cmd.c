@@ -155,6 +155,7 @@ bool cmd_update(void)
    mpu_enable();
 
    FLASHER_DEBUG("flashing done!\r\n");
+   system_reset();
    return true;
 }
 
