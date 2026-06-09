@@ -88,10 +88,13 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
             break
         if "failed" in line.lower():
             print("FLASHING FAILED!")
-            break
+            ser.close()
+            return 0
 
     ser.close()
     print("done!")
+
+    return 1
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

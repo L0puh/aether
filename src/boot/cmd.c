@@ -1,4 +1,3 @@
-#include "boot/flasher.h"
 #include <aether.h>
 
 /*
@@ -11,14 +10,83 @@
  *
  */
 
+bool execute_cmd() {
+   u8 cmd = uart_data();
+   if (cmd == CMD_UPDATE)
+   {
+      BOOTLOADER_DEBUG("CMD UPDATE: %c\r\n", cmd);
+      cmd_update();
+      return true;
+   } 
+
+   if (cmd == CMD_WATCH) {
+      BOOTLOADER_DEBUG("CMD WATCH: %c\r\n", cmd);
+      return true;
+   }
+
+   if (cmd == CMD_SCAN) {
+      BOOTLOADER_DEBUG("SCAN APPS: %c\r\n", cmd);
+      cmd_scan();
+      return true;
+   }
+   
+   return false;
+}
+
+static void run_app(app_desc_t* desc)
+{
+   app_entry_t entry;
+
+#ifdef MEASURE_TIME
+   BOOTLOADER_DEBUG("measuring time...\r\n");
+   volatile u32 t_start, t_end;
+   t_start = system_ticks_g;
+#endif 
+
+   entry = (app_entry_t)((u32)desc->entry | 1);
+   BOOTLOADER_DEBUG("RUNNING APP\r\n");
+   entry();
+   BOOTLOADER_DEBUG("APP RETURNED\r\n");
+
+#ifdef MEASURE_TIME
+   t_end = system_ticks_g;
+   BOOTLOADER_DEBUG("TIME ON EXECUTION: %d\r\n", t_end - t_start);
+#endif 
+
+}
+
+bool cmd_scan()
+{
+   u32 start = START_APP_SLOT;
+   u32 end   = END_APP_SLOT;
+
+   for (u32 addr = start; addr < end; addr += 4)
+   {
+      app_desc_t* desc = (app_desc_t*)addr;
+
+      if (desc->magic != APP_MAGIC)
+         continue;
+
+      BOOTLOADER_DEBUG(
+            "APP FOUND @ 0x%08x size: %d\r\n",
+            addr, desc->size
+            );
+      dump_memory((const void*) addr, desc->size, &uart_writef);
+
+      BOOTLOADER_DEBUG(
+            "ENTRY = 0x%08x\r\n",
+            desc->entry
+            );
+
+      run_app(desc);
+   }
+
+   BOOTLOADER_DEBUG("NO MORE APPS\r\n");
+   return true;
+}
+
 bool cmd_update(void)
 {
-   u8 cmd = uart_data();
-   if (cmd != CMD_UPDATE)
-   {
-      BOOTLOADER_DEBUG("recieved %c\r\n", cmd);
-      return false;
-   }
 
    BOOTLOADER_DEBUG("flash command received!\r\n");
 

@@ -37,5 +37,7 @@
 #define ADD_ADDR    0x08002000   
 #define HV_API_ADDR 0x20002400  
 
+typedef void (*app_entry_t)(void);
+
 #endif
 
