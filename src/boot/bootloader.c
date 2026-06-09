@@ -9,10 +9,24 @@ typedef void (*app_entry_t)(void);
 static void run_app(app_desc_t* desc)
 {
    app_entry_t entry;
+
+
+#ifdef MEASURE_TIME
+   BOOTLOADER_DEBUG("measuring time...\r\n");
+   volatile u32 t_start, t_end;
+   t_start = system_ticks_g;
+#endif 
+
    entry = (app_entry_t)((u32)desc->entry | 1);
    BOOTLOADER_DEBUG("RUNNING APP\r\n");
    entry();
    BOOTLOADER_DEBUG("APP RETURNED\r\n");
+
+#ifdef MEASURE_TIME
+   t_end = system_ticks_g;
+   BOOTLOADER_DEBUG("TIME ON EXECUTION: %d\r\n", t_end - t_start);
+#endif 
+
 }
 
 void scan_for_apps()
@@ -28,9 +42,10 @@ void scan_for_apps()
          continue;
 
       BOOTLOADER_DEBUG(
-            "APP FOUND @ 0x%08x\r\n",
-            addr
+            "APP FOUND @ 0x%08x size: %d\r\n",
+            addr, desc->size
             );
+      dump_memory((const void*) addr, desc->size, &uart_writef);
 
       BOOTLOADER_DEBUG(
             "ENTRY = 0x%08x\r\n",
@@ -48,15 +63,27 @@ void scan_for_apps()
 //FIXME: this is damn insecure
 void check_for_updates()
 {
+
    if (!uart_wait_rx_ready(1000)){
       BOOTLOADER_DEBUG("timeout of waiting for updates is out\r\n");
       return;
    }
 
+#ifdef MEASURE_TIME
+   BOOTLOADER_DEBUG("measuring time...\r\n");
+   volatile u32 t_start, t_end;
+   t_start = system_ticks_g;
+#endif 
+
    if (!cmd_update())
    {
       BOOTLOADER_DEBUG("wrong ACK recieved, skipping updates\r\n");
    }
+
+#ifdef MEASURE_TIME
+   t_end = system_ticks_g;
+   BOOTLOADER_DEBUG("TIME ON EXECUTION: %d\r\n", t_end - t_start);
+#endif 
 }
 
 __attribute__((noreturn))

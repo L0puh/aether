@@ -27,4 +27,6 @@
 #define DBG_UART_BAUDRATE 115200 
 //#define DBG_UART_BAUDRATE 9600
 
+
+void dump_memory(const void* addr, u32 size, void (*print)(const char*, ...));
 #endif

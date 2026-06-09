@@ -163,3 +163,26 @@ u32 uart_read_word(void)
 
    return word;
 }
+
+#ifdef _DEBUG
+void dump_memory(const void* addr, u32 size, void (*print)(const char*, ...))
+{
+   const u8* ptr = (const u8*)addr;
+   for (u32 i = 0; i < size; i ++){
+      if (i % 16 == 0) {
+         print("\r\n0x%p:", ptr + i);
+      }
+
+      print("0x%02x ", ptr[i]);
+   }
+   print("\r\n");
+}
+#else 
+
+void dump_memory(const void* addr, u32 size, int (*print)(const char*, ...))
+{
+   UNUSED(addr);
+   UNUSED(size);
+   UNUSED(print);
+}
+#endif

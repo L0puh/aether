@@ -1,3 +1,4 @@
+#include "boot/flasher.h"
 #include <aether.h>
 
 /*
@@ -71,11 +72,22 @@ bool cmd_update(void)
    FLASHER_DEBUG("app is verified!\r\n");
 
    mpu_disable();
+   app_desc_t* desc = (app_desc_t*)app_data;
+   if (desc->magic == APP_MAGIC) {
+      FLASHER_DEBUG("magic is found: entry: 0x%x stack: 0x%x, version: %d\r\n", desc->entry, desc->p_stack, desc->version);
+      desc->size = app_size;
+   } else {
+      FLASHER_ERROR("magic value is wrong!\r\n");
+      return false;
+   }
+
    flash_erase_app_slot(addr, app_size);
    flash_write_buffer(addr, app_data, app_size);
+ 
    mpu_enable();
-   
-   FLASHER_DEBUG("flashing done!\r\n");
 
+   FLASHER_DEBUG("flashing done!\r\n");
    return true;
 }
+
+

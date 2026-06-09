@@ -23,6 +23,7 @@ typedef uint64_t    u64;
 #define END_APP_SLOT 0x08008000
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
 
+#define PACKED __attribute__((packed))
 typedef enum _ret_codes {
    SUCCESS,
    NOT_FOUND,

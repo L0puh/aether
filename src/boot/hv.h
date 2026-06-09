@@ -4,11 +4,12 @@
 #include "defs.h"
 #include <stdbool.h>
 
-typedef struct _app_desc {
+typedef struct PACKED _app_desc {
    u32 magic;
    u32 version;
    void *p_stack;
    void (*entry)(void);
+   u32 size;
 } app_desc_t;
 
 typedef void (*hv_delay_ms_t)(u32 ms);

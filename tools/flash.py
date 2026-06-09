@@ -37,6 +37,7 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
 
     print(f"addr: {hex(addr)}")
     print(f"app size: {len(app_data)} bytes")
+    print(f"data size: {len(data)} bytes")
     print(f"signature: {signature.hex()[:32]}...")
 
     print("sending app...")
