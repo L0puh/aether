@@ -1,6 +1,8 @@
 #ifndef CRYPTO_H
 #define CRYPTO_H
 
+#include "target.h"
+#ifdef FEATURE_SIGN_APP
 #include "defs.h"
 #include <stdbool.h>
 #include <ed25519.h>
@@ -9,5 +11,6 @@
 #include <public_key.h> 
 
 bool verify_app_buffer(const u8* buff, u32 size, const u8* sign);
+#endif 
 
 #endif

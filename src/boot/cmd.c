@@ -67,16 +67,9 @@ bool cmd_scan()
       if (desc->magic != APP_MAGIC)
          continue;
 
-      BOOTLOADER_DEBUG(
-            "APP FOUND @ 0x%08x size: %d\r\n",
-            addr, desc->size
-            );
+      BOOTLOADER_DEBUG( "APP FOUND @ 0x%08x [%d bytes]\r\n", addr, desc->size);
       dump_memory((const void*) addr, desc->size, &uart_writef);
-
-      BOOTLOADER_DEBUG(
-            "ENTRY = 0x%08x\r\n",
-            desc->entry
-            );
+      BOOTLOADER_DEBUG( "ENTRY = 0x%08x\r\n", desc->entry);
 
       run_app(desc);
    }
@@ -90,7 +83,12 @@ bool cmd_update(void)
 
    BOOTLOADER_DEBUG("flash command received!\r\n");
 
+#ifdef FEATURE_SIGN_APP
    static u8 buff[MAX_APP_SIZE + SIGNATURE_SIZE];
+#else
+   static u8 buff[MAX_APP_SIZE];
+#endif 
+
    u32 size, addr, app_size;
 
    uart_flush_rx();
@@ -98,10 +96,17 @@ bool cmd_update(void)
 
    size = uart_read_word();
 
+#ifdef FEATURE_SIGN_APP
    if (size < SIGNATURE_SIZE || size > MAX_APP_SIZE + SIGNATURE_SIZE) {
       FLASHER_DEBUG("invalid size: %lu\r\n", size);
       return false;
    }
+#else 
+   if (size > MAX_APP_SIZE || size == 0) {
+      FLASHER_DEBUG("invalid size: %lu\r\n", size);
+      return false;
+   }
+#endif 
 
    FLASHER_DEBUG("size received: %lu\r\n", size);
    
@@ -125,19 +130,24 @@ bool cmd_update(void)
    }
   
    FLASHER_DEBUG("data received!\r\n");
-   
+
+#ifdef FEATURE_SIGN_APP 
    app_size = size - SIGNATURE_SIZE;
    u8* app_data = buff;
    u8* sign = buff + app_size;
-
    FLASHER_DEBUG("data: 0x%x, sign: 0x%x!\r\n", buff, sign);
-
+   
    if (!verify_app_buffer(app_data, app_size, sign)){
       FLASHER_ERROR("failed to flash app, security violation!\r\n");
       return false;
    }
    
    FLASHER_DEBUG("app is verified!\r\n");
+#else
+   app_size = size;
+   u8* app_data = buff;
+   FLASHER_DEBUG("data: 0x%x!\r\n", buff);
+#endif 
 
    mpu_disable();
    app_desc_t* desc = (app_desc_t*)app_data;

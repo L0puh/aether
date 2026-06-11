@@ -1,6 +1,8 @@
+#include <aether.h>
+
+#ifdef FEATURE_SIGN_APP
 #include "compact_ed25519.h"
 #include "public_key.h"
-#include <aether.h>
 
 bool verify_app_buffer(const u8* buff, u32 size, const u8* sign)
 {
@@ -10,3 +12,4 @@ bool verify_app_buffer(const u8* buff, u32 size, const u8* sign)
    FLASHER_ERROR("signature invalid!\r\n");
    return false;
 }
+#endif 

@@ -19,6 +19,8 @@ PRIVATE_KEY = os.path.join(".secrets", "private.pem")
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
+
+FEATURE_SIGNATURE = False
 def sign_app(app_data):
     with open(PRIVATE_KEY, 'rb') as f:
         private_key = serialization.load_pem_private_key(f.read(), password=None)
@@ -29,16 +31,23 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
     with open(bin_file, 'rb') as f:
         app_data = f.read()
 
-    print("signing app...")
-    signature = sign_app(app_data)
-    
-    data = app_data + signature
+    ans = input("sign app? [yes/no]: ")
+    if ans.lower() == "yes":
+        print("signing app (bootloader should have this feature too...)")
+        signature = sign_app(app_data)
+        data = app_data + signature
+        FEATURE_SIGNATURE = True
+    else:
+        data = app_data
+
     size = len(data)
 
     print(f"addr: {hex(addr)}")
     print(f"app size: {len(app_data)} bytes")
     print(f"data size: {len(data)} bytes")
-    print(f"signature: {signature.hex()[:32]}...")
+
+    if FEATURE_SIGNATURE:
+        print(f"signature: {signature.hex()[:32]}...")
 
     print("sending app...")
     ser = serial.Serial(port, baud, timeout=5)

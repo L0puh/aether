@@ -1,4 +1,5 @@
 
+
 #----------------------- TOOLS -----------------------#
 PREFIX = arm-none-eabi-
 CC 	 = $(PREFIX)gcc
@@ -36,7 +37,7 @@ CORE_OBJS += $(CORE_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
 
 BOOT_OBJS = $(BOOT_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
 BOOT_OBJS += $(BOOT_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
-BOOT_OBJS += $(CORE_LIB) 
+	BOOT_OBJS += $(CORE_LIB) 
 
 
 #----------------------- OTHER -----------------------#
@@ -69,11 +70,11 @@ CFLAGS = -mcpu=$(CHIP)\
 			-nostdlib\
 			-fno-builtin\
 			-ffreestanding\
-         -fdata-sections\
-         -ffunction-sections\
+			-fdata-sections\
+			-ffunction-sections\
 			$(INCL)
 #			-Werror
-			
+
 ASFLAGS = -mcpu=$(CHIP)\
 			 -mthumb\
 			 -g\
@@ -89,25 +90,29 @@ BOOT_LDFLAGS = -T $(BOOTLOADER_LINKER)\
 					-Wl,-Map=$(BUILD_DIR)/$(PROJECT)-boot.map
 
 APP_LDFLAGS = -nostdlib\
-			  -Wl,--no-gc-sections\
-			  -Wl,--print-memory-usage\
-			  -Wl,-Map=$(BUILD_DIR)/$(@F:.elf=.map)
+				  -Wl,--no-gc-sections\
+				  -Wl,--print-memory-usage\
+				  -Wl,-Map=$(BUILD_DIR)/$(@F:.elf=.map)
 
+
+#---------------------- MODULES-----------------------#
+-include modules.mk
 
 #----------------------- BUILD -----------------------#
 
 all: $(CORE_LIB) $(BUILD_DIR)/$(PROJECT)-boot.bin modules 
--include modules.mk
 
-#----------------------- COMPACT25519 -----------------------#
+#----------------------- COMPACT25519 (only with FEATURE_SIGN_APP in target.h) -----------------------#
 
+HAVE_FEATURE_SIGN := $(shell grep -E "^\s*#define\s+FEATURE_SIGN_APP(\s|$$)" include/target.h >/dev/null 2>&1 && echo yes)
+
+ifeq ($(HAVE_FEATURE_SIGN),yes)	
+$(info building with compact25519 crypto library (feature_sign_app enabled))
 COMPACT25519_DIR  = libs/compact25519/src
 COMPACT25519_SRCS = $(COMPACT25519_DIR)/compact_ed25519.c \
-                    $(COMPACT25519_DIR)/compact_wipe.c \
-                    $(wildcard $(COMPACT25519_DIR)/c25519/*.c)
-
+$(COMPACT25519_DIR)/compact_wipe.c \
+							  $(wildcard $(COMPACT25519_DIR)/c25519/*.c)
 COMPACT25519_OBJS = $(COMPACT25519_SRCS:$(COMPACT25519_DIR)/%.c=$(BUILD_DIR)/thirdparty/compact25519/%.o)
-
 CFLAGS += -I$(COMPACT25519_DIR) -I$(COMPACT25519_DIR)/c25519
 CORE_OBJS += $(COMPACT25519_OBJS)
 
@@ -115,10 +120,13 @@ $(BUILD_DIR)/thirdparty/compact25519/%.o: $(COMPACT25519_DIR)/%.c
 	@mkdir -p $(dir $@)
 	@echo -e "$(YELLOW)> [COMPACT]: $<$(RESET)"
 	$(CC) -mcpu=$(CHIP) -mthumb -Os -fno-builtin -ffreestanding \
-	      -I$(COMPACT25519_DIR) -I$(COMPACT25519_DIR)/c25519 \
-	      -DCOMPACT_DISABLE_X25519 -DCOMPACT_DISABLE_X25519_DERIVE \
-	      -c -o $@ $<
-
+		-I$(COMPACT25519_DIR) -I$(COMPACT25519_DIR)/c25519 \
+		-DCOMPACT_DISABLE_X25519 -DCOMPACT_DISABLE_X25519_DERIVE \
+		-c -o $@ $<
+else
+$(info building without compact25519 crypto library)
+COMPACT25520_OBJS :=
+endif
 
 # --------------------------------------------- CORE
 
@@ -150,7 +158,6 @@ $(BUILD_DIR)/boot/%.o: src/boot/%.s
 
 $(BUILD_DIR)/$(PROJECT)-boot.elf: $(BOOT_OBJS)
 	$(CC) $(BOOT_CFLAGS) $(BOOT_LDFLAGS) -o $@ $^
-
 	@echo -e "$(GREEN)[+] $@ is done!$(RESET)"
 	@echo -e "$(BLUE)size:\n$$($(SIZE) $@)$(RESET)\n"
 
@@ -174,9 +181,8 @@ flash: $(BUILD_DIR)/$(PROJECT)-boot.bin
 erase:
 	st-flash erase
 
-clean:
+clean: clean-modules
 	rm -rf $(BUILD_DIR)
-	@$(MAKE) clean-modules
 
 debug:
 	${DEBUG} all

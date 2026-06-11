@@ -33,8 +33,8 @@ int bootloader_entry()
 #else 
   
    while(true) {
-      scan_for_apps();
-  
+      cmd_scan();
    }
+
 #endif 
 }
