@@ -178,10 +178,11 @@ void dump_memory(const void* addr, u32 size, void (*print)(const char*, ...))
 }
 #else 
 
-void dump_memory(const void* addr, u32 size, int (*print)(const char*, ...))
+void dump_memory(const void* addr, u32 size, void (*print)(const char*, ...))
 {
    UNUSED(addr);
    UNUSED(size);
    UNUSED(print);
 }
+
 #endif

@@ -8,10 +8,12 @@ bool verify_hv_integrity(void)
 
 inline bool is_valid_app_call(u32 _lr)
 {
+
+#ifdef _DEBUG
    DEBUG_PRINT("\r\n DUMP OF REGISTERS \r\n");
    dump_regs();
    DEBUG_PRINT("\r\n FINISH DUMP \r\n\r\n");
-   
+#endif 
 
    if (_lr < START_APP_SLOT || _lr > END_APP_SLOT){
       return false;

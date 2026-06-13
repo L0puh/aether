@@ -5,23 +5,36 @@
 #include "core/uart.h"
 
 #ifdef _DEBUG
-   #define DEBUG_PRINT(...)      uart_writef(__VA_ARGS__);
-   #define BOOTLOADER_DEBUG(...) uart_writef(__VA_ARGS__);
-   #define BOOTLOADER_ERROR(...) uart_writef(__VA_ARGS__);
-   #define UART_ERROR(...)       uart_writef(__VA_ARGS__);
-   #define UART_DEBUG(...)       uart_writef(__VA_ARGS__);
-   #define FLASHER_DEBUG(...)     uart_writef(__VA_ARGS__);
-   #define FLASHER_ERROR(...)     uart_writef(__VA_ARGS__);
-   #define CRYPTO_DEBUG(...)     uart_writef(__VA_ARGS__);
-   #define CRYPTO_ERROR(...)     uart_writef(__VA_ARGS__);
+
+   #define DEBUG_PRINT(fmt, ...) \
+       uart_writef("[DEBUG %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+
+   #define BOOTLOADER_DEBUG(fmt, ...) \
+       uart_writef("[BOOTLOADER:DEBUG %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+   #define BOOTLOADER_DEBUG(fmt, ...) \
+       uart_writef("[BOOTLOADER:DEBUG %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+   #define UART_DEBUG(fmt, ...) \
+       uart_writef("[UART:DEBUG %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+   #define UART_ERROR(fmt, ...) \
+       uart_writef("[UART:ERROR %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+   #define CRYPTO_ERROR(fmt, ...) \
+       uart_writef("[CRYPTO:ERROR %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+   #define CRYPTO_DEBUG(fmt, ...) \
+       uart_writef("[CRYPTO:DEBUG %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+   #define FLASHER_ERROR(fmt, ...) \
+       uart_writef("[FLASHER:ERROR %s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+   #define FLASHER_DEBUG(fmt, ...) \
+       uart_writef("[FLASHER:DEBUG%s (%d)] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 #else 
-   #define DEBUG_PRINT(...)     
-   #define BOOTLOADER_DEBUG(...)
-   #define BOOTLOADER_ERROR(...)
-   #define UART_ERROR(...)
-   #define UART_DEBUG(...)
-   #define APP_ERROR(...)
-   #define FLASHER_DEBUG(...)  
+   #define DEBUG_PRINT(fmt, ...)
+   #define BOOTLOADER_DEBUG(fmt, ...) 
+   #define BOOTLOADER_DEBUG(fmt, ...) 
+   #define UART_DEBUG(fmt, ...) 
+   #define UART_ERROR(fmt, ...) 
+   #define CRYPTO_ERROR(fmt, ...) 
+   #define CRYPTO_DEBUG(fmt, ...) 
+   #define FLASHER_ERROR(fmt, ...) 
+   #define FLASHER_DEBUG(fmt, ...) 
 #endif 
 
 #define DBG_UART_BAUDRATE 115200 
