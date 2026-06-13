@@ -27,6 +27,9 @@ typedef uint64_t    u64;
 #define END_APP_SLOT 0x08008000
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
 
+
+#define CMD_PRINT(...)  uart_writef(__VA_ARGS__);
+
 #define PACKED         __attribute__((packed))
 #define ALWAYS_INLINE  __attribute__((always_inline))
 typedef enum _ret_codes {

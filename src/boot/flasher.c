@@ -92,13 +92,13 @@ void flash_erase_app_slot(u32 addr, u32 size)
       //TODO: check errors 
 
       if (timeout == 0) {
-         FLASHER_DEBUG("erase timeout at 0x%x!\r\n", i);
+         FLASHER_ERROR("erase timeout at 0x%x!\r\n", i);
          FLASH->CR &= ~(FLASH_PAGE_ERASE_MODE | FLASH_START_ERASE);
          flash_lock();
          return;
       }
 
-      FLASHER_ERROR("erase at 0x%x!\r\n", i);
+      CMD_PRINT("erase at 0x%x!\r\n", i);
       FLASH->CR &= ~FLASH_PAGE_ERASE_MODE;
    }
 

@@ -15,19 +15,19 @@ bool execute_cmd() {
    u8 cmd = uart_data();
    if (cmd == CMD_UPDATE)
    {
-      BOOTLOADER_DEBUG("CMD UPDATE: %c\r\n", cmd);
+      CMD_PRINT("CMD UPDATE: %c\r\n", cmd);
       uart_flush_rx();
       cmd_update();
       return true;
    } 
 
    if (cmd == CMD_WATCH) {
-      BOOTLOADER_DEBUG("CMD WATCH: %c\r\n", cmd);
+      CMD_PRINT("CMD WATCH: %c\r\n", cmd);
       return true;
    }
 
    if (cmd == CMD_SCAN) {
-      BOOTLOADER_DEBUG("SCAN APPS: %c\r\n", cmd);
+      CMD_PRINT("SCAN APPS: %c\r\n", cmd);
       uart_flush_rx();
       cmd_scan();
       return true;
@@ -78,14 +78,14 @@ bool cmd_scan()
       run_app(desc);
    }
 
-   BOOTLOADER_DEBUG("NO MORE APPS\r\n");
+   CMD_PRINT("NO MORE APPS\r\n");
    return true;
 }
 
 bool cmd_update(void)
 {
 
-   BOOTLOADER_DEBUG("flash command received!\r\n");
+   CMD_PRINT("flash command received!\r\n");
 
 #ifdef FEATURE_SIGN_APP
    static u8 buff[MAX_APP_SIZE + SIGNATURE_SIZE];
@@ -97,7 +97,7 @@ bool cmd_update(void)
 
    uart_flush_rx();
 
-   FLASHER_DEBUG("waiting for uart binary via UART...\r\n");
+   CMD_PRINT("waiting for uart binary via UART...\r\n");
 
    size = uart_read_word();
 
@@ -113,7 +113,7 @@ bool cmd_update(void)
    }
 #endif 
 
-   FLASHER_DEBUG("size received: %lu\r\n", size);
+   CMD_PRINT("size received: %lu\r\n", size);
    
    addr = uart_read_word();
    if (addr < START_APP_SLOT || addr > END_APP_SLOT){
@@ -121,11 +121,11 @@ bool cmd_update(void)
       return false;;
    }
 
-   FLASHER_DEBUG("addr received: 0x%x\r\n", addr);
+   CMD_PRINT("addr received: 0x%x\r\n", addr);
 
    for (u32 i = 0; i < size; i++) {
       if (!uart_wait_rx_ready(FLASHER_WAIT_TIMEOUT)){
-         FLASHER_DEBUG("receive data timeout!\r\n");
+         CMD_PRINT("receive data timeout!\r\n");
          flash_erase_app_slot(addr, size);
          mpu_enable();
          return false;;
@@ -134,7 +134,7 @@ bool cmd_update(void)
       buff[i] = uart_data();
    }
   
-   FLASHER_DEBUG("data received!\r\n");
+   CMD_PRINT("data received!\r\n");
 
 #ifdef FEATURE_SIGN_APP 
    app_size = size - SIGNATURE_SIZE;
@@ -143,24 +143,24 @@ bool cmd_update(void)
    FLASHER_DEBUG("data: 0x%x, sign: 0x%x!\r\n", buff, sign);
    
    if (!verify_app_buffer(app_data, app_size, sign)){
-      FLASHER_ERROR("failed to flash app, security violation!\r\n");
+      CMD_PRINT("failed to flash app, security violation!\r\n");
       return false;
    }
    
-   FLASHER_DEBUG("app is verified!\r\n");
+   CMD_PRINT("app is verified!\r\n");
 #else
    app_size = size;
    u8* app_data = buff;
-   FLASHER_DEBUG("data: 0x%x!\r\n", buff);
+   CMD_PRINT("data: 0x%x!\r\n", buff);
 #endif 
 
    mpu_disable();
    app_desc_t* desc = (app_desc_t*)app_data;
    if (desc->magic == APP_MAGIC) {
-      FLASHER_DEBUG("magic is found: entry: 0x%x stack: 0x%x, version: %d\r\n", desc->entry, desc->p_stack, desc->version);
+      CMD_PRINT("magic is found: entry: 0x%x stack: 0x%x, version: %d\r\n", desc->entry, desc->p_stack, desc->version);
       desc->size = app_size;
    } else {
-      FLASHER_ERROR("magic value is wrong!\r\n");
+      CMD_PRINT("magic value is wrong!\r\n");
       return false;
    }
 
@@ -169,7 +169,7 @@ bool cmd_update(void)
  
    mpu_enable();
 
-   FLASHER_DEBUG("flashing done!\r\n");
+   CMD_PRINT("flashing done!\r\n");
    system_reset();
    return true;
 }
