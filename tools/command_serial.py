@@ -64,6 +64,7 @@ if "__main__" == __name__:
         else: 
             cmd.send_app(path, addr)
     if data == "exec" or data == "e":
+        print("executing...")
         cmd.execute_apps(True)
 
 

@@ -1,3 +1,4 @@
+#include "defs.h"
 #include <aether.h>
 #include <stdarg.h>
 

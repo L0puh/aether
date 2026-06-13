@@ -8,8 +8,11 @@ void flash_write_buffer(u32 addr, u8* data, u32 size)
     {
         uint16_t halfword = data[i];
 
-        if (i + 1 < size)
-            halfword |= ((uint16_t)data[i + 1] << 8);
+         if (i + 1 < size) {
+            halfword = data[i] | (data[i + 1] << 8);
+        } else {
+            halfword = data[i];
+        }
 
         u32 timeout = FLASHER_WAIT_TIMEOUT;
 
@@ -86,14 +89,16 @@ void flash_erase_app_slot(u32 addr, u32 size)
       timeout = FLASHER_WAIT_TIMEOUT;
       while((FLASH->SR & FLASH_SR_BUSY) && --timeout);
 
+      //TODO: check errors 
+
       if (timeout == 0) {
-         FLASHER_ERROR("erase timeout at 0x%08lX!\r\n", i);
+         FLASHER_DEBUG("erase timeout at 0x%x!\r\n", i);
          FLASH->CR &= ~(FLASH_PAGE_ERASE_MODE | FLASH_START_ERASE);
          flash_lock();
          return;
       }
 
-      FLASHER_ERROR("erase at 0x%08lX!\r\n", i);
+      FLASHER_ERROR("erase at 0x%x!\r\n", i);
       FLASH->CR &= ~FLASH_PAGE_ERASE_MODE;
    }
 

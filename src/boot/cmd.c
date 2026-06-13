@@ -11,10 +11,12 @@
  */
 
 bool execute_cmd() {
+   
    u8 cmd = uart_data();
    if (cmd == CMD_UPDATE)
    {
       BOOTLOADER_DEBUG("CMD UPDATE: %c\r\n", cmd);
+      uart_flush_rx();
       cmd_update();
       return true;
    } 
@@ -26,6 +28,7 @@ bool execute_cmd() {
 
    if (cmd == CMD_SCAN) {
       BOOTLOADER_DEBUG("SCAN APPS: %c\r\n", cmd);
+      uart_flush_rx();
       cmd_scan();
       return true;
    }
@@ -60,6 +63,7 @@ bool cmd_scan()
    u32 start = START_APP_SLOT;
    u32 end   = END_APP_SLOT;
 
+
    for (u32 addr = start; addr < end; addr += 4)
    {
       app_desc_t* desc = (app_desc_t*)addr;
@@ -92,6 +96,7 @@ bool cmd_update(void)
    u32 size, addr, app_size;
 
    uart_flush_rx();
+
    FLASHER_DEBUG("waiting for uart binary via UART...\r\n");
 
    size = uart_read_word();
