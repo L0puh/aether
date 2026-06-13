@@ -20,7 +20,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
 
-FEATURE_SIGNATURE = False
+
 def sign_app(app_data):
     with open(PRIVATE_KEY, 'rb') as f:
         private_key = serialization.load_pem_private_key(f.read(), password=None)
@@ -28,6 +28,7 @@ def sign_app(app_data):
 
 
 def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
+    FEATURE_SIGNATURE = False
     with open(bin_file, 'rb') as f:
         app_data = f.read()
 
@@ -55,7 +56,7 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
 
     ser.write(b'F')
     while True:
-        line = ser.readline().decode().strip()
+        line = ser.readline().decode('utf-8', errors='ignore').strip()
         if line:
             print(f"\t< {line}")
         if "flash command" in line:
@@ -65,7 +66,7 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
     ser.write(struct.pack('<I', size))
     
     while True:
-        line = ser.readline().decode().strip()
+        line = ser.readline().decode('utf-8', errors='ignore').strip()
         if line:
             print(f"\t< {line}")
         if f"size received: {size}" in line:
@@ -74,7 +75,7 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
     ser.write(struct.pack('<I', addr))
     
     while True:
-        line = ser.readline().decode().strip()
+        line = ser.readline().decode('utf-8', errors='ignore').strip()
         if line:
             print(f"\t< {line}")
         if f"addr received: {hex(addr)}" in line:
@@ -90,7 +91,7 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200, addr=0x08002000):
     print()
     
     while True:
-        line = ser.readline().decode().strip()
+        line = ser.readline().decode('utf-8', errors='ignore').strip()
         if line:
             print(f"\t< {line}")
         if "flashing done" in line.lower():

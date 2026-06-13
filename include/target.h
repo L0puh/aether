@@ -1,7 +1,7 @@
 #pragma once
 
-#define MODE_AUTO
-//#define MODE_SERIAL
+//#define MODE_AUTO
+#define MODE_SERIAL
 //#define MODE_MIX
 
 #define SYSTEM_CLOCK_72Mhz 

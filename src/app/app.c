@@ -10,7 +10,7 @@ const app_desc_t app_desc =
    .magic  = APP_MAGIC,
    .version = 0x0100,
    .entry = app_main,
-   .size = 0 // will be filled on flashing 
+   .size = 0            // filled on flashing 
 };
 
 void app_main(void)

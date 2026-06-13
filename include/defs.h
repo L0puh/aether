@@ -16,14 +16,19 @@ typedef uint64_t    u64;
 #define IS_ERROR(ret) (ret > SUCCESS)
 #define CLEAR_BITS(n, pos) (~(((1UL << (n)) - 1) << (pos)))
 
+#define HV_GET_LR(lr_var) \
+   __asm volatile ("mov %0, lr\n" : "=r" (lr_var))
+
 #define MAX_BUFFER_SIZE 1024
 #define MAX_APP_SIZE    8192
+#define MAX_HV_API_SIZE 256
 #define SIGNATURE_SIZE  64
 #define START_APP_SLOT 0x08002000
 #define END_APP_SLOT 0x08008000
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
 
-#define PACKED __attribute__((packed))
+#define PACKED         __attribute__((packed))
+#define ALWAYS_INLINE  __attribute__((always_inline))
 typedef enum _ret_codes {
    SUCCESS,
    NOT_FOUND,

@@ -50,3 +50,16 @@ void system_reset(void)
    while(1);
 }
 
+inline u32 get_msp(void)
+{
+   u32 msp;
+   __asm volatile ("mrs %0, msp" : "=r" (msp));
+   return msp;
+}
+
+inline u32 get_psp(void)
+{
+   u32 psp;
+   __asm volatile ("mrs %0, psp" : "=r" (psp));
+   return psp;
+}

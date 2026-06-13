@@ -152,5 +152,7 @@ void instr_sync_barrier(void);
 void cpu_wait_for_interrupt();
 void wait_interrupt();
 void system_reset(void);
+u32 get_msp(void);
+u32 get_psp(void);
 
 #endif 

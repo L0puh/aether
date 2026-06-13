@@ -25,7 +25,7 @@ class Command:
             ser.write(b'S')
             if verbose:
                 while(1):
-                    line = ser.readline().decode().strip()
+                    line = ser.readline().decode('utf-8', errors='ignore').strip()
                     if "NO MORE APPS" in line:
                         break
                     if line:
@@ -42,7 +42,7 @@ class Command:
             ser = serial.Serial(self.port, self.baud, timeout=5)
             ser.write(b'W')
             if verbose:
-                line = ser.readline().decode().strip()
+                line = ser.readline().decode('utf-8', errors='ignore').strip()
                 if line:
                     print(f"\t< {line}")
             ser.close()
