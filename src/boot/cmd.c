@@ -71,9 +71,9 @@ bool cmd_scan()
       if (desc->magic != APP_MAGIC)
          continue;
 
-      BOOTLOADER_DEBUG( "APP FOUND @ 0x%08x [%d bytes]\r\n", addr, desc->size);
+      BOOTLOADER_DEBUG( "APP FOUND @ 0x%x [%d bytes]\r\n", addr, desc->size);
       dump_memory((const void*) addr, desc->size, &uart_writef);
-      BOOTLOADER_DEBUG( "ENTRY = 0x%08x\r\n", desc->entry);
+      BOOTLOADER_DEBUG( "ENTRY = 0x%x\r\n", desc->entry);
 
       run_app(desc);
    }

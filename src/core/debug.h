@@ -6,30 +6,15 @@
 
 
 #ifdef _DEBUG
-
-   #define DEBUG_PRINT(fmt, ...) \
-       uart_writef("DG " fmt, ##__VA_ARGS__)
-
-   #define BOOTLOADER_DEBUG(fmt, ...) \
-       uart_writef("BT " fmt, ##__VA_ARGS__)
-
-   #define UART_DEBUG(fmt, ...) \
-       uart_writef("UR " fmt, ##__VA_ARGS__)
-
-   #define CRYPTO_DEBUG(fmt, ...) \
-       uart_writef("CR " fmt, ##__VA_ARGS__)
-
-   #define FLASHER_DEBUG(fmt, ...) \
-       uart_writef("FS " fmt, ##__VA_ARGS__)
-
-   #define UART_ERROR(fmt, ...) \
-       uart_writef("!UR " fmt, ##__VA_ARGS__)
-
-   #define CRYPTO_ERROR(fmt, ...) \
-       uart_writef("!CR " fmt, ##__VA_ARGS__)
-
-   #define FLASHER_ERROR(fmt, ...) \
-       uart_writef("!FS " fmt, ##__VA_ARGS__)
+   #define DEBUG_PRINT(...)      uart_writef(__VA_ARGS__);
+   #define BOOTLOADER_DEBUG(...) uart_writef(__VA_ARGS__);
+   #define BOOTLOADER_ERROR(...) uart_writef(__VA_ARGS__);
+   #define UART_ERROR(...)       uart_writef(__VA_ARGS__);
+   #define UART_DEBUG(...)       uart_writef(__VA_ARGS__);
+   #define FLASHER_DEBUG(...)     uart_writef(__VA_ARGS__);
+   #define FLASHER_ERROR(...)     uart_writef(__VA_ARGS__);
+   #define CRYPTO_DEBUG(...)     uart_writef(__VA_ARGS__);
+   #define CRYPTO_ERROR(...)     uart_writef(__VA_ARGS__);
 
 #else 
    #define DEBUG_PRINT(fmt, ...) ((void)0)
