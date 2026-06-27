@@ -26,6 +26,8 @@ typedef uint64_t    u64;
 #define START_APP_SLOT 0x08002000
 #define END_APP_SLOT 0x08008000
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
+#define TICK_HOOK_MS 100 
+#define MAX_RUNTIME_MS 5000
 
 
 #define CMD_PRINT(...)  uart_writef(__VA_ARGS__);

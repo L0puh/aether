@@ -4,12 +4,21 @@
 #include "defs.h"
 #include <stdbool.h>
 
+typedef struct _hv_state {
+   u8  last_uart_cmd;
+   u32 last_check_ms;
+   u32 max_runtime_ms;
+   u32 watchdog_timeout_ms;
+   u32 apps_start_ms;
+} app_state_t;
+
 typedef struct PACKED _app_desc {
    u32 magic;
    u32 version;
    void *p_stack;
    void (*entry)(void);
    u32 size;
+   app_state_t state;
 } app_desc_t;
 
 typedef void (*hv_delay_ms_t)(u32 ms);
@@ -30,9 +39,11 @@ typedef struct _hv_api {
 
 } hv_api_t;
 
+
 extern volatile hv_api_t hv_api;
 
 bool is_valid_app_call(u32 lr);
+void hv_tick_hook(void);
 void init_debug_led(void);
 void toggle_debug_led(void);
 ret setup_system(void);

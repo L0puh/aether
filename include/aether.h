@@ -39,5 +39,7 @@
 
 typedef void (*app_entry_t)(void);
 
+app_desc_t *running_app_g = NULL;
+
 #endif
 

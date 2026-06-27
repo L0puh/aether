@@ -51,6 +51,10 @@ const device_vectors_t vector_table = {
 void systick_handler(void)
 {
    system_ticks_g++;
+
+   if (system_ticks_g % TICK_HOOK_MS) {
+      hv_tick_hook();
+   }
 }
 
 void default_handler(void)

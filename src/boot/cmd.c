@@ -10,27 +10,31 @@
  *
  */
 
-bool execute_cmd() {
-   
-   u8 cmd = uart_data();
-   if (cmd == CMD_UPDATE)
-   {
-      CMD_PRINT("CMD UPDATE: %c\r\n", cmd);
-      uart_flush_rx();
-      cmd_update();
-      return true;
-   } 
+u8 recv_cmd(void) {
+   return uart_data();
+}
 
-   if (cmd == CMD_WATCH) {
-      CMD_PRINT("CMD WATCH: %c\r\n", cmd);
-      return true;
-   }
-
-   if (cmd == CMD_SCAN) {
-      CMD_PRINT("SCAN APPS: %c\r\n", cmd);
-      uart_flush_rx();
-      cmd_scan();
-      return true;
+bool execute_cmd(u8 cmd) {
+   switch (cmd) {
+      case CMD_UPDATE:
+         CMD_PRINT("CMD UPDATE: %c\r\n", cmd);
+         uart_flush_rx();
+         cmd_update();
+         return true;
+      case CMD_SCAN:
+         CMD_PRINT("SCAN APPS: %c\r\n", cmd);
+         uart_flush_rx();
+         cmd_scan();
+         return true;
+      case CMD_WATCH:
+         CMD_PRINT("CMD WATCH: %c\r\n", cmd);
+         return true;
+      case CMD_RESET:
+      case CMD_STOP:
+         CMD_PRINT("NO APP IS RUNNING TO EXECUTE THIS CMD: %c\r\n", cmd);
+         return true;
+      default:
+         CMD_PRINT("CMD UNKNOWN: %c!\r\n", cmd);
    }
    
    return false;
@@ -39,22 +43,16 @@ bool execute_cmd() {
 static void run_app(app_desc_t* desc)
 {
    app_entry_t entry;
+   
+   desc->state.apps_start_ms = system_ticks_g;
+   desc->state.last_check_ms = system_ticks_g;
 
-#ifdef MEASURE_TIME
-   BOOTLOADER_DEBUG("measuring time...\r\n");
-   volatile u32 t_start, t_end;
-   t_start = system_ticks_g;
-#endif 
-
+   running_app_g = desc;
    entry = (app_entry_t)((u32)desc->entry | 1);
    BOOTLOADER_DEBUG("RUNNING APP\r\n");
    entry();
    BOOTLOADER_DEBUG("APP RETURNED\r\n");
-
-#ifdef MEASURE_TIME
-   t_end = system_ticks_g;
-   BOOTLOADER_DEBUG("TIME ON EXECUTION: %d\r\n", t_end - t_start);
-#endif 
+   running_app_g = NULL;
 
 }
 
@@ -163,6 +161,8 @@ bool cmd_update(void)
       CMD_PRINT("magic value is wrong!\r\n");
       return false;
    }
+   desc->state = (app_state_t){ .max_runtime_ms = MAX_RUNTIME_MS, 
+                                .watchdog_timeout_ms = DEFAULT_CLOCK_TIMEOUT};
 
    flash_erase_app_slot(addr, app_size);
    flash_write_buffer(addr, app_data, app_size);

@@ -8,7 +8,8 @@ void fetch_commands()
       return;
    }
 
-   if (!execute_cmd()){
+   u8 cmd = recv_cmd();
+   if (!execute_cmd(cmd)){
       BOOTLOADER_DEBUG("failed to execute cmd!\r\n");
    }
 }
