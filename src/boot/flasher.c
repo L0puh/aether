@@ -1,49 +1,53 @@
 #include <aether.h>
 
-void flash_write_buffer(u32 addr, u8* data, u32 size)
+
+bool flash_write_from_uart(u32 addr, u32 size)
 {
-    flash_unlock();
+   u8 data;
+   u32 timeout;
 
-    for (u32 i = 0; i < size; i += 2)
-    {
-        uint16_t halfword = data[i];
+   flash_unlock();
+   for (u32 i = 0; i < size; i++) 
+   {
+      if (!uart_wait_rx_ready(FLASHER_WAIT_TIMEOUT)) {
+         UART_PRINT("recv data timeout\r\n");
+         flash_erase_app_slot(addr, size);
+         return false;
+      }
 
-         if (i + 1 < size) {
-            halfword = data[i] | (data[i + 1] << 8);
-        } else {
-            halfword = data[i];
-        }
+      data = uart_data();
+      timeout = FLASHER_WAIT_TIMEOUT;
 
-        u32 timeout = FLASHER_WAIT_TIMEOUT;
+      while (FLASH->SR & FLASH_SR_BUSY) {
+         if (--timeout == 0) {
+            FLASHER_ERROR("busy timeout\r\n");
+            flash_lock();
+            return false;
+         }
+      }
 
-        while (FLASH->SR & FLASH_SR_BUSY) {
-            if (--timeout == 0) {
-                FLASHER_ERROR("BUSY timeout\r\n");
-                flash_lock();
-                return;
-            }
-        }
+      FLASH->CR |= FLASH_CR_PROGMODE;
 
-        FLASH->CR |= FLASH_CR_PROGMODE;
+      *(volatile uint16_t*)(addr + i) = data;
 
-        *(volatile uint16_t*)(addr + i) = halfword;
+      timeout = FLASHER_WAIT_TIMEOUT;
 
-        timeout = FLASHER_WAIT_TIMEOUT;
+      while (FLASH->SR & FLASH_SR_BUSY) {
+         if (--timeout == 0) {
+            FLASHER_ERROR("write timeout\r\n");
+            flash_lock();
+            return false;
+         }
+      }
 
-        while (FLASH->SR & FLASH_SR_BUSY) {
-            if (--timeout == 0) {
-                FLASHER_ERROR("WRITE timeout\r\n");
-                flash_lock();
-                return;
-            }
-        }
+      FLASH->CR &= ~FLASH_CR_PROGMODE;
 
-        FLASH->CR &= ~FLASH_CR_PROGMODE;
+      FLASHER_DEBUG("write %lu/%lu at 0x%x ok\r\n", i, size, (addr+i));
 
-        FLASHER_DEBUG("write %lu/%lu at 0x%x ok\r\n", i/2, size/2, (addr+i));
-    }
+   }
+   flash_lock();
 
-    flash_lock();
+   return true;
 }
 
 void flash_unlock(void)
@@ -63,7 +67,7 @@ void flash_erase_app_slot(u32 addr, u32 size)
 {
    flash_unlock();
 
-   if (addr < START_APP_SLOT || addr > END_APP_SLOT || addr + size > END_APP_SLOT) {
+   if (addr < FLASH_APP_ORIGIN || addr > FLASH_APP_ORIGIN + FLASH_APP_LENGTH || size > FLASH_APP_LENGTH) {
       FLASHER_ERROR("invalid parameter, out of resources!\r\n");
       return;
    }

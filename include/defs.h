@@ -21,18 +21,17 @@ typedef uint64_t    u64;
 
 #define MAX_BUFFER_SIZE 1024
 #define SIGNATURE_SIZE  64
+
+// TODO: refactor??
 #ifdef FEATURE_SIGN_APP
 #define MAX_APP_SIZE    (8192 + SIGNATURE_SIZE)
 #else
 #define MAX_APP_SIZE    8192
 #endif 
-#define MAX_HV_API_SIZE 256
-#define START_APP_SLOT 0x08002000
-#define END_APP_SLOT 0x08008000
+
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
 #define TICK_HOOK_MS 100 
 #define MAX_RUNTIME_MS 5000
-
 
 #define CMD_PRINT(...)  uart_writef(__VA_ARGS__);
 

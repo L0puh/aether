@@ -1,74 +1,34 @@
 /*
  * bootloader linker script for stm32f103c6t6
- * applications are executed as functions that return control
+ * applications are flashed via UART only 
+ *
  */
+
+INCLUDE memory_map.h
 
 MEMORY
 {
-   rom (rx)  : ORIGIN = 0x08000000, LENGTH = 32K
-   ram (rwx) : ORIGIN = 0x20000000, LENGTH = 9K
-   hv  (rx)  : ORIGIN = 0x20002400, LENGTH = 256
-   stack (rw): ORIGIN = 0x20002500, LENGTH = 768
+   hv_flash (rx)  : ORIGIN = FLASH_HV_ORIGIN, LENGTH = FLASH_HV_LENGTH 
+   hv_ram   (rwx) : ORIGIN = RAM_HV_ORIGIN,   LENGTH = RAM_HV_LENGTH
 }
-
-_estack = ORIGIN(stack) + LENGTH(stack);
 
 ENTRY(reset_handler)
 
 SECTIONS
 {
-
-      .text :
-   {
-       . = ALIGN(4);
-
-       _stext = .;
-
-       KEEP(*(.vectors))
-
-       *(.text*)
-       *(.rodata*)
-
-       . = ALIGN(4);
-
-       _etext = .;
-   } > rom
-
-
-   .data : AT(_etext)
-   {
-       . = ALIGN(4);
-
-       _sdata = .;
-
-       *(.data*)
-
-       . = ALIGN(4);
-
-       _edata = .;
-   } > ram
-
-
-   .bss (NOLOAD) :
-   {
-       . = ALIGN(4);
-
-       _sbss = .;
-
-       *(.bss*)
-       *(COMMON)
-
-       . = ALIGN(4);
-
-       _ebss = .;
-   } > ram
-
-   .hv_api (NOLOAD) :
-   {
-      . = ALIGN(4);
-
-      KEEP(*(.hv_api))
-
-      . = ALIGN(4);
-   } > hv
+  .hv_vectors : { 
+     KEEP(*(.vectors)) 
+  } > FLASH_HV
+  .hv_text    : { 
+     *(.text*) *(.rodata*) 
+  } > FLASH_HV
+  .hv_data    : { 
+     *(.data*) 
+  } > RAM_HV AT > FLASH_HV
+  .hv_bss     : { 
+     *(.bss*) 
+  } > RAM_HV
 }
+
+_hv_stack_top   = ORIGIN(RAM_HV) + LENGTH(RAM_HV);
+_app_stack_top  = ORIGIN(RAM_APP) + LENGTH(RAM_APP);

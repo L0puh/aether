@@ -23,8 +23,8 @@
 #include "core/crypto.h"
 
 /* PLATFORM SPECIFIC */
-#include "aether/device_vectors.h"
-#include "aether/memory.h"
+#include "device_vectors.h"
+#include "memory_map.h"
 
 /* HYPERVISOR */
 #include "boot/hv.h"
@@ -33,9 +33,6 @@
 #include "boot/cmd.h"
 
 #define APP_MAGIC (0xDEADBEEF)
-
-#define ADD_ADDR    0x08002000   
-#define HV_API_ADDR 0x20002400  
 
 typedef void (*app_entry_t)(void);
 

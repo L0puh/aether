@@ -1,5 +1,3 @@
-#include "core/gpio.h"
-#include "core/systick.h"
 #include <aether.h>
 
 volatile u32 system_ticks_g = 0;

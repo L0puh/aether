@@ -1,34 +1,17 @@
 #include <aether.h>
 
-void fetch_commands()
-{
-   if (!uart_rx_ready()){
-      BOOTLOADER_DEBUG("timeout of waiting for updates is out\r\n");
-      return;
-   }
-
-   u8 cmd = recv_cmd();
-   if (!execute_cmd(cmd)){
-      BOOTLOADER_DEBUG("failed to execute cmd!\r\n");
-   }
-}
-
 bool is_app_exists(app_desc_t* desc) {
-   u32 start = START_APP_SLOT;
-   u32 end   = END_APP_SLOT;
 
-   for (u32 addr = start; addr < end; addr += 4)
-   {
-      desc = (app_desc_t*)addr;
+   desc = (app_desc_t*) APP_DESC_ADDR;
 
-      if (desc->magic != APP_MAGIC)
-         continue;
+   if (desc->magic == APP_MAGIC) {
 
-      BOOTLOADER_DEBUG( "APP FOUND @ 0x%x [%d bytes]\r\n", addr, desc->size);
-      dump_memory((const void*) addr, desc->size, &uart_writef);
+      BOOTLOADER_DEBUG( "APP FOUND @ 0x%x [%d bytes]\r\n", APP_DESC_ADDR, desc->size);
+      dump_memory((const void*) APP_DESC_ADDR, desc->size, &uart_writef);
       BOOTLOADER_DEBUG( "ENTRY = 0x%x\r\n", desc->entry);
 
       return true;
+      
    }
 
    BOOTLOADER_DEBUG("APPS NOT FOUND\r\n");
@@ -63,7 +46,7 @@ u32 recv_size(void)
       return 0;
    }
 #else 
-   if (size > MAX_APP_SIZE || size == 0) {
+   if (size > FLASH_APP_LENGTH || size == 0) {
       FLASHER_DEBUG("invalid size: %lu\r\n", size);
       return 0;
    }
@@ -73,22 +56,10 @@ u32 recv_size(void)
    return size;
 }
 
-u32 recv_addr(void) 
+bool update_app_desc(app_desc_t *desc, const u32 app_size) 
 {
-   u32 addr;
-   addr = uart_read_word();
-   if (addr < START_APP_SLOT || addr > END_APP_SLOT){
-      FLASHER_DEBUG("invalid addr: 0x%x\r\n", addr);
-      return 0;
-   }
+   desc = (app_desc_t*)APP_DESC_ADDR;
 
-   UART_PRINT("addr received: 0x%x\r\n", addr);
-   return addr;
-}
-
-bool update_app_desc(app_desc_t *desc, const u8* app_data, const u32 app_size) 
-{
-   desc = (app_desc_t*)app_data;
    if (desc->magic == APP_MAGIC) {
       UART_PRINT("magic is found: entry: 0x%x stack: 0x%x, version: %d\r\n", desc->entry, desc->p_stack, desc->version);
       desc->size = app_size;
@@ -104,33 +75,32 @@ bool update_app_desc(app_desc_t *desc, const u8* app_data, const u32 app_size)
 
 bool fetch_app(app_desc_t *desc) 
 {
+   if (!uart_rx_ready() && (uart_data() != 'U')){
+      UART_PRINT("failed to recv [sync] byte");
+      return false;
+   }
 
    UART_PRINT("flash command received!\r\n");
 
    uart_flush_rx();
-   u32 size, addr, app_size;
-   static u8 buff[MAX_APP_SIZE];
+   u32 size, addr;
 
+   addr = FLASH_APP_ORIGIN;
    size = recv_size();
    if (size == 0) return false;
+ 
 
-   addr = recv_addr();
-   if (addr == 0) return false;
-
-   for (u32 i = 0; i < size; i++) {
-      if (!uart_wait_rx_ready(FLASHER_WAIT_TIMEOUT)){
-         UART_PRINT("receive data timeout!\r\n");
-         flash_erase_app_slot(addr, size);
-         mpu_enable();
-         return false;;
-      }
-         
-      buff[i] = uart_data();
-   }
-  
-   UART_PRINT("data received!\r\n");
+//TODO:
+// update mpu settings for current memory map
+// should i lock and unlock flash? if i use only app region 
+// should i enable and disable mpu? for same reason
+//
 
 #ifdef FEATURE_SIGN_APP 
+   //FIXME: should recv signature separately? 
+   //i.e. sign = recv_sign(SIGNATURE_SIZE);
+   //without buffer allocation (since memory unwise 
+   //to do that lol)
    app_size = size - SIGNATURE_SIZE;
    u8* app_data = buff;
    u8* sign = buff + app_size;
@@ -142,25 +112,21 @@ bool fetch_app(app_desc_t *desc)
    }
    
    UART_PRINT("app is verified!\r\n");
-#else
-   app_size = size;
-   u8* app_data = buff;
-   UART_PRINT("data: 0x%x!\r\n", buff);
 #endif 
 
    mpu_disable();
 
-   if (!update_app_desc(desc, app_data, app_size)) {
-      return false;
-      mpu_enable();
+   flash_erase_app_slot(addr, size);
+   flash_write_from_uart(addr, size);
+ 
+   if (!update_app_desc(desc, size)) {
+      UART_PRINT("app is corrupted, aborting...\r\n");
+      flash_erase_app_slot(addr, size);
+   } else {
+      UART_PRINT("flashing is done!\r\n");
    }
 
-   flash_erase_app_slot(addr, app_size);
-   flash_write_buffer(addr, app_data, app_size);
- 
    mpu_enable();
-
-   UART_PRINT("flashing done!\r\n");
 
    system_reset();
 

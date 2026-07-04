@@ -2,6 +2,8 @@
 #define FLASHER_H
 
 #include "defs.h"
+#include <stdbool.h>
+
 #define FLASH_KEY1             0x45670123
 #define FLASH_KEY2             0xCDEF89AB
 #define FLASH_CR_LOCK          (1 << 7)
@@ -13,7 +15,8 @@
 void flash_unlock(void);
 void flash_lock(void);
 
-void flash_write_buffer(u32 addr, u8* data, u32 size);
 void flash_erase_app_slot(u32 addr, u32 size);
+bool flash_write_from_uart(u32 addr, u32 size);
+
 
 #endif 
