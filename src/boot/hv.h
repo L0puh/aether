@@ -49,7 +49,6 @@ void toggle_debug_led(void);
 ret setup_system(void);
 void led_blink(int count, int time);
 
-bool verify_hv_integrity(void);
 void delay_impl(u32 ms);
 void uart_write_impl(const char* str);
 void uart_writef_impl(const char* str, ...);

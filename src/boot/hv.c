@@ -2,38 +2,19 @@
 
 void hv_tick_hook(void) 
 {
-   if (!running_app_g) {
-      DEBUG_PRINT("no running app\r\n");
-   }
-
-   app_state_t state = running_app_g->state;
+   app_desc_t* running_app = NULL;
+   //TODO get_app(running_app)
+   
+   app_state_t state = running_app->state;
    u32 app_age = system_ticks_g - state.apps_start_ms;
    if (state.max_runtime_ms && app_age >= state.max_runtime_ms) {
       BOOTLOADER_ERROR("RUNTIME APP TIMEOUT!\r\n");
       //TODO: kill app
    }
 
-   if (uart_rx_ready()) {
-      u8 cmd = recv_cmd();
-      switch (cmd) {
-         case CMD_STOP:
-         case CMD_RESET:
-            //TODO: process commands 
-            running_app_g->state.last_uart_cmd = cmd;
-            break;
-         default: 
-            BOOTLOADER_DEBUG("requested cmd is not available during app execution\r\n");
-      }
-   }
-
    //TODO: also check stack canary and watchdog 
 }
 
-bool verify_hv_integrity(void) 
-{
-   //TODO!
-   return true;
-}
 
 inline bool is_valid_app_call(u32 _lr)
 {
@@ -133,6 +114,7 @@ ret setup_system(void)
 #endif
 
    systick_init();
+   
    init_debug_led();
 
    status = rcc_init_uart_clock(

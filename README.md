@@ -5,46 +5,54 @@
 
 # aether
 
-A bare-metal Type-1 hypervisor for STM32F103C6T6 (Cortex-M3) that provides MPU-based task isolation without an MMU.
+minimal bootloader with bare metal hypervisor on blue pill.
 
 ## overview
 
-classical hypervisors rely on mmu-based virtual memory, which cortex-m microcontrollers simply don't have. **aether** uses only the mpu as the hardware isolation boundary, fitting into the tight resource constraints of a blue pill board. current target is STM32F103C6T6 (Blue Pill)
+mostly it's a show case of security model. bootloader recieves calls, ensures a loaded
+app foolows its manifest, handles interrupts and beheaves
+as a supervisor for app. this includes MPU, stack protection, SVC, and etc.
+
+## hypervisor api
+
+SVC calls include:
+- _region request_ to a peripheral/memory based on app's manifest 
+- wdt kick 
+- exit / fault 
+
+this model provides scale for apps. UART, SPI,
+GPIO and etc. happen as plain MMIO reads once `SVC_REGION_REQ` has granted
+the region. 
 
 ## architecture
 
-The system is composed of three layers:
+memory layout (assume stm32f103 - 64k flash and 20k RAM). 
 
-- **bootloader** — privileged core that initializes the mpu, sets up the hypercall table, and launches application slots.
-- **hypervisor api** — a fixed-address function pointer table through which unprivileged applications access peripherals in a controlled way.
-- **applications** — user modules described by an `app_desc_t` descriptor (magic signature + entry point), loaded into dedicated flash slots.
-
-on startup, the bootloader scans flash slots sequentially. for each valid module it reconfigures the mpu to that module's memory map, transfers control to the entry point, and resumes scanning after the application returns.
+1. hypervisor flash - 16K - protected
+2. hypervisor's RAM - 4K - privileged 
+3. GUARD (MPU) - 1 K - no access 
+4. app flash - 48K 
+5. app's RAM and stack 
 
 ## isolation model
 
-mpu regions are configured per-application before each launch:
-
-| access | allowed |
-|--------|---------|
-| own flash slot | read / execute |
-| own ram region | read / write |
-| hv api table | read / execute |
-| bootloader memory | ✗ |
-| other app slots | ✗ |
-| critical peripherals | ✗ |
-
-after an application returns, the mpu is placed into background mode, blocking all unprivileged accesses.
-every hv-call implementation validates that the call originates from unprivileged thread mode (not handler mode), preventing privilege escalation.
-
 ## building
 
-```sh
-make
+build everything with `make all`, that includes the modules (`modules.mk`) and core
+library. 
+
+there are also such commands:
+```bash
+make flash   # to flash bootloader (!)
+make erase   # to erase the board
+make clean   # to clean build folder
+make debug   # run gdb 
+make modules # build apps 
+
+# various debugging stuff
+make dump-boot
+make sym-boot 
 ```
 
-no external os or libraries required. the only dependency is a ed25519 implementation included as a submodule.
+no external os or libraries required. the only *optional* dependency is a ed25519 implementation included as a submodule.
 
-## license
-
-MIT

@@ -37,7 +37,7 @@ CORE_OBJS += $(CORE_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
 
 BOOT_OBJS = $(BOOT_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
 BOOT_OBJS += $(BOOT_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
-	BOOT_OBJS += $(CORE_LIB) 
+BOOT_OBJS += $(CORE_LIB) 
 
 
 #----------------------- OTHER -----------------------#
@@ -186,10 +186,5 @@ clean: clean-modules
 
 debug:
 	${DEBUG} all
-
-check-hvapi: $(BUILD_DIR)/$(PROJECT)-boot.elf
-	@echo -e "$(CYAN)checking HV API section...$(RESET)"
-	@$(OBJDMP) -h $< | grep hv_api || echo "WARNING: no .hv_api section found!"
-	@$(OBJDMP) -t $< | grep hv_api
 
 .PHONY: all flash erase clean dump-boot sym-boot 

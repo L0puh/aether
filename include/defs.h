@@ -20,9 +20,13 @@ typedef uint64_t    u64;
    __asm volatile ("mov %0, lr\n" : "=r" (lr_var))
 
 #define MAX_BUFFER_SIZE 1024
-#define MAX_APP_SIZE    8192
-#define MAX_HV_API_SIZE 256
 #define SIGNATURE_SIZE  64
+#ifdef FEATURE_SIGN_APP
+#define MAX_APP_SIZE    (8192 + SIGNATURE_SIZE)
+#else
+#define MAX_APP_SIZE    8192
+#endif 
+#define MAX_HV_API_SIZE 256
 #define START_APP_SLOT 0x08002000
 #define END_APP_SLOT 0x08008000
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
@@ -46,5 +50,7 @@ typedef enum _ret_codes {
    WRONG_DATA,
    SKIP_EXECUTION
 } ret;
+
+#define UART_PRINT(...)      uart_writef(__VA_ARGS__); // used for flashing via UART 
 
 #endif 
