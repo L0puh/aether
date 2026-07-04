@@ -33,6 +33,5 @@
 #define RAM_APP_LENGTH    0x3C00UL     /* 15K */
 
 
-#define APP_DESC_ADDR (FLASH_APP_ORIGIN + APP_DESC_OFFSET)
 
 #endif

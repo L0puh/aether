@@ -4,7 +4,7 @@
  *
  */
 
-INCLUDE memory_map.h
+INCLUDE memory_map.ld
 
 MEMORY
 {
@@ -18,17 +18,22 @@ SECTIONS
 {
   .hv_vectors : { 
      KEEP(*(.vectors)) 
-  } > FLASH_HV
+  } > hv_flash 
   .hv_text    : { 
+     _stext = .;
      *(.text*) *(.rodata*) 
-  } > FLASH_HV
+     _etext = .;
+  } > hv_flash 
   .hv_data    : { 
+     _sdata = .;
      *(.data*) 
-  } > RAM_HV AT > FLASH_HV
+     _edata = .;
+  } > hv_ram AT > hv_flash 
   .hv_bss     : { 
+     _sbss = .;
      *(.bss*) 
-  } > RAM_HV
+     _ebss = .;
+  } > hv_ram 
 }
 
-_hv_stack_top   = ORIGIN(RAM_HV) + LENGTH(RAM_HV);
-_app_stack_top  = ORIGIN(RAM_APP) + LENGTH(RAM_APP);
+_estack = ORIGIN(hv_ram) + LENGTH(hv_ram);

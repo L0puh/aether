@@ -30,13 +30,12 @@
 #include "boot/hv.h"
 #include "core/scheduler.h"
 #include "boot/flasher.h"
-#include "boot/cmd.h"
 
 #define APP_MAGIC (0xDEADBEEF)
+#define APP_DESC_ADDR (FLASH_APP_ORIGIN + APP_DESC_OFFSET)
 
 typedef void (*app_entry_t)(void);
 
-app_desc_t *running_app_g = NULL;
 
 #endif
 

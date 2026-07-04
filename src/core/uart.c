@@ -73,30 +73,37 @@ ret uart_getchar(char *c)
    return NOT_FOUND;
 }
 
+
 ret uart_getline(char* buffer, u64 size)
 {
+
    ret res;
    u64 i = 0;
+   u64 timeout_ms = UART_TIMEOUT_MS;
 
-   while (i < size - 2)
+   if (size < 2) return WRONG_DATA;
+
+   while (i < size - 1)
    {
-      res = uart_getchar(&buffer[i]);
-      if (res == NOT_FOUND)
-      {
-         continue; //TODO: current read is blocking, add non-blocking
+      if (!uart_wait_rx_ready(timeout_ms)) {
+         return TIMEOUT; 
       }
+
+      res = uart_getchar(&buffer[i]);
+
+      if (res == NOT_FOUND) continue; 
+
       if (buffer[i] == '\n' || buffer[i] == '\r') {
          break;
       }
       i++;
    }
-   
+
    if (i == 0) {
       return WRONG_DATA;
    }
 
-   buffer[++i] = '\n';
-   buffer[++i] = '\0';
+   buffer[i] = '\0';
    return SUCCESS;
 }
 

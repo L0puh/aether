@@ -1,85 +1,67 @@
-#
-# modules.mk - a modified-ready makefile 
-# for apps to be flashed next to static bootloader
-#
+#----------------------- MODULES (APPS) -----------------------#
 
-#----------------------- CONFIGURATION -----------------------#
+APPS_DIR    = src/apps
+APP_LINKER  = linker/app.ld
+PATCH_DESC  = tools/patch_desc.py
 
-# STM32F103C6T6: 32KB flash, 10KB RAM
-BOOTLOADER_SIZE = 8192 						# 8KB bootloader
-APP_SLOT_SIZE   = 8192 						# 8KB per app slot
-APP_SLOT_ADDR   = 0x08002000 			   # start after bootloader
+APP_NAMES := $(notdir $(wildcard $(APPS_DIR)/*))
+APP_ELFS  := $(APP_NAMES:%=$(BUILD_DIR)/apps/%.elf)
+APP_BINS  := $(APP_NAMES:%=$(BUILD_DIR)/apps/%.bin)
 
-MODULE_NAME     = main_app
-MODULE_DIR_APP  = src/app
-MODULE_LINKER   = $(LINKER_DIR)/app.ld
+$(LINKER_DIR)/memory_map.ld: $(LINKER_DIR)/../include/memory_map.h
+	@echo -e "$(YELLOW)> generating memory_map.ld...$(RESET)"
+	./tools/convert_memory_map.sh $< > $@
 
-#----------------------- AUTO-DETECT SOURCES -----------------------#
+define APP_template
 
-MODULE_SRCS_C = $(wildcard $(MODULE_DIR_APP)/*.c)
-MODULE_SRCS_S = $(wildcard $(MODULE_DIR_APP)/*.s)
-MODULE_OBJS = $(MODULE_SRCS_C:$(MODULE_DIR_APP)/%.c=$(BUILD_DIR)/modules/%.o) \
-              $(MODULE_SRCS_S:$(MODULE_DIR_APP)/%.s=$(BUILD_DIR)/modules/%.o)
+$(BUILD_DIR)/apps/$(1)/%.o: $(APPS_DIR)/$(1)/%.c | $(LINKER_DIR)/memory_map.ld
+	@mkdir -p $$(dir $$@)
+	@echo -e "$(MAGENTA)> [APP:$(1)]: $$<$(RESET)"
+	$$(CC) $$(CFLAGS) -DAPP_BUILD -DAPP_BASE=0x08004000 -c -o $$@ $$<
 
-#----------------------- BUILD RULES -----------------------#
+$(BUILD_DIR)/apps/$(1)/%.o: $(APPS_DIR)/$(1)/%.s | $(LINKER_DIR)/memory_map.ld
+	@mkdir -p $$(dir $$@)
+	@echo -e "$(MAGENTA)> [APP:$(1)]: $$<$(RESET)"
+	$$(AS) $$(ASFLAGS) -c -o $$@ $$<
 
-$(BUILD_DIR)/modules/%.o: $(MODULE_DIR_APP)/%.c
-	@mkdir -p $(dir $@)
-	@echo -e "$(MAGENTA)> [APP]: $<$(RESET)"
-	$(CC) $(CFLAGS) -DAPP_BUILD -DAPP_BASE=$(APP_SLOT_ADDR) -c -o $@ $<
+APP_$(1)_SRCS_C := $$(wildcard $(APPS_DIR)/$(1)/*.c)
+APP_$(1)_SRCS_S := $$(wildcard $(APPS_DIR)/$(1)/*.s)
+APP_$(1)_OBJS   := $$(APP_$(1)_SRCS_C:$(APPS_DIR)/$(1)/%.c=$(BUILD_DIR)/apps/$(1)/%.o)
+APP_$(1)_OBJS   += $$(APP_$(1)_SRCS_S:$(APPS_DIR)/$(1)/%.s=$(BUILD_DIR)/apps/$(1)/%.o)
 
-$(BUILD_DIR)/modules/%.o: $(MODULE_DIR_APP)/%.s
-	@mkdir -p $(dir $@)
-	@echo -e "$(MAGENTA)> [APP]: $<$(RESET)"
-	$(AS) $(ASFLAGS) -c -o $@ $<
+$(BUILD_DIR)/apps/$(1).elf: $$(APP_$(1)_OBJS) $(CORE_LIB) $(LINKER_DIR)/memory_map.ld
+	@mkdir -p $$(dir $$@)
+	@echo -e "$(MAGENTA)=== linking app '$(1)' ===$(RESET)"
+	$$(CC) $$(CFLAGS) -T $(APP_LINKER) -L $(LINKER_DIR) \
+		-nostdlib -Wl,--no-gc-sections -Wl,--print-memory-usage \
+		-Wl,-Map=$(BUILD_DIR)/apps/$(1).map -o $$@ $$^
+	@echo -e "$(GREEN)[+] app '$(1)' linked$(RESET)"
+	@echo -e "$(BLUE)size:\n$$$$($(SIZE) $$@)$(RESET)\n"
 
-$(BUILD_DIR)/$(MODULE_NAME).elf: $(MODULE_OBJS)
-	@echo -e "$(MAGENTA)=== linking $(MODULE_NAME) ===$(RESET)"
-	$(CC) $(CFLAGS) -T $(MODULE_LINKER) $(APP_LDFLAGS) \
-		-Wl,--defsym=APP_BASE_ADDR=$(APP_SLOT_ADDR) \
-		-o $@ $^
-	@$(SIZE) $@
+$(BUILD_DIR)/apps/$(1).bin: $(BUILD_DIR)/apps/$(1).elf
+	$$(OBJCPY) -O binary $$< $$@
+	@echo -e "$(YELLOW)> patching app descriptor...$(RESET)"
+	#TODO:python3 $(PATCH_DESC) $$@
+	@echo -e "$(GREEN)[+] app '$(1)' descriptor patched: $$(wc -c < $$@) bytes$(RESET)"
 
-$(BUILD_DIR)/$(MODULE_NAME).bin: $(BUILD_DIR)/$(MODULE_NAME).elf
-	$(OBJCPY) -O binary $< $@
-	@echo -e "$(GREEN)[+] $(MODULE_NAME).bin: $$(wc -c < $@) / $(APP_SLOT_SIZE) bytes$(RESET)"
-	@if [ $$(wc -c < $@) -gt $(APP_SLOT_SIZE) ]; then \
-		echo -e "$(RED)ERROR: app exceeds slot size!$(RESET)"; \
-		exit 1; \
-	fi
+endef
 
-#----------------------- MODULE TARGETS -----------------------#
+$(foreach app,$(APP_NAMES),$(eval $(call APP_template,$(app))))
 
-modules: $(BUILD_DIR)/$(MODULE_NAME).bin
-	@echo -e "$(GREEN)[+] app built successfully!$(RESET)"
+modules: $(APP_BINS)
+	@echo -e "$(BOLD)[=] built $(words $(APP_NAMES)) module(s): $(APP_NAMES)$(RESET)"
 
-flash-app: $(BUILD_DIR)/$(MODULE_NAME).bin
-	@echo -e "$(CYAN)flashing $(MODULE_NAME) to 0x$(shell printf "%X" $(APP_SLOT_ADDR))...$(RESET)"
-	st-flash write $< $(APP_SLOT_ADDR)
-	@echo -e "$(GREEN)app flashed!$(RESET)"
+list-modules:
+	@echo -e "$(CYAN)available apps: $(APP_NAMES)$(RESET)"
 
-dump-app: $(BUILD_DIR)/$(MODULE_NAME).elf
-	$(OBJDMP) -d -S $< > $(BUILD_DIR)/$(MODULE_NAME).lst
-	@echo -e "$(GREEN)disassembly saved to $(BUILD_DIR)/$(MODULE_NAME).lst$(RESET)"
+#flash-app-%: $(BUILD_DIR)/apps/%.bin
+#	@echo -e "$(YELLOW)> flashing app '$*' via UART...$(RESET)"
+#	python3 tools/uart_flash.py --port $(UART_PORT) --file $<
 
-sym-app: $(BUILD_DIR)/$(MODULE_NAME).elf
-	$(OBJDMP) -t $< | sort
+dump-app-%: $(BUILD_DIR)/apps/%.elf
+	$(OBJDMP) -d -S $<
 
 clean-modules:
-	@rm -rf $(BUILD_DIR)/modules $(BUILD_DIR)/$(MODULE_NAME).*
-	@echo -e "$(GREEN)[+] app cleaned$(RESET)"
+	rm -rf $(BUILD_DIR)/apps
 
-#----------------------- HELP -----------------------#
-
-help-modules:
-	@echo -e "$(BOLD)app module targets:$(RESET)"
-	@echo "  modules      	- build the application"
-	@echo "  flash-app    	- flash application to device"
-	@echo "  dump-app     	- generate disassembly listing"
-	@echo "  sym-app      	- show symbol table"
-	@echo "  clean-modules	- clean app build files"
-	@echo ""
-	@echo -e "$(BOLD)Configuration:$(RESET)"
-	@echo "  app name:     $(MODULE_NAME)"
-	@echo "  flash addr:   0x$(shell printf "%X" $(APP_SLOT_ADDR))"
-	@echo "  max size:     $(APP_SLOT_SIZE) bytes"
+.PHONY: modules list-modules clean-modules

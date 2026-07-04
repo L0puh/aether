@@ -5,6 +5,7 @@
 #include "core/gpio.h"
 
 #define DEFAULT_CLOCK_TIMEOUT 100000
+#define RCC_CSR_RMVF                 ((uint32_t)0x01000000) 
 
 #define ENABLE_HSE  (1 << 16)
 #define ENABLE_PLL  (1 << 24)

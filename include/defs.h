@@ -32,6 +32,8 @@ typedef uint64_t    u64;
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
 #define TICK_HOOK_MS 100 
 #define MAX_RUNTIME_MS 5000
+#define FETCH_TIMEOUT_MS 60000
+#define UART_TIMEOUT_MS 5000
 
 #define CMD_PRINT(...)  uart_writef(__VA_ARGS__);
 

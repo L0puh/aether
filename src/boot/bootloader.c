@@ -1,20 +1,23 @@
+#include "boot/hv.h"
+#include "core/systick.h"
 #include <aether.h>
 
-bool is_app_exists(app_desc_t* desc) {
+bool is_app_exists(app_desc_t** desc) {
+   BOOTLOADER_DEBUG("IS APP EXISTS?\r\n");
+   app_desc_t* ptr = (app_desc_t*) APP_DESC_ADDR;
 
-   desc = (app_desc_t*) APP_DESC_ADDR;
+   if (ptr->magic == APP_MAGIC) {
 
-   if (desc->magic == APP_MAGIC) {
+      BOOTLOADER_DEBUG( "APP FOUND @ 0x%x [%d bytes]\r\n", APP_DESC_ADDR, ptr->size);
+      dump_memory((const void*) APP_DESC_ADDR, ptr->size, &uart_writef);
+      BOOTLOADER_DEBUG( "ENTRY = 0x%x\r\n", ptr->entry);
 
-      BOOTLOADER_DEBUG( "APP FOUND @ 0x%x [%d bytes]\r\n", APP_DESC_ADDR, desc->size);
-      dump_memory((const void*) APP_DESC_ADDR, desc->size, &uart_writef);
-      BOOTLOADER_DEBUG( "ENTRY = 0x%x\r\n", desc->entry);
-
+      *desc = ptr;
       return true;
       
    }
 
-   BOOTLOADER_DEBUG("APPS NOT FOUND\r\n");
+   BOOTLOADER_DEBUG("APP NOT FOUND\r\n");
    return false;
 }
 
@@ -30,8 +33,6 @@ static void run_app(app_desc_t* desc)
    BOOTLOADER_DEBUG("RUNNING APP\r\n");
    entry();
    BOOTLOADER_DEBUG("APP RETURNED\r\n");
-
-   running_app_g = NULL;
 }
 
 u32 recv_size(void) 
@@ -75,8 +76,8 @@ bool update_app_desc(app_desc_t *desc, const u32 app_size)
 
 bool fetch_app(app_desc_t *desc) 
 {
-   if (!uart_rx_ready() && (uart_data() != 'U')){
-      UART_PRINT("failed to recv [sync] byte");
+   if (!uart_wait_rx_ready(FETCH_TIMEOUT_MS) || (uart_data() != 'U')){
+      UART_PRINT("failed to recv sync byte\r\n");
       return false;
    }
 
@@ -89,12 +90,6 @@ bool fetch_app(app_desc_t *desc)
    size = recv_size();
    if (size == 0) return false;
  
-
-//TODO:
-// update mpu settings for current memory map
-// should i lock and unlock flash? if i use only app region 
-// should i enable and disable mpu? for same reason
-//
 
 #ifdef FEATURE_SIGN_APP 
    //FIXME: should recv signature separately? 
@@ -114,8 +109,6 @@ bool fetch_app(app_desc_t *desc)
    UART_PRINT("app is verified!\r\n");
 #endif 
 
-   mpu_disable();
-
    flash_erase_app_slot(addr, size);
    flash_write_from_uart(addr, size);
  
@@ -125,8 +118,6 @@ bool fetch_app(app_desc_t *desc)
    } else {
       UART_PRINT("flashing is done!\r\n");
    }
-
-   mpu_enable();
 
    system_reset();
 
@@ -142,13 +133,22 @@ int bootloader_entry()
    if (IS_ERROR(setup_system())) {
       toggle_debug_led();
    }
+  
+   //TODO: check cause of reset 
+   /* BOOTLOADER_DEBUG("RCC_CSR=0x%x\r\n", RCC->CSR); */
+   /* RCC->CSR |= RCC_CSR_RMVF; */
 
    BOOTLOADER_DEBUG("BOOTLOADER START\r\n");
 
    app_desc_t* desc = NULL;
-   ret = is_app_exists(desc);
+  
+   ret = is_app_exists(&desc);
+
    while (!ret || desc == NULL) {
       ret = fetch_app(desc);
+      if (ret) { break; }
+      BOOTLOADER_DEBUG("sleeping for 60ms before trying again...\r\n");
+      systick_msec_delay(60000);
    }
    
    run_app(desc);

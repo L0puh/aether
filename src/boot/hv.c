@@ -24,24 +24,25 @@ inline bool is_valid_app_call(u32 _lr)
    dump_regs();
    DEBUG_PRINT("\r\n FINISH DUMP \r\n\r\n");
 #endif 
+   UNUSED(_lr);
+// FIXME: 
+// if (_lr < FLASH_APP_ORIGIN || _lr > END_APP_SLOT){
+//     return false;
+//  }
 
-   if (_lr < START_APP_SLOT || _lr > END_APP_SLOT){
-      return false;
-   }
-
-   for (u32 addr = START_APP_SLOT; addr < END_APP_SLOT; addr += 4){
-      app_desc_t* desc = (app_desc_t*) addr;
-      if (desc->magic != APP_MAGIC) {
-         continue;
-      }
+   /* for (u32 addr = START_APP_SLOT; addr < END_APP_SLOT; addr += 4){ */
+   /*    app_desc_t* desc = (app_desc_t*) addr; */
+   /*    if (desc->magic != APP_MAGIC) { */
+   /*       continue; */
+   /*    } */
       
-      if (_lr > addr && _lr < (addr + desc->size)){
-         DEBUG_PRINT(" (hv) found app @ 0x%x with LR=0x%x\r\n", addr, _lr);
-         return true;
-      }
-   }
+   /*    if (_lr > addr && _lr < (addr + desc->size)){ */
+   /*       DEBUG_PRINT(" (hv) found app @ 0x%x with LR=0x%x\r\n", addr, _lr); */
+   /*       return true; */
+   /*    } */
+   /* } */
 
-   return false;
+   return true;
 }
 
 
@@ -68,7 +69,13 @@ inline void dump_regs(void)
    DEBUG_PRINT("lr: 0x%x, pc: 0x%x, sp: 0x%x\r\n", 
          ret_addr, current_pc, sp);
    DEBUG_PRINT("app region: 0x%x - 0x%x\r\n", 
-         START_APP_SLOT, END_APP_SLOT);
+         FLASH_APP_ORIGIN, FLASH_APP_ORIGIN + FLASH_APP_LENGTH);
+   DEBUG_PRINT("hv region: 0x%x - 0x%x\r\n", 
+         FLASH_HV_ORIGIN, FLASH_HV_ORIGIN + FLASH_HV_LENGTH);
+   DEBUG_PRINT("app desc @ 0x%x\r\n", 
+         APP_DESC_ADDR);
+   DEBUG_PRINT("guard @ 0x%x\r\n", 
+         RAM_GUARD_ORIGIN);
 
    dump_memory((void*)ret_addr, 64, &uart_writef);
 }
@@ -104,8 +111,6 @@ ret setup_system(void)
 {
    ret status;
 
-   mpu_init();
-   flash_lock();
 
 #ifdef SYSTEM_CLOCK_72Mhz
    status = set_system_clock_72Mhz();
@@ -128,9 +133,8 @@ ret setup_system(void)
 
    uart_init(USART1, 0);
 
-   hv_api_init();
    flash_lock();
-
+   mpu_init();
    BOOTLOADER_DEBUG("SYSTEM OK\r\n");
 
    return SUCCESS;

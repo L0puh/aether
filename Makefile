@@ -100,7 +100,7 @@ APP_LDFLAGS = -nostdlib\
 
 #----------------------- BUILD -----------------------#
 
-all: $(CORE_LIB) $(BUILD_DIR)/$(PROJECT)-boot.bin modules 
+all: $(CORE_LIB) convert-memory-map $(BUILD_DIR)/$(PROJECT)-boot.bin modules 
 
 #----------------------- COMPACT25519 (only with FEATURE_SIGN_APP in target.h) -----------------------#
 
@@ -186,5 +186,9 @@ clean: clean-modules
 
 debug:
 	${DEBUG} all
+
+convert-memory-map: include/memory_map.h 
+	./tools/convert_memory_map.sh include/memory_map.h > linker/memory_map.ld
+	@echo -e "$(GREEN)memory map is generated to include in linker!$(RESET)"
 
 .PHONY: all flash erase clean dump-boot sym-boot 

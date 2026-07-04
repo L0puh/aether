@@ -1,6 +1,5 @@
 #include <aether.h>
 
-volatile hv_api_t* hv = (volatile hv_api_t*)HV_API_ADDR;
 
 void app_main(void);
 
@@ -15,10 +14,5 @@ const app_desc_t app_desc =
 
 void app_main(void)
 {
-   hv->uart_write( "HELLO FROM APP\r\n");
-
-   hv->led_toggle();
-   hv->delay_ms(100);
-
-   hv->uart_write( "APP DONE\r\n");
+   //TODO
 }

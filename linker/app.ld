@@ -1,5 +1,5 @@
 
-INCLUDE memory_map.h
+INCLUDE memory_map.ld
 
 MEMORY
 {
@@ -7,11 +7,13 @@ MEMORY
    app_ram   (rwx) : ORIGIN = RAM_APP_ORIGIN,   LENGTH = RAM_APP_LENGTH
 }
 
+_estack = ORIGIN(app_ram) + LENGTH(app_ram);
+
 SECTIONS
 {
    .app_vectors : { 
       KEEP(*(.app_vectors)) 
-   } > FLASH_APP   
+   } > app_flash  
 
    . = FLASH_APP_ORIGIN + APP_DESC_OFFSET;
 
@@ -20,17 +22,23 @@ SECTIONS
       . = ALIGN(4);
       KEEP(*(.app_desc))
       . = ALIGN(4);
-   } > FLASH_APP 
+   } > app_flash
 
    .app_text : { 
+      _stext = .;
       *(.text*) *(.rodata*) 
-   } > FLASH_APP
+      _etext = .;
+   } > app_flash 
 
    .app_data : { 
+      _sdata = .;
       *(.data*) 
-   } > RAM_APP AT > FLASH_APP
+      _edata = .;
+   } > app_ram AT > app_flash 
 
    .app_bss : { 
+      _sbss = .;
       *(.bss*) 
-   } > RAM_APP
+      _ebss = .;
+   } > app_ram 
 }

@@ -6,15 +6,16 @@
 
 
 #ifdef _DEBUG
-   #define DEBUG_PRINT(...)      uart_writef(__VA_ARGS__);
-   #define BOOTLOADER_DEBUG(...) uart_writef(__VA_ARGS__);
-   #define BOOTLOADER_ERROR(...) uart_writef(__VA_ARGS__);
-   #define UART_ERROR(...)       uart_writef(__VA_ARGS__);
-   #define UART_DEBUG(...)       uart_writef(__VA_ARGS__);
-   #define FLASHER_DEBUG(...)     uart_writef(__VA_ARGS__);
-   #define FLASHER_ERROR(...)     uart_writef(__VA_ARGS__);
-   #define CRYPTO_DEBUG(...)     uart_writef(__VA_ARGS__);
-   #define CRYPTO_ERROR(...)     uart_writef(__VA_ARGS__);
+   #define DEBUG_PRINT(...)      uart_writef(__VA_ARGS__)
+   #define BOOTLOADER_DEBUG(...) uart_writef(__VA_ARGS__)
+   #define BOOTLOADER_ERROR(...) uart_writef(__VA_ARGS__)
+   #define UART_ERROR(...)       uart_writef(__VA_ARGS__)
+   #define UART_DEBUG(...)       uart_writef(__VA_ARGS__)
+   #define FLASHER_DEBUG(...)    uart_writef(__VA_ARGS__)
+   #define FLASHER_ERROR(...)    uart_writef(__VA_ARGS__)
+   #define CRYPTO_DEBUG(...)     uart_writef(__VA_ARGS__)
+   #define CRYPTO_ERROR(...)     uart_writef(__VA_ARGS__)
+   #define MPU_DEBUG(...)        uart_writef(__VA_ARGS__)
 
 #else 
    #define DEBUG_PRINT(fmt, ...) ((void)0)
@@ -25,6 +26,7 @@
    #define CRYPTO_DEBUG(fmt, ...) ((void)0)
    #define FLASHER_ERROR(fmt, ...) ((void)0)
    #define FLASHER_DEBUG(fmt, ...) ((void)0)
+   #define MPU_DEBUG(...)          ((void)0) 
 #endif 
 
 #define DBG_UART_BAUDRATE 115200 
