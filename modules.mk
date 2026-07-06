@@ -1,8 +1,9 @@
 #----------------------- MODULES (APPS) -----------------------#
+-include tools/patch-tool/patch-tool.mk
 
 APPS_DIR    = src/apps
 APP_LINKER  = linker/app.ld
-PATCH_DESC  = tools/patch_desc.py
+VERSION     = 1
 
 APP_NAMES := $(notdir $(wildcard $(APPS_DIR)/*))
 APP_ELFS  := $(APP_NAMES:%=$(BUILD_DIR)/apps/%.elf)
@@ -38,11 +39,12 @@ $(BUILD_DIR)/apps/$(1).elf: $$(APP_$(1)_OBJS) $(CORE_LIB) $(LINKER_DIR)/memory_m
 	@echo -e "$(GREEN)[+] app '$(1)' linked$(RESET)"
 	@echo -e "$(BLUE)size:\n$$$$($(SIZE) $$@)$(RESET)\n"
 
-$(BUILD_DIR)/apps/$(1).bin: $(BUILD_DIR)/apps/$(1).elf
+
+$(BUILD_DIR)/apps/$(1).bin: $(BUILD_DIR)/apps/$(1).elf $(PATCH)
 	$$(OBJCPY) -O binary $$< $$@
 	@echo -e "$(YELLOW)> patching app descriptor...$(RESET)"
-	#TODO:python3 $(PATCH_DESC) $$@
-	@echo -e "$(GREEN)[+] app '$(1)' descriptor patched: $$(wc -c < $$@) bytes$(RESET)"
+	$(PATCH) -v ${VERSION} -f $$@ -o $$@.patched
+	@echo -e "$(GREEN)[+] app '$(1)' descriptor patched$(RESET)"
 
 endef
 
@@ -57,7 +59,13 @@ list-modules:
 dump-app-%: $(BUILD_DIR)/apps/%.elf
 	$(OBJDMP) -d -S $<
 
+patch-%: $(BUILD_DIR)/apps/%.bin $(PATCH)
+	@echo -e "$(YELLOW)> patching app descriptor for $*...$(RESET)"
+	$(PATCH) -v $(VERSION) -f $< -o $@.patched
+	@echo -e "$(GREEN)[+] app '$*' descriptor patched$(RESET)"
+
 clean-modules:
 	rm -rf $(BUILD_DIR)/apps
+
 
 .PHONY: modules list-modules clean-modules

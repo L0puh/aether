@@ -25,10 +25,7 @@ def list_apps():
 
     pattern = "build/apps/*.bin"
     bin_files = glob.glob(pattern)
-
-    for file in bin_files:
-        print(file)
-    return 
+    return bin_files
 
 
 def sign_app(app_data):
@@ -151,11 +148,11 @@ def tui_intr():
             baud = "115200"
         for indx, app in enumerate(list_apps(), 1):
             print(f"[{indx}] {app}")
-        indx = input("num of app: ")
+        indx = int(input("num of app: "))
         if indx > len(list_apps())+1 or indx < 0:
             print("wrong num!")
             return 
-        app = list_apps()[indx]
+        app = list_apps()[indx-1]
         send_app(app, port, baud)
     if i == 2:
         #TODO add interrupt 

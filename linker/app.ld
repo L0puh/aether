@@ -9,6 +9,8 @@ MEMORY
 
 _estack = ORIGIN(app_ram) + LENGTH(app_ram);
 
+ENTRY(reset_handler)
+
 SECTIONS
 {
    .app_desc :
@@ -17,10 +19,6 @@ SECTIONS
       KEEP(*(.app_desc))
       . = ALIGN(4);
    } > app_flash
-
-   .app_vectors : { 
-      KEEP(*(.app_vectors)) 
-   } > app_flash  
 
    .app_text : { 
       _stext = .;

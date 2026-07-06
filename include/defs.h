@@ -10,7 +10,9 @@ typedef uint16_t    u16;
 typedef uint32_t    u32;
 typedef uint64_t    u64;
 
-#define NULL 0
+#ifndef NULL
+#define NULL ((void*)0)
+#endif 
 #define UNUSED(x)((void)(x))
 #define USED(x)((void)(x))
 #define IS_ERROR(ret) (ret > SUCCESS)
@@ -56,7 +58,7 @@ typedef enum _ret_codes {
 #define APP_DESC_ADDR (FLASH_APP_ORIGIN)
 #define FLASH_CHUNK_SIZE (RAM_HV_LENGTH/sizeof(u32))
 
-typedef void (*app_entry_t)(void);
+typedef int (*app_entry_t)(void);
 #define UART_PRINT(...)      uart_writef(__VA_ARGS__); // used for flashing via UART 
 
 #endif 

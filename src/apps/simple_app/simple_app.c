@@ -1,17 +1,11 @@
 #include <aether.h>
 
-
-void app_main(void);
-
-__attribute__((section(".app_desc"), used))
-const app_desc_t app_desc =
+int main(void)
 {
-   .magic  = APP_MAGIC,
-   .version = 0x0100,
-   .size = 0            
-};
+   volatile int i = 0;
+   for (; i < 1000000; i++){
+      __asm volatile ("nop");
+   }
 
-void app_main(void)
-{
-   //TODO
+   return 0;
 }

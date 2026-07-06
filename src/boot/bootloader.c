@@ -10,7 +10,7 @@ bool is_app_exists(app_desc_t** desc) {
 
       BOOTLOADER_DEBUG( "APP FOUND @ 0x%x [%d bytes]\r\n", APP_DESC_ADDR, ptr->size);
       dump_memory((const void*) APP_DESC_ADDR, ptr->size, &uart_writef);
-      BOOTLOADER_DEBUG( "ENTRY = 0x%x\r\n", ptr->entry);
+      BOOTLOADER_DEBUG( "ENTRY = 0x%x\r\n", ((u32)ptr->entry | 1));
 
       *desc = ptr;
       return true;
@@ -24,13 +24,17 @@ bool is_app_exists(app_desc_t** desc) {
 static void run_app(app_desc_t* desc)
 {
    app_entry_t entry;
+   if (desc == NULL) {
+      BOOTLOADER_ERROR("app is null, something went wrong\r\n");
+      return;
+   }
    
-   desc->state.apps_start_ms = system_ticks_g;
-   desc->state.last_check_ms = system_ticks_g;
+   /* desc->state.apps_start_ms = system_ticks_g; */
+   /* desc->state.last_check_ms = system_ticks_g; */
 
    entry = (app_entry_t)((u32)desc->entry | 1);
 
-   BOOTLOADER_DEBUG("RUNNING APP\r\n");
+   BOOTLOADER_DEBUG("RUNNING APP (0%x entry)\r\n", entry);
    entry();
    BOOTLOADER_DEBUG("APP RETURNED\r\n");
 }
@@ -55,23 +59,6 @@ u32 recv_size(void)
 
    UART_PRINT("size received: %lu\r\n", size);
    return size;
-}
-
-bool update_app_desc(app_desc_t *desc, const u32 app_size) 
-{
-   desc = (app_desc_t*)APP_DESC_ADDR;
-
-   if (desc->magic == APP_MAGIC) {
-      UART_PRINT("magic is found: entry: 0x%x stack: 0x%x, version: %d\r\n", desc->entry, desc->p_stack, desc->version);
-      desc->size = app_size;
-   } else {
-      UART_PRINT("magic value is wrong!\r\n");
-      return false;
-   }
-   desc->state = (app_state_t){ .max_runtime_ms = MAX_RUNTIME_MS, 
-                                .watchdog_timeout_ms = DEFAULT_CLOCK_TIMEOUT};
-
-   return true;
 }
 
 bool fetch_app(app_desc_t *desc) 
@@ -144,13 +131,17 @@ int bootloader_entry()
   
    ret = is_app_exists(&desc);
 
-   while (!ret || desc == NULL) {
-      ret = fetch_app(desc);
-      if (ret) { break; }
-      BOOTLOADER_DEBUG("sleeping for 60ms before trying again...\r\n");
-      systick_msec_delay(60000);
+   // FIXME: kinda silly 
+   if (!ret) { 
+      while (!ret || desc == NULL) {
+         ret = fetch_app(desc);
+         if (ret) { break; }
+         BOOTLOADER_DEBUG("sleeping for 60ms before trying again...\r\n");
+         systick_msec_delay(60000);
+      }
    }
    
+   BOOTLOADER_DEBUG("skipping\r\n");
    run_app(desc);
 
    BOOTLOADER_DEBUG("POINT OF NO RETURN\r\n");

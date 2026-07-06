@@ -15,10 +15,8 @@ typedef struct _hv_state {
 typedef struct PACKED _app_desc {
    u32 magic;
    u32 version;
-   void *p_stack;
-   void (*entry)(void);
+   u32 entry;
    u32 size;
-   app_state_t state;
 } app_desc_t;
 
 typedef void (*hv_delay_ms_t)(u32 ms);

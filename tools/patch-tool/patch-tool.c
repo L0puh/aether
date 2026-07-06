@@ -1,0 +1,150 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include "hv.h"
+#include <memory_map.h>
+#include <defs.h>
+
+void print_help() 
+{
+   printf("this tool is used to patch apps before flashing\n");
+   printf("usage:\npatch-tool -f {app.bin} -v {version} -o {patched-app.bin}\n");
+   printf("--file    | -f              specify path to file\n");
+   printf("--output  | -o              specify output path\n");
+   printf("--version | -v              version of app\n");
+   printf("--magic   | -m              magic number (if differs from defs.h)\n");
+   printf("--help    | -h              prints this message\n");
+}
+
+bool parse_args(const int argc, char* argv[], char **filename, char **output, u16 *version, u32 *magic, bool *magic_set)
+{
+   bool version_set = 0, filename_set = 0;
+   for (int i = 1; i < argc; i++) {
+      if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+         print_help();
+         return 0;
+      }
+      else if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--file") == 0) {
+         if (i + 1 < argc) {
+            filename_set = 1;
+            *filename = argv[++i];
+         }
+      }
+      else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
+         if (i + 1 < argc) {
+            version_set = 1;
+            *version = atoi(argv[++i]);
+         }
+      }
+      else if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--magic") == 0) {
+         if (i + 1 < argc) {
+            *magic = strtoul(argv[++i], NULL, 0);
+            *magic_set = 1;
+         }
+      }
+      else if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
+         if (i + 1 < argc) 
+            *output = argv[++i];
+      }
+   }
+
+   if (!filename_set || !version_set) {
+      printf("error: -f and -v are required\n");
+      print_help();
+      return 0;
+   }
+
+   return 1;
+}
+
+bool read_file(const char* filename, u8 buffer[], size_t *size)
+{
+   FILE *file = fopen(filename, "rb");
+   if (!file) {
+      perror("failed to open file");
+      return 0;
+   }
+
+   fseek(file, 0, SEEK_END);
+   u64 file_size = ftell(file);
+   fseek(file, 0, SEEK_SET);
+
+   if (file_size > FLASH_APP_LENGTH) {
+      printf("error: file too large (max %lu bytes)\n", FLASH_APP_LENGTH);
+      fclose(file);
+      return 0;
+   }
+
+   size_t bytes_read = fread(buffer, 1, file_size, file);
+   if (bytes_read != file_size) {
+      printf("error: read bytes and file size don't match (%lu and %lu)\n", file_size, bytes_read);
+      fclose(file);
+      return 0;
+   }
+   
+   printf("read %zu bytes\n", bytes_read);
+
+   *size = bytes_read;
+
+   fclose(file);
+   return 1;
+}
+
+bool write_output(const char* output, u8 *buffer, size_t size)
+{
+   FILE *out = fopen(output ? output : "patched.bin", "wb");
+   if (!out) {
+      perror("failed to create patched file");
+      return 0;
+   }
+
+   size_t written = fwrite(buffer, 1, size, out);
+   fclose(out);
+
+   printf("written %zu bytes to %s\n", written, output);
+   return 1;
+}
+
+int main(int argc, char *argv[]) 
+{
+   char *filename = NULL;
+   char *output   = NULL;
+   u16 version = -1;
+   u32 magic = 0;
+   bool magic_set = 0, res;
+   
+   res = parse_args(argc, argv, &filename, &output, &version, &magic, &magic_set);
+   if (!res) {
+      return 0;
+   }
+
+   printf("file: %s\n", filename);
+   printf("version: %d\n", version);
+   if (magic_set) {
+      printf("magic: 0x%08x\n", magic);
+   }
+   
+
+   u8 buffer[FLASH_APP_LENGTH] = {0};
+   size_t size = 0;
+   if (!read_file(filename, buffer, &size)) {
+      return 0;
+   }
+
+   app_desc_t *desc = (app_desc_t*)buffer;
+
+   desc->magic = magic_set ? magic : APP_MAGIC;
+   desc->version = version;
+   desc->size = size;
+   desc->entry = (u32) FLASH_APP_ORIGIN + sizeof(app_desc_t) ;
+  
+   printf("app descriptor:\n");
+   printf("  magic:   0x%08x\n", desc->magic);
+   printf("  version: 0x%04x\n", desc->version);
+   printf("  size:    %u bytes\n", desc->size);
+   printf("  entry:   0x%08x (offset %u from start)\n", desc->entry, desc->entry);
+
+   write_output(output, buffer, size);
+   return 0;
+}
