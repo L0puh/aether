@@ -15,14 +15,32 @@ void reset_handler(void);
 void default_handler(void);
 
 void nmi_handler(void) __attribute__((weak, alias("default_handler")));
-void hardfault_handler(void);
-void memmanage_handler(void) __attribute__((weak, alias("default_handler")));
-void busfault_handler(void) __attribute__((weak, alias("default_handler")));
 void usagefault_handler(void) __attribute__((weak, alias("default_handler")));
 void svc_handler(void) __attribute__((weak, alias("default_handler")));
 void debugmon_handler(void) __attribute__((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute__((weak, alias("default_handler")));
 void systick_handler(void);
+void hardfault_handler(void);
+void memmanage_handler(void);
+void busfault_handler(void);
+
+void memmanage_handler(void)
+{
+   uint32_t cfsr = SCB->CFSR;
+   uint32_t mmfar = SCB->MMFAR;
+   UART_PRINT("MEMMANAGE FAULT: CFSR=0x%x MMFAR=0x%x (valid=%d)\r\n",
+              cfsr, mmfar, (cfsr & (1 << 7)) != 0); // MMARVALID bit
+   while(1) { cpu_wait_for_interrupt(); }
+}
+
+void busfault_handler(void)
+{
+   uint32_t cfsr = SCB->CFSR;
+   uint32_t bfar = SCB->BFAR;
+   UART_PRINT("BUSFAULT: CFSR=0x%x BFAR=0x%x (valid=%d)\r\n",
+              cfsr, bfar, (cfsr & (1 << 15)) != 0); // BFARVALID bit
+   while(1) { cpu_wait_for_interrupt(); }
+}
 
 __attribute__((section(".vectors"), used))
 const device_vectors_t vector_table = {

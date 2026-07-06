@@ -1,53 +1,93 @@
 #include <aether.h>
 
-
-bool flash_write_from_uart(u32 addr, u32 size)
+bool wait_flash_busy(u64 timeout)
 {
-   u8 data;
-   u32 timeout;
-
-   flash_unlock();
-   for (u32 i = 0; i < size; i++) 
-   {
-      if (!uart_wait_rx_ready(FLASHER_WAIT_TIMEOUT)) {
-         UART_PRINT("recv data timeout\r\n");
-         flash_erase_app_slot(addr, size);
+   while (FLASH->SR & FLASH_SR_BUSY) {
+      if (--timeout == 0) {
+         UART_PRINT("busy timeout\r\n");
          return false;
       }
-
-      data = uart_data();
-      timeout = FLASHER_WAIT_TIMEOUT;
-
-      while (FLASH->SR & FLASH_SR_BUSY) {
-         if (--timeout == 0) {
-            FLASHER_ERROR("busy timeout\r\n");
-            flash_lock();
-            return false;
-         }
-      }
-
-      FLASH->CR |= FLASH_CR_PROGMODE;
-
-      *(volatile uint16_t*)(addr + i) = data;
-
-      timeout = FLASHER_WAIT_TIMEOUT;
-
-      while (FLASH->SR & FLASH_SR_BUSY) {
-         if (--timeout == 0) {
-            FLASHER_ERROR("write timeout\r\n");
-            flash_lock();
-            return false;
-         }
-      }
-
-      FLASH->CR &= ~FLASH_CR_PROGMODE;
-
-      FLASHER_DEBUG("write %lu/%lu at 0x%x ok\r\n", i, size, (addr+i));
-
    }
+   return true;
+}
+
+void flash_disable_progmode(void) {
+   FLASH->CR &= ~FLASH_CR_PROGMODE;
+   return;
+}
+
+void flash_enable_progmode(void) {
+   FLASH->CR |= FLASH_CR_PROGMODE;
+   return;
+}
+
+ret flash_write_from_buffer(u32 addr, const u8* data, u32 size)
+{
+
+   ret res = SUCCESS;
+
+   flash_enable_progmode();
+   for (u32 i = 0; i < size; i += 2){
+      u16 half = data[i];
+      if (i + 1 < size) {
+         half |= (u16) data[i+1] << 8;
+      } else {
+         half |= 0xFF00;
+      }
+
+      if (!wait_flash_busy(FLASHER_WAIT_TIMEOUT)) {
+         res = TIMEOUT;
+         break;
+      }
+      
+      *(volatile u16*)(addr + i) = half;
+      
+      if (!wait_flash_busy(FLASHER_WAIT_TIMEOUT)) {
+         res = TIMEOUT;
+         break;
+      }
+
+      if (FLASH->SR & (FLASH_SR_PGERR | FLASH_SR_WRPRTERR)) {
+         UART_PRINT("flash error @ 0x%x, SR=0x%x\r\n", addr+i, FLASH->SR);
+         FLASH->SR |= (FLASH_SR_PGERR | FLASH_SR_WRPRTERR);
+         res = ERROR; 
+         break; 
+      }
+   }
+   
+   flash_disable_progmode();
+   return res;
+}
+
+ret flash_write_from_uart(u32 addr, u32 size)
+{
+
+   static u8 rx_chunk[FLASH_CHUNK_SIZE];
+   u32 written = 0;
+   ret res = SUCCESS;
+   flash_unlock();
+
+   while (written < size)
+   {
+      u32 rem = size - written;
+      u32 chunk_len = (rem < FLASH_CHUNK_SIZE) ? rem : FLASH_CHUNK_SIZE;
+      res = uart_read_buffer(rx_chunk, chunk_len);
+      if (res != SUCCESS) {
+         break;
+      }
+
+      res = flash_write_from_buffer(addr + written, rx_chunk, chunk_len);
+      if (res != SUCCESS) {
+         break;
+      }
+      
+      written += chunk_len;
+      UART_PRINT("write %lu/%lu @ 0x%x ok\r\n", written, size, (addr+written-chunk_len));
+   }
+
    flash_lock();
 
-   return true;
+   return res;
 }
 
 void flash_unlock(void)

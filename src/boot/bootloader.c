@@ -76,12 +76,16 @@ bool update_app_desc(app_desc_t *desc, const u32 app_size)
 
 bool fetch_app(app_desc_t *desc) 
 {
-   if (!uart_wait_rx_ready(FETCH_TIMEOUT_MS) || (uart_data() != 'U')){
-      UART_PRINT("failed to recv sync byte\r\n");
+   if (!uart_wait_rx_ready(FETCH_TIMEOUT_MS)) {
+      UART_PRINT("timeout to recv sync byte\r\n");
+      return false;
+   }
+   else if ((uart_data() != 'F')){
+      UART_PRINT("failed to recv sync byte, wrong byte\r\n");
       return false;
    }
 
-   UART_PRINT("flash command received!\r\n");
+   UART_PRINT("flash command received, chunk size: %d!\r\n", FLASH_CHUNK_SIZE);
 
    uart_flush_rx();
    u32 size, addr;
@@ -112,12 +116,8 @@ bool fetch_app(app_desc_t *desc)
    flash_erase_app_slot(addr, size);
    flash_write_from_uart(addr, size);
  
-   if (!update_app_desc(desc, size)) {
-      UART_PRINT("app is corrupted, aborting...\r\n");
-      flash_erase_app_slot(addr, size);
-   } else {
-      UART_PRINT("flashing is done!\r\n");
-   }
+   dump_memory((const void*) addr, size, uart_writef);
+   UART_PRINT("flashing is done!\r\n");
 
    system_reset();
 
@@ -128,7 +128,6 @@ __attribute__((noreturn))
 int bootloader_entry()
 {
    int ret;
-   enable_irq();
 
    if (IS_ERROR(setup_system())) {
       toggle_debug_led();
@@ -138,6 +137,7 @@ int bootloader_entry()
    /* BOOTLOADER_DEBUG("RCC_CSR=0x%x\r\n", RCC->CSR); */
    /* RCC->CSR |= RCC_CSR_RMVF; */
 
+   UART_PRINT("chunk size: %d!\r\n", FLASH_CHUNK_SIZE);
    BOOTLOADER_DEBUG("BOOTLOADER START\r\n");
 
    app_desc_t* desc = NULL;

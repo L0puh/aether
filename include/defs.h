@@ -52,6 +52,11 @@ typedef enum _ret_codes {
    SKIP_EXECUTION
 } ret;
 
+#define APP_MAGIC (0xDEADBEEF)
+#define APP_DESC_ADDR (FLASH_APP_ORIGIN)
+#define FLASH_CHUNK_SIZE (RAM_HV_LENGTH/sizeof(u32))
+
+typedef void (*app_entry_t)(void);
 #define UART_PRINT(...)      uart_writef(__VA_ARGS__); // used for flashing via UART 
 
 #endif 

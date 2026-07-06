@@ -30,5 +30,6 @@ u32 uart_data();
 void uart_flush(void);
 void uart_flush_tx(void);
 void uart_flush_rx(void);
+ret uart_read_buffer(u8* buf, u32 len);
 
 #endif 

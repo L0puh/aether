@@ -1,3 +1,4 @@
+#include "defs.h"
 #include <aether.h>
 #include <core/systick.h>
 
@@ -73,6 +74,18 @@ ret uart_getchar(char *c)
    return NOT_FOUND;
 }
 
+
+ret uart_read_buffer(u8* buf, u32 len) 
+{
+   for (u32 i = 0; i < len; i++){
+      if (!uart_wait_rx_ready(UART_TIMEOUT_MS)){
+         return TIMEOUT;
+      }
+
+      buf[i] = uart_data();
+   }
+   return SUCCESS;
+}
 
 ret uart_getline(char* buffer, u64 size)
 {

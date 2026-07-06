@@ -1,6 +1,7 @@
 #ifndef MPU_H
 #define MPU_H
 
+#include "core/gpio.h"
 #include "defs.h"
 #include "memory_map.h"
 #include <stdbool.h>
@@ -73,10 +74,11 @@ typedef enum _region_type {
 static const mpu_region_t static_regions[] = 
 {
    [REG_NULL_GUARD] = {
-      .base = 0x00000000,
-      .attr_size = REGION_SIZE_256B | AP_NO_ACCESS | XN_ENABLE | REGION_ENABLE,
-      .subreg_mask = 0,
+    .base = 0x00000000,
+    .attr_size = REGION_SIZE_256B | AP_PRIV_RO | XN_ENABLE | REGION_ENABLE,  
+    .subreg_mask = 0b11111110,  
    },
+
    [REG_HV_FLASH] = {
       .base = FLASH_HV_ORIGIN,
       .attr_size = REGION_SIZE_16KB | AP_PRIV_RO | XN_DISABLE | REGION_ENABLE,

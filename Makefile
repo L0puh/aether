@@ -178,6 +178,9 @@ flash: $(BUILD_DIR)/$(PROJECT)-boot.bin
 	st-flash write $< 0x08000000
 	st-flash reset
 
+reset: 
+	st-flash reset
+
 erase:
 	st-flash erase
 
@@ -186,6 +189,9 @@ clean: clean-modules
 
 debug:
 	${DEBUG} all
+
+open-serial:
+	minicom -D /dev/ttyUSB1 -b 115200
 
 convert-memory-map: include/memory_map.h 
 	./tools/convert_memory_map.sh include/memory_map.h > linker/memory_map.ld

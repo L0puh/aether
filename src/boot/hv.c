@@ -111,7 +111,6 @@ ret setup_system(void)
 {
    ret status;
 
-
 #ifdef SYSTEM_CLOCK_72Mhz
    status = set_system_clock_72Mhz();
 #else
@@ -119,7 +118,6 @@ ret setup_system(void)
 #endif
 
    systick_init();
-   
    init_debug_led();
 
    status = rcc_init_uart_clock(
@@ -135,6 +133,7 @@ ret setup_system(void)
 
    flash_lock();
    mpu_init();
+   mpu_enable();
    BOOTLOADER_DEBUG("SYSTEM OK\r\n");
 
    return SUCCESS;

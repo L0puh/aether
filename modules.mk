@@ -54,10 +54,6 @@ modules: $(APP_BINS)
 list-modules:
 	@echo -e "$(CYAN)available apps: $(APP_NAMES)$(RESET)"
 
-#flash-app-%: $(BUILD_DIR)/apps/%.bin
-#	@echo -e "$(YELLOW)> flashing app '$*' via UART...$(RESET)"
-#	python3 tools/uart_flash.py --port $(UART_PORT) --file $<
-
 dump-app-%: $(BUILD_DIR)/apps/%.elf
 	$(OBJDMP) -d -S $<
 

@@ -26,7 +26,6 @@ void mpu_init(void)
        MPU_DEBUG("region id %d: base=0x%x attr=0x%x\r\n", i, static_regions[i].base, static_regions[i].attr_size);
     }
 
-    mpu_enable();
     data_sync_barrier();
     instr_sync_barrier();
 }

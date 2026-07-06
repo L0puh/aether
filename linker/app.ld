@@ -11,18 +11,16 @@ _estack = ORIGIN(app_ram) + LENGTH(app_ram);
 
 SECTIONS
 {
-   .app_vectors : { 
-      KEEP(*(.app_vectors)) 
-   } > app_flash  
-
-   . = FLASH_APP_ORIGIN + APP_DESC_OFFSET;
-
    .app_desc :
    {
       . = ALIGN(4);
       KEEP(*(.app_desc))
       . = ALIGN(4);
    } > app_flash
+
+   .app_vectors : { 
+      KEEP(*(.app_vectors)) 
+   } > app_flash  
 
    .app_text : { 
       _stext = .;
