@@ -116,4 +116,6 @@ void mpu_set_static_region(u8 num, const mpu_region_t *cfg);
 bool mpu_program_dynamic_region(u32 base, u32 size_attr, u32 srd);
 
 
+u32 mpu_size_for_bytes(const u32 bytes);
+
 #endif 

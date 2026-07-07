@@ -107,7 +107,7 @@ void led_blink(int count, int time)
    }
 }
 
-ret setup_system(void)
+ret system_setup(void)
 {
    ret status;
 

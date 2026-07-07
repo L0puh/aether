@@ -116,7 +116,7 @@ int bootloader_entry()
 {
    int ret;
 
-   if (IS_ERROR(setup_system())) {
+   if (IS_ERROR(system_setup())) {
       toggle_debug_led();
    }
   

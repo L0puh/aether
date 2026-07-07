@@ -55,3 +55,18 @@ bool mpu_program_dynamic_region(u32 base, u32 size_attr, u32 srd)
    return true;
 }
 
+u32 mpu_size_for_bytes(const u32 bytes)
+{
+   switch(bytes) {
+      case 256:
+         return REGION_SIZE_256B;
+      case 1024:
+         return REGION_SIZE_1KB;
+      case 1024*4:
+         return REGION_SIZE_4KB;
+      default:
+         break;
+   }
+   return 0;
+}
+

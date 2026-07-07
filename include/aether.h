@@ -30,6 +30,7 @@
 #include "boot/hv.h"
 #include "core/scheduler.h"
 #include "boot/flasher.h"
+#include "boot/svc.h"
 
 
 

@@ -109,7 +109,7 @@ typedef struct _MPU {
 #define GPIOA_BASE        (PERIPH_BASE + 0x10800)
 #define GPIOB_BASE        (PERIPH_BASE + 0x10C00)
 #define GPIOC_BASE        (PERIPH_BASE + 0x11000)
-#define USART1_BASE       (PERIPH_BASE + 0x13800)
+#define USART1_BASE       (PERIPH_BASE + 0x13800) 
 #define USART2_BASE       (PERIPH_BASE + 0x04400)
 #define USART3_BASE       (PERIPH_BASE + 0x04800)
 

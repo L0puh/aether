@@ -1,22 +1,24 @@
 #ifndef HV_H
 #define HV_H
 
+#include "core/gpio.h"
 #include "defs.h"
 #include <stdbool.h>
 
-typedef struct _hv_state {
-   u8  last_uart_cmd;
-   u32 last_check_ms;
-   u32 max_runtime_ms;
-   u32 watchdog_timeout_ms;
-   u32 apps_start_ms;
-} app_state_t;
+
+typedef struct PACKED _app_manifest {
+   u32 granted_periph_mask;
+   u32 extra_ram;                //TODO: request for extra RAM
+} app_manifest_t;
 
 typedef struct PACKED _app_desc {
    u32 magic;
    u32 version;
    u32 entry;
    u32 size;
+   u32 crc;
+   app_manifest_t manifest;
+   u32 reserved[2];
 } app_desc_t;
 
 typedef void (*hv_delay_ms_t)(u32 ms);
@@ -44,15 +46,9 @@ bool is_valid_app_call(u32 lr);
 void hv_tick_hook(void);
 void init_debug_led(void);
 void toggle_debug_led(void);
-ret setup_system(void);
+ret  system_setup(void);
 void led_blink(int count, int time);
 
-void delay_impl(u32 ms);
-void uart_write_impl(const char* str);
-void uart_writef_impl(const char* str, ...);
-u8   uart_read_impl(void);
-void led_toggle_impl(void);
-void hv_api_init(void);
 
 void dump_regs(void);
 
