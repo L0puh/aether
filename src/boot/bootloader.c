@@ -17,7 +17,7 @@ bool is_app_exists(app_desc_t** desc) {
       
    }
 
-   BOOTLOADER_DEBUG("APP NOT FOUND\r\n");
+   BOOTLOADER_DEBUG("APP NOT FOUND: magic=0x%x size=%d\r\n", ptr->magic, ptr->size);
    return false;
 }
 

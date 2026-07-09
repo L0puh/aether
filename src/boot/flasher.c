@@ -147,4 +147,5 @@ void flash_erase_app_slot(u32 addr, u32 size)
    }
 
    flash_lock();
+   CMD_PRINT("erase done!\r\n");
 }

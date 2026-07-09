@@ -1,6 +1,8 @@
 #include "core/debug.h"
 #include <core/systick.h>
 
+volatile u32 system_ticks_g = 0;
+
 void systick_init()
 {
    u32 ticks = get_tick_rate() / 1000;

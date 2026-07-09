@@ -3,28 +3,8 @@
 
 #include <boot/hv.h>
 #include "defs.h"
-
-typedef enum {
-   SVC_REG_REQ = 0,
-  // ?? SVC_FLASH_WRITE,
-   SVC_WDT_KICK,
-   SVC_EXIT,
-
-
-   SVC_COUNT
-} svc_id_e;
-
-typedef enum {
-    PERIPH_NONE = 0,
-    PERIPH_USART1,
-    PERIPH_USART2,
-    PERIPH_GPIOA,
-    PERIPH_GPIOB,
-    PERIPH_GPIOC,
-    /* PERIPH_SPI1, */
-    /* PERIPH_I2C1, */
-    PERIPH_COUNT
-} periph_id_e;
+#include <core/gpio.h>
+#include <hvapi.h>
 
 typedef struct {
     periph_id_e id;

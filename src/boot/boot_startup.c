@@ -1,6 +1,8 @@
+#include "boot/svc.h"
+#include "defs.h"
+#include "hvapi.h"
 #include <aether.h>
 
-volatile u32 system_ticks_g = 0;
 
 extern u32 _stext;
 extern u32 _estack;
@@ -16,13 +18,49 @@ void default_handler(void);
 
 void nmi_handler(void) __attribute__((weak, alias("default_handler")));
 void usagefault_handler(void) __attribute__((weak, alias("default_handler")));
-void svc_handler(void) __attribute__((weak, alias("default_handler")));
 void debugmon_handler(void) __attribute__((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute__((weak, alias("default_handler")));
 void systick_handler(void);
 void hardfault_handler(void);
 void memmanage_handler(void);
 void busfault_handler(void);
+void svc_handler(void);
+
+/* in: r0 = id, r1 = permissions */
+void svc_handler(void)
+{
+   u32 *sp;
+   u8 svc_num, *ret_addr;
+   frame_t *frame;
+
+   app_desc_t *desc = (app_desc_t*)APP_DESC_ADDR;
+   if (desc->magic != APP_MAGIC) {
+      DEBUG_PRINT("no app found\r\n");
+      return;
+   }
+  
+   // TODO: check if using PSP or MSP!!!
+   __asm volatile ("MRS %0, MSP" : "=r" (sp));
+   frame = (frame_t*)sp;
+   ret_addr = (u8*)frame->pc;
+   svc_num  = *(ret_addr-2);
+   if (svc_num >= SVC_COUNT) {
+      DEBUG_PRINT("wrong svc number\r\n");
+      frame->r0 = (u32)-1;
+      return;
+   }
+
+   ret res;
+   switch(svc_num) {
+      case SVC_REG_REQ:
+         res = svc_region_request(desc, frame->r0, frame->r1); 
+         break;
+      default:
+         DEBUG_PRINT("not implemented yet\r\n");
+   }
+
+   frame->r0 = res == SUCCESS ? 0 : -1;
+}
 
 void memmanage_handler(void)
 {

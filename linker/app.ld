@@ -13,11 +13,11 @@ ENTRY(reset_handler)
 
 SECTIONS
 {
-   .app_desc :
-   {
-      . = ALIGN(4);
-      KEEP(*(.app_desc))
-      . = ALIGN(4);
+   .app_desc FLASH_APP_ORIGIN : {
+      _sapp_desc = .;
+      . = . + APP_DESC_OFFSET - 1;
+      BYTE(0xFF)
+      _eapp_desc = .;
    } > app_flash
 
    .app_text : { 

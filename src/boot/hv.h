@@ -1,10 +1,8 @@
 #ifndef HV_H
 #define HV_H
 
-#include "core/gpio.h"
 #include "defs.h"
 #include <stdbool.h>
-
 
 typedef struct PACKED _app_manifest {
    u32 granted_periph_mask;
@@ -14,11 +12,12 @@ typedef struct PACKED _app_manifest {
 typedef struct PACKED _app_desc {
    u32 magic;
    u32 version;
-   u32 entry;
+   u16 reserved;
    u32 size;
-   u32 crc;
-   app_manifest_t manifest;
-   u32 reserved[2];
+   u32 entry;
+   u8 padding[16]; /* pad to offset (32) */
+   /* u32 crc; */
+   /*TODO store somewhere else app_manifest_t manifest; */
 } app_desc_t;
 
 typedef void (*hv_delay_ms_t)(u32 ms);

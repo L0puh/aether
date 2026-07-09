@@ -92,7 +92,9 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200):
 
     while True:
         line = ser.readline().decode('utf-8', errors='ignore').strip()
-        if "erase at" in line:
+        if line:
+            print(f"\t< {line}")
+        if "erase done" in line:
             print("erase is done!")
             break
 

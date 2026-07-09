@@ -18,10 +18,11 @@
 #define FLASH_HV_ORIGIN   0x08000000UL
 #define FLASH_HV_LENGTH   0x4000UL     /* 16K */
 
-#define FLASH_APP_ORIGIN  0x08004000UL
-#define FLASH_APP_LENGTH  0xC000UL     /* 48K */
 
-#define APP_DESC_OFFSET   0x100UL      /* after vectors */
+#define APP_DESC_OFFSET   0x20UL      /* 32 bytes */
+
+#define FLASH_APP_ORIGIN  0x08004000UL
+#define FLASH_APP_LENGTH  0xC000UL    /* 48K*/
 
 #define RAM_HV_ORIGIN     0x20000000UL
 #define RAM_HV_LENGTH     0x1000UL     /* 4K */

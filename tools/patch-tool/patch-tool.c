@@ -119,13 +119,13 @@ int main(int argc, char *argv[])
       return 0;
    }
 
+   printf("sizeof of app_desc_t: %zu\n", sizeof(app_desc_t));
    printf("file: %s\n", filename);
    printf("version: %d\n", version);
    if (magic_set) {
       printf("magic: 0x%08x\n", magic);
    }
    
-
    u8 buffer[FLASH_APP_LENGTH] = {0};
    size_t size = 0;
    if (!read_file(filename, buffer, &size)) {
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
    desc->magic = magic_set ? magic : APP_MAGIC;
    desc->version = version;
    desc->size = size;
-   desc->entry = (u32) FLASH_APP_ORIGIN + sizeof(app_desc_t) ;
+   desc->entry = (u32) FLASH_APP_ORIGIN + APP_DESC_OFFSET;
   
    printf("app descriptor:\n");
    printf("  magic:   0x%08x\n", desc->magic);
