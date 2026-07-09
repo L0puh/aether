@@ -26,6 +26,18 @@ bool uart_init(USART_t* uart, u16 flags)
 #endif
    return 1;
 }
+void uart_putchar_ex(USART_t* uart, int ch)
+{
+   if (!uart)
+      return;
+
+   while (!(uart->STATUS & TX_EMPTY));
+
+   uart->DATA = (ch & 0xFF);
+
+   while (!(uart->STATUS & TX_COMPLETE));
+}
+
 
 void uart_putchar(int ch)
 {
@@ -37,6 +49,13 @@ void uart_putchar(int ch)
    opened_usart_g->DATA = (ch & 0xFF);
 
    while (!(opened_usart_g->STATUS & TX_COMPLETE));
+}
+
+void uart_write_ex(USART_t* uart, const char* str) 
+{
+   while(*str) {
+      uart_putchar_ex(uart, *str++);
+   }
 }
 
 void uart_write(const char* str) 

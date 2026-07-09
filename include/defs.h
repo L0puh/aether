@@ -63,7 +63,7 @@ typedef enum _ret_codes {
 typedef int (*app_entry_t)(void);
 #define UART_PRINT(...)      uart_writef(__VA_ARGS__); // used for flashing via UART 
 
-typedef struct _frame {
+typedef struct {
    u32 r0, r1, r2, r3, r12, lr, pc, xpsr;
 } frame_t;
 

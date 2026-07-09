@@ -137,7 +137,9 @@ int main(int argc, char *argv[])
    desc->magic = magic_set ? magic : APP_MAGIC;
    desc->version = version;
    desc->size = size;
-   desc->entry = (u32) FLASH_APP_ORIGIN + APP_DESC_OFFSET;
+//   desc->entry = (u32) FLASH_APP_ORIGIN + APP_DESC_OFFSET;
+//   TODO: auto detect main entry address. 
+   desc->entry = 0x08004040;
   
    printf("app descriptor:\n");
    printf("  magic:   0x%08x\n", desc->magic);

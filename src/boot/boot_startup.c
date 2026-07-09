@@ -27,32 +27,29 @@ void busfault_handler(void);
 void svc_handler(void);
 
 /* in: r0 = id, r1 = permissions */
-void svc_handler(void)
+void svc_handler_c(frame_t *frame)
 {
-   u32 *sp;
-   u8 svc_num, *ret_addr;
-   frame_t *frame;
+   u8 *ret_addr = (u8*)frame->pc;
+   u8 svc_num  = *(ret_addr-2);
 
    app_desc_t *desc = (app_desc_t*)APP_DESC_ADDR;
    if (desc->magic != APP_MAGIC) {
       DEBUG_PRINT("no app found\r\n");
       return;
    }
-  
-   // TODO: check if using PSP or MSP!!!
-   __asm volatile ("MRS %0, MSP" : "=r" (sp));
-   frame = (frame_t*)sp;
-   ret_addr = (u8*)frame->pc;
-   svc_num  = *(ret_addr-2);
+
    if (svc_num >= SVC_COUNT) {
       DEBUG_PRINT("wrong svc number\r\n");
       frame->r0 = (u32)-1;
       return;
    }
 
-   ret res;
+   DEBUG_PRINT("stack: 0x%x, svc num: %d, ret addr: 0x%x\r\n", frame, svc_num, ret_addr);
+
+   ret res = ERROR;
    switch(svc_num) {
       case SVC_REG_REQ:
+         DEBUG_PRINT("calling region request: id=%d perms=0x%x\r\n", frame->r0, frame->r1);
          res = svc_region_request(desc, frame->r0, frame->r1); 
          break;
       default:

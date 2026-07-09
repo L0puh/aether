@@ -1,4 +1,3 @@
-#include "boot/hv.h"
 #include "core/systick.h"
 #include <aether.h>
 
@@ -17,7 +16,8 @@ bool is_app_exists(app_desc_t** desc) {
       
    }
 
-   BOOTLOADER_DEBUG("APP NOT FOUND: magic=0x%x size=%d\r\n", ptr->magic, ptr->size);
+   BOOTLOADER_DEBUG("APP NOT FOUND\r\n");
+   BOOTLOADER_DEBUG("----> magic=0x%x size=%d\r\n", ptr->magic, ptr->size);
    return false;
 }
 
@@ -29,9 +29,6 @@ static void run_app(app_desc_t* desc)
       return;
    }
    
-   /* desc->state.apps_start_ms = system_ticks_g; */
-   /* desc->state.last_check_ms = system_ticks_g; */
-
    entry = (app_entry_t)((u32)desc->entry | 1);
 
    BOOTLOADER_DEBUG("RUNNING APP (0%x entry)\r\n", entry);
@@ -131,7 +128,6 @@ int bootloader_entry()
   
    ret = is_app_exists(&desc);
 
-   // FIXME: kinda silly 
    if (!ret) { 
       while (!ret || desc == NULL) {
          ret = fetch_app(desc);
@@ -141,7 +137,6 @@ int bootloader_entry()
       }
    }
    
-   BOOTLOADER_DEBUG("skipping\r\n");
    run_app(desc);
 
    BOOTLOADER_DEBUG("POINT OF NO RETURN\r\n");

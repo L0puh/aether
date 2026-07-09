@@ -32,4 +32,8 @@ void uart_flush_tx(void);
 void uart_flush_rx(void);
 ret uart_read_buffer(u8* buf, u32 len);
 
+
+//extended: need to be fixed though FIXME
+void uart_write_ex(USART_t* uart, const char* str);
+void uart_putchar_ex(USART_t* uart, int ch);
 #endif 

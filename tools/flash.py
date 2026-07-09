@@ -59,7 +59,7 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200):
 
     print("sending app...")
     ser = serial.Serial(port, baud, timeout=5)
-    time.sleep(0.5)
+    time.sleep(1.5)
 
     chunk_size=256
     ser.write(b'F')

@@ -37,7 +37,9 @@ ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
 
    u32 size_attr = mpu_size_for_bytes(entry->size) | perms | XN_ENABLE | REGION_ENABLE;
    
+
    bool ok = mpu_program_dynamic_region(entry->base, size_attr, 0);
+   DEBUG_PRINT("%s dynamic region\r\n", ok ? "OK" : "ERROR");
 
    return ok ? SUCCESS: ACCESS_DENIED;
 }
