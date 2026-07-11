@@ -103,9 +103,9 @@ void systick_handler(void)
 {
    system_ticks_g++;
 
-   if (system_ticks_g % TICK_HOOK_MS) {
-      hv_tick_hook();
-   }
+   /* if (system_ticks_g % TICK_HOOK_MS == 0) { */
+   /*    hv_tick_hook(); */
+   /* } */
 }
 
 void default_handler(void)

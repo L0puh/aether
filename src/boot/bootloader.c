@@ -108,36 +108,36 @@ bool fetch_app(app_desc_t *desc)
    return true;
 }
 
+
 __attribute__((noreturn))
 int bootloader_entry()
 {
    int ret;
 
-   if (IS_ERROR(system_setup())) {
-      toggle_debug_led();
+   if (!IS_ERROR(system_setup())) {
+      led_blink(3, 100);
    }
-  
-   //TODO: check cause of reset 
-   /* BOOTLOADER_DEBUG("RCC_CSR=0x%x\r\n", RCC->CSR); */
-   /* RCC->CSR |= RCC_CSR_RMVF; */
+
+   check_reset_cause();
 
    UART_PRINT("chunk size: %d!\r\n", FLASH_CHUNK_SIZE);
    BOOTLOADER_DEBUG("BOOTLOADER START\r\n");
 
    app_desc_t* desc = NULL;
   
-   ret = is_app_exists(&desc);
 
-   if (!ret) { 
-      while (!ret || desc == NULL) {
-         ret = fetch_app(desc);
-         if (ret) { break; }
-         BOOTLOADER_DEBUG("sleeping for 60ms before trying again...\r\n");
-         systick_msec_delay(60000);
-      }
+   while (!(ret = is_app_exists(&desc))) {
+      ret = fetch_app(desc);
+      if (ret) { break; }
+      BOOTLOADER_DEBUG("sleeping for 60ms before trying again...\r\n");
+      systick_msec_delay(60000);
    }
-   
-   run_app(desc);
+
+   if (desc == NULL) {
+      BOOTLOADER_ERROR("failed to fetch app (NULL)\r\n");
+   } else { 
+      run_app(desc);
+   }
 
    BOOTLOADER_DEBUG("POINT OF NO RETURN\r\n");
 }

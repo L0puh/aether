@@ -103,7 +103,6 @@ typedef struct _MPU {
 #define SCB               ((SCB_t*) SCB_BASE)
 #define MPU               ((MPU_t*) MPU_BASE)
 
-
 #define RCC_BASE          (PERIPH_BASE + 0x21000)
 #define FLASH_BASE        (PERIPH_BASE + 0x22000)
 #define GPIOA_BASE        (PERIPH_BASE + 0x10800)
@@ -129,14 +128,33 @@ typedef struct _MPU {
 #define RCC_USART2EN          (1U << 17)
 #define RCC_USART3EN          (1U << 18)
 
-#define GENERAL_PUSHPULL   (0b00 << 22)
-#define ALTER_PUSHPULL     (0b01 << 22)
-#define GENERAL_OPENDRAIN  (0b10 << 22)
-#define ALTER_OPENDRAIN    (0b11 << 22) 
-#define OUTPUT_50MHZ       (0b11 << 20)
-#define OUTPUT_10MHZ       (0b01 << 20)
-#define OUTPUT_2MHZ        (0b10 << 20)
-#define INPUT_MODE         (0b00 << 20)
+
+/* inputs */
+#define INPUT_ANALOG        0x0
+#define INPUT_FLOATING      0x4
+#define INPUT_PULL          0x8   
+
+/* 
+* general-purpose outputs 
+* PP - push-pull  
+* OD - open drain 
+*/ 
+
+#define OUTPUT_PP_10MHz     0x1
+#define OUTPUT_PP_2MHz      0x2
+#define OUTPUT_PP_50MHz     0x3
+#define OUTPUT_OD_10MHz     0x5
+#define OUTPUT_OD_2MHz      0x6
+#define OUTPUT_OD_50MHz     0x7
+
+/* alternate-function outputs */
+#define AF_PUSH_PULL_10MHz  0x9
+#define AF_PUSH_PULL_2MHz   0xA
+#define AF_PUSH_PULL_50MHz  0xB
+#define AF_OPEN_DRAIN_10MHz 0xD
+#define AF_OPEN_DRAIN_2MHz  0xE
+#define AF_OPEN_DRAIN_50MHz 0xF
+
 
 // FLASH
 #define PREFETCH_STATUS_ON  (1U << 5)
@@ -145,6 +163,7 @@ typedef struct _MPU {
 #define PREFETCH_DISABLE    (0U << 4)
 #define HALF_CYCLE_ACCESS_ENABLE  (1U << 3)
 #define HALF_CYCLE_ACCESS_DISABLE (0U << 3)
+
 
 void enable_irq(void);
 void disable_irq(void);
@@ -155,5 +174,6 @@ void wait_interrupt();
 void system_reset(void);
 u32 get_msp(void);
 u32 get_psp(void);
+void gpio_set_mode(GPIO_t* port, u8 pin, u32 mode);
 
 #endif 

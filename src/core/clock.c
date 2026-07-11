@@ -1,3 +1,4 @@
+#include "target.h"
 #include <aether.h>
 
 ret reset_system_clock() 
@@ -88,15 +89,6 @@ ret set_system_clock_72Mhz()
    return SUCCESS;
 }
 
-void AF_enable(GPIO_t *port, u8 num)
-{
-   //TODO: add general for every num
-   GPIOA->CRH &= ~(0xF << 4);    
-   GPIOA->CRH |= (0xB << 4);      
-   UNUSED(num);
-}
-
-
 ret rcc_enable_clock_pin(GPIO_t* pin){
    if (!pin) 
       return INVALID_PARAMETER;
@@ -114,7 +106,10 @@ ret rcc_enable_clock_pin(GPIO_t* pin){
 }
 
 ret rcc_uart_clock_enable(USART_t* uart){
-   if (!uart) return INVALID_PARAMETER;
+   if (!uart) {
+      return INVALID_PARAMETER;
+   }
+   
    if (uart == USART1)
       RCC->APB2ENR |= RCC_USART1EN;
    else if (uart == USART2) 
@@ -126,6 +121,7 @@ ret rcc_uart_clock_enable(USART_t* uart){
 
    return SUCCESS;
 }
+
 
 ret rcc_init_uart_clock(USART_t* uart, GPIO_t *tx, u8 tx_num, GPIO_t *rx, u8 rx_num)
 {
@@ -140,7 +136,8 @@ ret rcc_init_uart_clock(USART_t* uart, GPIO_t *tx, u8 tx_num, GPIO_t *rx, u8 rx_
       if (IS_ERROR(status)){
          return status;
       }
-      AF_enable(tx, tx_num);
+
+      gpio_set_mode(tx, tx_num, AF_PUSH_PULL_50MHz);
    }
 
    if (rx) {
@@ -148,8 +145,8 @@ ret rcc_init_uart_clock(USART_t* uart, GPIO_t *tx, u8 tx_num, GPIO_t *rx, u8 rx_
       if (IS_ERROR(status)){
          return status;
       }
-      UNUSED(rx_num);
-      //TODO: INPUT FLOATING 
+      
+      gpio_set_mode(rx, rx_num, INPUT_FLOATING);
    }
 
    return rcc_uart_clock_enable(uart);
@@ -164,11 +161,7 @@ u32 get_tick_rate()
    switch (sws)
    {
       case 0x0: // HSI
-         sysclk = 8000000;
-         break;
-
-      case 0x1: // HSE
-         sysclk = 25000000;
+      case 0x1: // HSE (no 25mhz)
          break;
 
       case 0x2: // PLL
@@ -177,9 +170,13 @@ u32 get_tick_rate()
          u32 pllsrc = (RCC->CFGR >> 16) & 0x1;
 
          if (pllsrc) {
-            sysclk = 25000000 * pllmul;
+            sysclk = sysclk * pllmul;
          } else {
             sysclk = (8000000 / 2) * pllmul;
+         }
+         
+         if (sysclk > 72000000) {
+            sysclk = 8000000;
          }
          break;
       }
@@ -187,7 +184,6 @@ u32 get_tick_rate()
       default:
          return 0;
    }
-   /* AHB prescaler */
    u32 hpre = (RCC->CFGR >> 4) & 0xF;
 
    static const u16 ahb_prescaler[16] = {
@@ -199,3 +195,28 @@ u32 get_tick_rate()
 
    return sysclk / ahb_prescaler[hpre];
 }
+
+#ifdef _DEBUG
+void check_reset_cause(void) 
+{
+   u32 flags = RCC->CSR;
+
+   DEBUG_PRINT("[!] reset cause: ");
+
+   for (u32 i = 1; i < NUM_OF_RESET_CAUSES; i++) {
+      if (flags & reset_causes_g[i].mask) {
+         DEBUG_PRINT("%s\r\n", reset_causes_g[i].name);
+         goto found;
+      }
+   }
+
+   DEBUG_PRINT("unknown reset source (0x%08x\r\n", flags);
+
+found:
+   RCC->CSR |= CSR_RMVF;
+}
+#else 
+void check_reset_cause(void) {
+   RCC->CSR |= CSR_RMVF;
+}
+#endif 

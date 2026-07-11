@@ -63,3 +63,11 @@ inline u32 get_psp(void)
    __asm volatile ("mrs %0, psp" : "=r" (psp));
    return psp;
 }
+
+void gpio_set_mode(GPIO_t* port, u8 pin, u32 mode)
+{
+   volatile u32 *cr = (pin < 8) ? &port->CRL : &port->CRH;
+   u8 shift = (pin % 8) * 4;
+   *cr &= ~(0xFu << shift);
+   *cr |= (mode << shift);
+}

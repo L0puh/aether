@@ -5,7 +5,8 @@
 //#define MODE_MIX
 
 #define SYSTEM_CLOCK_72Mhz 
-//#define SYSTEM_CLOCK_25Mhz 
+//VERIFY: #define SYSTEM_CLOCK_25Mhz 
+//#define SYSTEM_CLOCK_8Mhz 
 
 // sign apps and verify before flashing 
 //#define FEATURE_SIGN_APP

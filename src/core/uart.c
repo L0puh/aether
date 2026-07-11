@@ -9,9 +9,11 @@ void uart_set_baudrate(USART_t *uart, u32 pclk, u32 baudrate)
     uart->BAUD= (pclk + (baudrate / 2U)) / baudrate;
 }
 
+
 bool uart_init(USART_t* uart, u16 flags)
 {
    UNUSED(flags);
+
    opened_usart_g = uart;
 
    uart_reset(uart);
@@ -24,6 +26,7 @@ bool uart_init(USART_t* uart, u16 flags)
 #else
    uart_set_baudrate(uart, 8000000, DBG_UART_BAUDRATE);
 #endif
+
    return 1;
 }
 void uart_putchar_ex(USART_t* uart, int ch)
@@ -148,8 +151,7 @@ int __io_putchar(int ch)
 
 void uart_enable(USART_t *uart)
 {
-   // UE, TE, RE
-   uart->CR1 = (1 << 13) | (1 << 3) | (1 << 2);
+   uart->CR1 = UART_ENABLE | UART_TX_ENABLE | UART_RX_ENABLE;
 }
 
 void uart_reset(USART_t *uart)

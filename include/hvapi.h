@@ -5,7 +5,6 @@
 
 typedef enum {
    SVC_REG_REQ = 0,
-   SVC_FLASH_WRITE,
    SVC_WDT_KICK,
    SVC_EXIT,
 

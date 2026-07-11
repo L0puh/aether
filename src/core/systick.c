@@ -1,5 +1,4 @@
-#include "core/debug.h"
-#include <core/systick.h>
+#include <aether.h>
 
 volatile u32 system_ticks_g = 0;
 
@@ -14,17 +13,31 @@ void systick_init()
       (1U << 2) |  // CLKSOURCE
       (1U << 1) |  // TICKINT
       (1U << 0);   // ENABLE
+
 }
 
 void systick_msec_delay(u32 delay)
 {
-   u32 start = system_ticks_g;
+    u32 start = system_ticks_g;
 
-   DEBUG_PRINT("DELAY: %d\r\n", delay);
-   DEBUG_PRINT("START: %d\r\n", start);
-   while ((system_ticks_g - start) < delay) {
-   }
+    if (!(SYSTICK->CTRL & (1 << 0))) {
+        DEBUG_PRINT("error: systick not enabled!\r\n");
+        return;
+    }
+
+    if (!(SYSTICK->CTRL & (1 << 1))) {
+        DEBUG_PRINT("error: systick interrupt not enabled!\r\n");
+        return;
+    }
+    
+    DEBUG_PRINT("> delay [%d]... ", delay);
+    while ((system_ticks_g - start) < delay) {
+         cpu_wait_for_interrupt();
+    }
+    
+    DEBUG_PRINT("OK!\r\n");
 }
+
 
 void systick_reset()
 {
