@@ -6,6 +6,10 @@
 #include <memory_map.h>
 #include <defs.h>
 
+
+// !! AUTO GENERATED !!
+#include "symbols.h"
+
 void print_help() 
 {
    printf("this tool is used to patch apps before flashing\n");
@@ -137,9 +141,7 @@ int main(int argc, char *argv[])
    desc->magic = magic_set ? magic : APP_MAGIC;
    desc->version = version;
    desc->size = size;
-//   desc->entry = (u32) FLASH_APP_ORIGIN + APP_DESC_OFFSET;
-//   TODO: auto detect main entry address. 
-   desc->entry = 0x08004040;
+   desc->entry = SYM_MAIN;
   
    printf("app descriptor:\n");
    printf("  magic:   0x%08x\n", desc->magic);

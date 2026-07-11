@@ -25,7 +25,6 @@ typedef enum {
     PERIPH_COUNT
 } periph_id_e;
 
-//FIXME: there is a bug that r0 and r1 aren't set for some reason
 static inline int32_t hv_request_periph(periph_id_e id, u32 perms) {
     register u32 r0 asm("r0") = (u32)id;
     register u32 r1 asm("r1") = perms;

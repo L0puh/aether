@@ -4,6 +4,8 @@
 APPS_DIR    = src/apps
 APP_LINKER  = linker/app.ld
 VERSION     = 1
+SRC_DIR     = src
+SYMBOLS 		= $(SRC_DIR)/symbols.h
 
 APP_NAMES := $(notdir $(wildcard $(APPS_DIR)/*))
 APP_ELFS  := $(APP_NAMES:%=$(BUILD_DIR)/apps/%.elf)
@@ -40,7 +42,18 @@ $(BUILD_DIR)/apps/$(1).elf: $$(APP_$(1)_OBJS) $(CORE_LIB) $(LINKER_DIR)/memory_m
 	@echo -e "$(BLUE)size:\n$$$$($(SIZE) $$@)$(RESET)\n"
 
 
-$(BUILD_DIR)/apps/$(1).bin: $(BUILD_DIR)/apps/$(1).elf $(PATCH)
+$(APPS_DIR)/symbols.h: $(BUILD_DIR)/apps/$(1).elf
+	@echo -e "$(YELLOW)> generating app symbols $$@ $(RESET)"
+	@echo "#ifndef SYMBOLS_H" > $$@
+	@echo "#define SYMBOLS_H" >> $$@
+	@echo "// auto-generated symbol addresses for $$<" >> $$@
+	$(OBJDMP) -t $$< | grep " F " | awk '{print "#define SYM_" toupper($$$$NF) " 0x" $$$$1}' >> $$@
+	@echo "#endif /* SYMBOLS_H */" >> $$@
+	@echo -e "$(MAGENTA)"
+	@head $$@	
+	@echo -e "$(RESET)"
+
+$(BUILD_DIR)/apps/$(1).bin: $(BUILD_DIR)/apps/$(1).elf generate-sym-$(1) $(PATCH)
 	$$(OBJCPY) -O binary $$< $$@
 	@echo -e "$(YELLOW)> patching app descriptor...$(RESET)"
 	$(PATCH) -v ${VERSION} -f $$@ -o $$@.patched
@@ -66,6 +79,17 @@ patch-%: $(BUILD_DIR)/apps/%.bin $(PATCH)
 
 clean-modules:
 	rm -rf $(BUILD_DIR)/apps
+
+generate-sym-%: $(BUILD_DIR)/apps/%.elf 
+	@echo -e "$(YELLOW)> generating app symbols $$@ $(RESET)"
+	@echo "#ifndef SYMBOLS_H" > $(SYMBOLS)
+	@echo "#define SYMBOLS_H" >> $(SYMBOLS)
+	@echo "// auto-generated symbol addresses for $< " >> $(SYMBOLS)
+	$(OBJDMP) -t $< | grep " F " | awk '{print "#define SYM_" toupper($$NF) " 0x" $$1}' >> $(SYMBOLS)
+	@echo "#endif /* SYMBOLS_H */" >> $(SYMBOLS)
+	@echo -e "$(MAGENTA)"
+	@head $(SYMBOLS)
+	@echo -e "$(RESET)"
 
 
 .PHONY: modules list-modules clean-modules

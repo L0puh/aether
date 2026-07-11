@@ -5,7 +5,7 @@ PATCH_TOOL_DIR = tools/patch-tool
 PATCH_TOOL_SRC = $(PATCH_TOOL_DIR)/patch-tool.c
 PATCH_TOOL_BIN = $(BUILD_DIR)/patch-tool
 
-PATCH_TOOL_INCLUDES = -I$(ROOT_DIR)/include -I$(ROOT_DIR)/src/boot
+PATCH_TOOL_INCLUDES = -I$(ROOT_DIR)/include -I$(ROOT_DIR)/src/boot -I$(ROOT_DIR)/src/
 
 $(PATCH_TOOL_BIN): $(PATCH_TOOL_SRC)
 	@mkdir -p $(dir $@)
