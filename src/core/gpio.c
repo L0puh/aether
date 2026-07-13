@@ -71,3 +71,20 @@ void gpio_set_mode(GPIO_t* port, u8 pin, u32 mode)
    *cr &= ~(0xFu << shift);
    *cr |= (mode << shift);
 }
+
+void set_psp(u32 psp)
+{
+   __asm volatile ("msr psp, %0" : : "r" (psp) : "memory");
+}
+
+u32 get_control(void)
+{
+   u32 control;
+   __asm volatile ("mrs %0, control" : "=r" (control));
+   return control;
+}
+
+void set_control(u32 control)
+{
+   __asm volatile ("mrs %0, control" : : "r" (control) : "memory");
+}

@@ -57,6 +57,7 @@ typedef enum _ret_codes {
 
 #define APP_MAGIC (0xDEADBEEF)
 #define APP_DESC_ADDR (FLASH_APP_ORIGIN)
+#define APP_STACK_ADDR    (RAM_APP_ORIGIN + RAM_APP_LENGTH)
 
 #define FLASH_CHUNK_SIZE (FLASH_HV_LENGTH/sizeof(u64))
 

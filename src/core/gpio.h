@@ -164,6 +164,8 @@ typedef struct _MPU {
 #define HALF_CYCLE_ACCESS_ENABLE  (1U << 3)
 #define HALF_CYCLE_ACCESS_DISABLE (0U << 3)
 
+#define CONTROL_SPSEL (1 << 0) // 0 = priv, 1 = unpriv
+#define CONTROL_nPRIV (1 << 1) // 0 = MSP, 1 = PSP
 
 void enable_irq(void);
 void disable_irq(void);
@@ -175,5 +177,9 @@ void system_reset(void);
 u32 get_msp(void);
 u32 get_psp(void);
 void gpio_set_mode(GPIO_t* port, u8 pin, u32 mode);
+
+void set_control(u32 control);
+u32 get_control(void);
+void set_psp(u32 psp);
 
 #endif 

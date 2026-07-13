@@ -38,6 +38,7 @@ u32 uart_read_word(void);
 bool uart_rx_ready();
 bool uart_wait_rx_ready(u32 timeout);
 void uart_writef(const char* str, ...);
+//TODO: void uart_writef_ex(USART_t *usart, const char* str, ...);
 u32 uart_data();
 void uart_flush(void);
 void uart_flush_tx(void);

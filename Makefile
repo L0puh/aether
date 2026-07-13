@@ -175,7 +175,7 @@ sym-boot: $(BUILD_DIR)/$(PROJECT)-boot.elf
 
 flash: $(BUILD_DIR)/$(PROJECT)-boot.bin
 	st-flash erase
-	st-flash write $< 0x08000000
+	st-flash write $< 0x08000000 2>/dev/null
 	st-flash reset
 
 reset: 

@@ -13,11 +13,10 @@ ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
    }
 
    UNUSED(desc);
-   //TODO:
-   /* if (!(desc->manifest.granted_periph_mask & (1u << periph_id))) { */
-   /*    DEBUG_PRINT("app doesn't have permission to request this region (%d)\r\n", periph_id); */
-   /*    return VIOLATION; */
-   /* } */
+   if (!(desc->manifset.granted_periph_mask & (1u << periph_id))) {
+      DEBUG_PRINT("app doesn't have permission to request this region (%d)\r\n", periph_id);
+      return VIOLATION;
+   }
 
    const periph_map_entry_t *entry = NULL;
    for (u32 i = 0; i < PERIPHS_MAP_TOTAL; i++) {

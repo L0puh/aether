@@ -1,3 +1,8 @@
+/* 
+ * everything related to RCC 
+ * (reset & clock control)
+ */
+
 #ifndef CLOCK_H
 #define CLOCK_H
 
@@ -50,19 +55,13 @@ static const reset_cause_t reset_causes_g[] = {
    { CSR_SOFTW_RESET,   "software reset"              },
    { CSR_POWER,         "power on / power down reset" },
    { CSR_PIN,           "external pin reset"          }
-
 };
 
 #define NUM_OF_RESET_CAUSES (sizeof(reset_causes_g)/sizeof(reset_causes_g[0]))
-
 #endif 
 
 ret rcc_enable_clock_pin(GPIO_t* pin);
-ret set_system_clock_25Mhz();
-ret set_system_clock_72Mhz();
-ret reset_system_clock();
 ret rcc_init_uart_clock(USART_t* uart, GPIO_t *tx, u8 tx_num, GPIO_t *rx, u8 rx_num);
-u32 get_tick_rate();
 void check_reset_cause(void);
 
 #endif 

@@ -6,18 +6,16 @@
 
 typedef struct PACKED _app_manifest {
    u32 granted_periph_mask;
-   u32 extra_ram;                //TODO: request for extra RAM
+   u32 extra_ram;                
 } app_manifest_t;
 
 typedef struct PACKED _app_desc {
    u32 magic;
-   u32 version;
-   u16 reserved;
-   u32 size;
    u32 entry;
-   u8 padding[16]; /* pad to offset (32) */
-   /* u32 crc; */
-   /*TODO store somewhere else app_manifest_t manifest; */
+   u32 size;
+   app_manifest_t manifset;
+   u16 reserved;
+   u8 version;
 } app_desc_t;
 
 typedef void (*hv_delay_ms_t)(u32 ms);
@@ -37,7 +35,6 @@ typedef struct _hv_api {
    hv_led_toggle_t led_toggle;
 
 } hv_api_t;
-
 
 extern volatile hv_api_t hv_api;
 

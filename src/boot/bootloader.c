@@ -1,3 +1,4 @@
+#include "core/gpio.h"
 #include "core/systick.h"
 #include <aether.h>
 
@@ -31,8 +32,20 @@ static void run_app(app_desc_t* desc)
    
    entry = (app_entry_t)((u32)desc->entry | 1);
 
+   disable_irq();
+   set_psp(APP_STACK_ADDR);
+   set_control(get_control() | CONTROL_SPSEL | CONTROL_nPRIV);
+   instr_sync_barrier();
+   enable_irq();
+
    BOOTLOADER_DEBUG("RUNNING APP (0%x entry)\r\n", entry);
+
    entry();
+
+   set_control(get_control() & ~(CONTROL_SPSEL | CONTROL_nPRIV));
+   instr_sync_barrier();
+
+
    BOOTLOADER_DEBUG("APP RETURNED\r\n");
 }
 
@@ -124,7 +137,6 @@ int bootloader_entry()
    BOOTLOADER_DEBUG("BOOTLOADER START\r\n");
 
    app_desc_t* desc = NULL;
-  
 
    while (!(ret = is_app_exists(&desc))) {
       ret = fetch_app(desc);

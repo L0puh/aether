@@ -5,7 +5,10 @@
 #include "hv.h"
 #include <memory_map.h>
 #include <defs.h>
+#include <hvapi.h>
 
+#define GRANT_USART1 ( 1 << PERIPH_USART1 )
+#define GRANT_GPIOC  ( 1 << PERIPH_GPIOC )
 
 // !! AUTO GENERATED !!
 #include "symbols.h"
@@ -142,12 +145,14 @@ int main(int argc, char *argv[])
    desc->version = version;
    desc->size = size;
    desc->entry = SYM_MAIN;
+   desc->manifset.granted_periph_mask = GRANT_USART1 | GRANT_GPIOC;
   
    printf("app descriptor:\n");
    printf("  magic:   0x%08x\n", desc->magic);
    printf("  version: 0x%04x\n", desc->version);
    printf("  size:    %u bytes\n", desc->size);
    printf("  entry:   0x%08x (offset %u from start)\n", desc->entry, desc->entry);
+   printf("  periph mask: 0x%08x\n", desc->manifset.granted_periph_mask);
 
    write_output(output, buffer, size);
    return 0;

@@ -3,14 +3,12 @@ monitor reset halt
 
 file build/aether-boot.elf
 load
-add-symbol-file build/main_app.elf 0x08002000
+add-symbol-file build/apps/simple_app/simple_app.elf 0x08002000
 
 monitor reset halt
 
-hbreak reset_handler
 hbreak bootloader_entry 
-hbreak setup_system 
-hbreak scan_for_apps 
+hbreak main 
 
 
 monitor arm semihosting disable

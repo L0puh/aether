@@ -1,6 +1,7 @@
 #ifndef MPU_H
 #define MPU_H
 
+#include "boot/hv.h"
 #include "core/gpio.h"
 #include "defs.h"
 #include "memory_map.h"
@@ -14,6 +15,9 @@
 #define REGION_BASE_ADDR(a) ((a) & 0xFFFFFFE0)
 
 #define REGION_ENABLE       (1 << 0)
+#define REGION_SIZE_32B     (0x4 << 1)    // 4
+#define REGION_SIZE_64B     (0x5 << 1)    // 5
+#define REGION_SIZE_128B    (0x6 << 1)    // 6
 #define REGION_SIZE_256B    (0x7 << 1)    // 7
 #define REGION_SIZE_512B    (0x8 << 1)    // 8
 #define REGION_SIZE_1KB     (0x9 << 1)    // 9 
@@ -55,7 +59,7 @@
 typedef struct _mpu_region_t {
    u32 base;
    u32 attr_size;
-   u32 subreg_mask; // subregion disable bits 
+   u32 subreg_mask; 
 } mpu_region_t;
 
 typedef enum _region_type {
@@ -65,12 +69,11 @@ typedef enum _region_type {
    REG_APP_FLASH,
    REG_APP_RAM,
    REG_RAM_GUARD,
-   REG_DYNAMIC = 6 // reserved
+   REG_APP_DESC,
+   REG_DYNAMIC // reserved
 } region_type_e;
 
 
-// probably later it will be done with
-// .cfg file and generated automatically...maybe
 static const mpu_region_t static_regions[] = 
 {
    [REG_NULL_GUARD] = {
@@ -88,6 +91,11 @@ static const mpu_region_t static_regions[] =
       .base = RAM_HV_ORIGIN,
       .attr_size = REGION_SIZE_4KB | AP_PRIV_RW | XN_ENABLE | REGION_ENABLE,
       .subreg_mask = 0,   
+   },
+   [REG_APP_DESC] = {
+      .base = FLASH_APP_ORIGIN,
+      .attr_size = REGION_SIZE_32B | AP_PRIV_RW_USER_RO | XN_ENABLE | REGION_ENABLE,
+      .subreg_mask = 0,
    },
    [REG_APP_FLASH] = {
       .base = FLASH_APP_ORIGIN,

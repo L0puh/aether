@@ -15,12 +15,18 @@ typedef struct _systick {
    u32 VAL;         // CVR: current value
    u32 CALIB;       // RCR: calibration value
 } systick_t;
+
+
 #define SYSTICK_BASE    0xE000E010UL
 #define SYSTICK           ((systick_t*) SYSTICK_BASE)
 
 void systick_msec_delay(u32 delay);
 void systick_reset();
 void systick_init();
+u32 get_tick_rate();
+ret set_system_clock_25Mhz();
+ret set_system_clock_72Mhz();
+ret reset_system_clock();
 
 extern volatile u32 system_ticks_g;
 

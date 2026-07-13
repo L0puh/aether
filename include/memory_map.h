@@ -34,5 +34,4 @@
 #define RAM_APP_LENGTH    0x3C00UL     /* 15K */
 
 
-
 #endif

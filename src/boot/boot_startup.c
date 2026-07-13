@@ -110,6 +110,8 @@ void systick_handler(void)
 
 void default_handler(void)
 {
+
+   UART_PRINT("default handler!!!\r\n");
    while(1) {
       cpu_wait_for_interrupt();
    }
@@ -128,6 +130,7 @@ void hardfault_handler(void)
     UNUSED(mmfar);
     UNUSED(bfar);
 
+   UART_PRINT("HARDFAULT HANDLER!!!\r\n");
     while(1) {
        cpu_wait_for_interrupt();
     }
