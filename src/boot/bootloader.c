@@ -1,6 +1,10 @@
 #include "core/gpio.h"
+#include "core/mpu.h"
 #include "core/systick.h"
+#include "defs.h"
 #include <aether.h>
+
+extern void enter_app(u32 stack_addr, u32 entry);
 
 bool is_app_exists(app_desc_t** desc) {
    BOOTLOADER_DEBUG("IS APP EXISTS?\r\n");
@@ -22,31 +26,21 @@ bool is_app_exists(app_desc_t** desc) {
    return false;
 }
 
+
 static void run_app(app_desc_t* desc)
 {
-   app_entry_t entry;
    if (desc == NULL) {
       BOOTLOADER_ERROR("app is null, something went wrong\r\n");
       return;
    }
-   
-   entry = (app_entry_t)((u32)desc->entry | 1);
+
+   u32 entry = (u32)desc->entry | 1;
+   BOOTLOADER_DEBUG("RUNNING APP (0x%x entry)\r\n", entry);
 
    disable_irq();
-   set_psp(APP_STACK_ADDR);
-   set_control(get_control() | CONTROL_SPSEL | CONTROL_nPRIV);
-   instr_sync_barrier();
-   enable_irq();
-
-   BOOTLOADER_DEBUG("RUNNING APP (0%x entry)\r\n", entry);
-
-   entry();
-
-   set_control(get_control() & ~(CONTROL_SPSEL | CONTROL_nPRIV));
-   instr_sync_barrier();
-
-
-   BOOTLOADER_DEBUG("APP RETURNED\r\n");
+   enter_app(APP_STACK_ADDR-8, entry);
+   
+   // never reached
 }
 
 u32 recv_size(void) 

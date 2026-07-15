@@ -55,7 +55,6 @@
 #define XN_DISABLE          (0 << 28)     /* execute allowed */
 
 
-
 typedef struct _mpu_region_t {
    u32 base;
    u32 attr_size;
@@ -69,48 +68,41 @@ typedef enum _region_type {
    REG_APP_FLASH,
    REG_APP_RAM,
    REG_RAM_GUARD,
-   REG_APP_DESC,
-   REG_DYNAMIC // reserved
+   REG_DYNAMIC    // reserved
 } region_type_e;
 
 
-static const mpu_region_t static_regions[] = 
+static const mpu_region_t static_regions[] =
 {
    [REG_NULL_GUARD] = {
-    .base = 0x00000000,
-    .attr_size = REGION_SIZE_256B | AP_PRIV_RO | XN_ENABLE | REGION_ENABLE,  
-    .subreg_mask = 0b11111110,  
+      .base = 0x00000000,
+      .attr_size = REGION_SIZE_256B | AP_PRIV_RO | XN_ENABLE | REGION_ENABLE,
+      .subreg_mask = 0,
    },
-
    [REG_HV_FLASH] = {
-      .base = FLASH_HV_ORIGIN,
+      .base = FLASH_HV_ORIGIN,                    
       .attr_size = REGION_SIZE_16KB | AP_PRIV_RO | XN_DISABLE | REGION_ENABLE,
-      .subreg_mask = 0,  
+      .subreg_mask = 0,
    },
    [REG_HV_RAM] = {
-      .base = RAM_HV_ORIGIN,
+      .base = RAM_HV_ORIGIN,                     
       .attr_size = REGION_SIZE_4KB | AP_PRIV_RW | XN_ENABLE | REGION_ENABLE,
-      .subreg_mask = 0,   
-   },
-   [REG_APP_DESC] = {
-      .base = FLASH_APP_ORIGIN,
-      .attr_size = REGION_SIZE_32B | AP_PRIV_RW_USER_RO | XN_ENABLE | REGION_ENABLE,
       .subreg_mask = 0,
    },
    [REG_APP_FLASH] = {
-      .base = FLASH_APP_ORIGIN,
-      .attr_size = REGION_SIZE_64KB | AP_PRIV_RW_USER_RO | XN_DISABLE | REGION_ENABLE,
-      .subreg_mask = 0b11000000, 
+      .base = FLASH_APP_ORIGIN,                     
+      .attr_size = REGION_SIZE_32KB | AP_PRIV_RW_USER_RO | XN_DISABLE | REGION_ENABLE,
+      .subreg_mask = 0,                              
    },
    [REG_APP_RAM] = {
-      .base = RAM_APP_ORIGIN,
-      .attr_size = REGION_SIZE_16KB | AP_PRIV_RW_USER_RW | XN_ENABLE | REGION_ENABLE,
-      .subreg_mask = 0b11000000,  
+      .base = RAM_APP_ORIGIN,                        
+      .attr_size = REGION_SIZE_8KB | AP_PRIV_RW_USER_RW | XN_DISABLE | REGION_ENABLE,
+      .subreg_mask = 0,                             
    },
    [REG_RAM_GUARD] = {
-      .base = RAM_GUARD_ORIGIN,
+      .base = RAM_GUARD_ORIGIN,                    
       .attr_size = REGION_SIZE_1KB | AP_NO_ACCESS | XN_ENABLE | REGION_ENABLE,
-      .subreg_mask = 0,  
+      .subreg_mask = 0,
    },
 };
 
@@ -122,7 +114,6 @@ void mpu_enable(void);
 
 void mpu_set_static_region(u8 num, const mpu_region_t *cfg);
 bool mpu_program_dynamic_region(u32 base, u32 size_attr, u32 srd);
-
 
 u32 mpu_size_for_bytes(const u32 bytes);
 

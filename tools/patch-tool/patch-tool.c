@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
    desc->magic = magic_set ? magic : APP_MAGIC;
    desc->version = version;
    desc->size = size;
-   desc->entry = SYM_MAIN;
+   desc->entry = SYM_APP_START;
    desc->manifset.granted_periph_mask = GRANT_USART1 | GRANT_GPIOC;
   
    printf("app descriptor:\n");

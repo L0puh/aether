@@ -4,9 +4,9 @@
 #include <defs.h>
 
 typedef enum {
-   SVC_REG_REQ = 0,
-   SVC_WDT_KICK,
-   SVC_EXIT,
+   SVC_REG_REQ  = 0,
+   SVC_WDT_KICK = 1,
+   SVC_EXIT     = 2, 
 
    SVC_COUNT
 } svc_id_e;

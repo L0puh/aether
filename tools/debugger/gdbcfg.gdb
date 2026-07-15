@@ -1,14 +1,23 @@
 target extended-remote :3333
-monitor reset halt
 
 file build/aether-boot.elf
 load
-add-symbol-file build/apps/simple_app/simple_app.elf 0x08002000
+add-symbol-file build/apps/simple_app.elf 0x08002000
 
 monitor reset halt
 
-hbreak bootloader_entry 
-hbreak main 
+#break bootloader_entry 
+break run_app
+break main 
+
+tui enable
+layout split 
+display /x $pc
+display $r0
+display $r1
+define hook-stop
+    refresh
+end
 
 
 monitor arm semihosting disable

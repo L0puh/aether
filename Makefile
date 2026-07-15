@@ -174,9 +174,10 @@ sym-boot: $(BUILD_DIR)/$(PROJECT)-boot.elf
 	$(OBJDMP) -t $< | sort
 
 flash: $(BUILD_DIR)/$(PROJECT)-boot.bin
-	st-flash erase
-	st-flash write $< 0x08000000 2>/dev/null
-	st-flash reset
+	st-flash erase >/dev/null 2>&1
+	st-flash write $< 0x08000000 >/dev/null 2>&1
+	st-flash reset >/dev/null 2>&1
+	@echo -e "$(GREEN)[>>>] $< is flashed @ 0x08000000 $(RESET)"
 
 reset: 
 	st-flash reset

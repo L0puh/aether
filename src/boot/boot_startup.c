@@ -3,7 +3,6 @@
 #include "hvapi.h"
 #include <aether.h>
 
-
 extern u32 _stext;
 extern u32 _estack;
 extern u32 _etext;
@@ -13,6 +12,7 @@ extern u32 _sbss;
 extern u32 _ebss;
 
 extern int bootloader_entry(void);
+
 void reset_handler(void);
 void default_handler(void);
 
@@ -24,7 +24,29 @@ void systick_handler(void);
 void hardfault_handler(void);
 void memmanage_handler(void);
 void busfault_handler(void);
-void svc_handler(void);
+extern void svc_handler(void);
+
+__attribute__((section(".vectors"), used))
+const device_vectors_t vector_table = {
+    .p_stack = (void*)&_estack,
+    
+    .pfn_reset_handler = reset_handler,
+    .pfn_nmi_handler = nmi_handler,
+    .pfn_hardfault_handler = hardfault_handler,
+    .pfn_memmanage_handler = memmanage_handler,
+    .pfn_busfault_handler = busfault_handler,
+    .pfn_usagefault_handler = usagefault_handler,
+    
+    .reserved_0 = {0, 0, 0, 0},
+    
+    .pfn_svc_handler = svc_handler,
+    .pfn_debugmon_handler = debugmon_handler,
+    .reserved_1 = 0,
+    .pfn_pendsv_handler = pendsv_handler,
+    .pfn_systick_handler = systick_handler,
+    
+    .pfn_irq_handlers = { [0 ... 63] = default_handler }
+};
 
 /* in: r0 = id, r1 = permissions */
 void svc_handler_c(frame_t *frame)
@@ -44,7 +66,7 @@ void svc_handler_c(frame_t *frame)
       return;
    }
 
-   DEBUG_PRINT("stack: 0x%x, svc num: %d, ret addr: 0x%x\r\n", frame, svc_num, ret_addr);
+   DEBUG_PRINT("stack: 0x%x, svc num: %d, ret addr: 0x%x, control=0x%x\r\n", frame, svc_num, ret_addr, get_control());
 
    ret res = ERROR;
    switch(svc_num) {
@@ -77,27 +99,6 @@ void busfault_handler(void)
    while(1) { cpu_wait_for_interrupt(); }
 }
 
-__attribute__((section(".vectors"), used))
-const device_vectors_t vector_table = {
-    .p_stack = (void*)&_estack,
-    
-    .pfn_reset_handler = reset_handler,
-    .pfn_nmi_handler = nmi_handler,
-    .pfn_hardfault_handler = hardfault_handler,
-    .pfn_memmanage_handler = memmanage_handler,
-    .pfn_busfault_handler = busfault_handler,
-    .pfn_usagefault_handler = usagefault_handler,
-    
-    .reserved_0 = {0, 0, 0, 0},
-    
-    .pfn_svc_handler = svc_handler,
-    .pfn_debugmon_handler = debugmon_handler,
-    .reserved_1 = 0,
-    .pfn_pendsv_handler = pendsv_handler,
-    .pfn_systick_handler = systick_handler,
-    
-    .pfn_irq_handlers = { [0 ... 63] = default_handler }
-};
 
 void systick_handler(void)
 {
@@ -117,23 +118,35 @@ void default_handler(void)
    }
 }
 
-void hardfault_handler(void)
-{
-    uint32_t hfsr = SCB->HFSR;    /* hard fault status register */
-    uint32_t cfsr = SCB->CFSR;    /* configurable fault status register */
-    uint32_t mmfar = SCB->MMFAR;  /* mem manage fault address register */
-    uint32_t bfar = SCB->BFAR;    /* bus fault address register */
+void hardfault_handler(void) {
+    uint32_t stacked_r0, stacked_r1, stacked_r2, stacked_r3,
+             stacked_r12, stacked_lr, stacked_pc, stacked_psr;
+    uint32_t hfsr = SCB->HFSR;
+    uint32_t cfsr = SCB->CFSR;
+    uint32_t mmfar = SCB->MMFAR;
+    uint32_t bfar = SCB->BFAR;
 
-    //TODO: add debugging 
-    UNUSED(hfsr);
-    UNUSED(cfsr);
-    UNUSED(mmfar);
-    UNUSED(bfar);
+    __asm volatile (
+        "tst   lr, #4        \n"
+        "ite   eq            \n"
+        "mrseq r0, msp       \n"
+        "mrsne r0, psp       \n"
+        "ldmia r0, {r1-r8}   \n"   // load r0..r3, r12, lr, pc, psr
+        : "=r"(stacked_r0), "=r"(stacked_r1), "=r"(stacked_r2),
+          "=r"(stacked_r3), "=r"(stacked_r12), "=r"(stacked_lr),
+          "=r"(stacked_pc), "=r"(stacked_psr)
+        : "r"(0)
+        : "memory"
+    );
 
-   UART_PRINT("HARDFAULT HANDLER!!!\r\n");
-    while(1) {
-       cpu_wait_for_interrupt();
-    }
+    UART_PRINT("HARDFAULT:\n"
+               "  R0=0x%lx R1=0x%lx R2=0x%lx R3=0x%lx\n"
+               "  R12=0x%lx LR=0x%lx PC=0x%lx PSR=0x%lx\n"
+               "  HFSR=0x%lx CFSR=0x%lx MMFAR=0x%lx BFAR=0x%lx\n",
+               stacked_r0, stacked_r1, stacked_r2, stacked_r3,
+               stacked_r12, stacked_lr, stacked_pc, stacked_psr,
+               hfsr, cfsr, mmfar, bfar);
+    while(1);
 }
 
 __attribute__((noreturn))

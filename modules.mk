@@ -6,6 +6,7 @@ APP_LINKER  = linker/app.ld
 VERSION     = 1
 SRC_DIR     = src
 SYMBOLS 		= $(SRC_DIR)/symbols.h
+APP_BASE		= 0x08008000
 
 APP_NAMES := $(notdir $(wildcard $(APPS_DIR)/*))
 APP_ELFS  := $(APP_NAMES:%=$(BUILD_DIR)/apps/%.elf)
@@ -20,7 +21,7 @@ define APP_template
 $(BUILD_DIR)/apps/$(1)/%.o: $(APPS_DIR)/$(1)/%.c | $(LINKER_DIR)/memory_map.ld
 	@mkdir -p $$(dir $$@)
 	@echo -e "$(MAGENTA)> [APP:$(1)]: $$<$(RESET)"
-	$$(CC) $$(CFLAGS) -DAPP_BUILD -DAPP_BASE=0x08004000 -c -o $$@ $$<
+	$$(CC) $$(CFLAGS) -DAPP_BUILD -DAPP_BASE=$(APP_BASE) -c -o $$@ $$<
 
 $(BUILD_DIR)/apps/$(1)/%.o: $(APPS_DIR)/$(1)/%.s | $(LINKER_DIR)/memory_map.ld
 	@mkdir -p $$(dir $$@)

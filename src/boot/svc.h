@@ -15,11 +15,12 @@ typedef struct {
 static const periph_map_entry_t periph_map[] = {
     { PERIPH_USART1, USART1_BASE, sizeof(USART_t) },
     { PERIPH_USART2, USART2_BASE, sizeof(USART_t) },
-    { PERIPH_GPIOA,  GPIOA_BASE, sizeof(GPIO_t) },
-    { PERIPH_GPIOB,  GPIOB_BASE, sizeof(GPIO_t) },
-    { PERIPH_GPIOC,  GPIOC_BASE, sizeof(GPIO_t) },
+    { PERIPH_GPIOA,  GPIOA_BASE,  sizeof(GPIO_t) },
+    { PERIPH_GPIOB,  GPIOB_BASE,  sizeof(GPIO_t) },
+    { PERIPH_GPIOC,  GPIOC_BASE,  sizeof(GPIO_t) }
 
     /* TODO: */
+    /* { PERIPH_RCC,    RCC_BASE, sizeof(RCC_t) }, */
     /* { PERIPH_SPI1,   0x40013000, 0x400 }, */ 
     /* { PERIPH_I2C1,   0x40005400, 0x400 }, */
 };

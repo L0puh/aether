@@ -5,12 +5,12 @@
 
 void disable_irq(void)
 {
-   __asm volatile("cpsid i");
+   __asm volatile("cpsid i" : : : "memory");
 }
 
 void enable_irq(void)
 {
-   __asm volatile("cpsie i");
+   __asm volatile("cpsie i" : : : "memory");
 }
 
 /* waits for all memory accesses to complete */
@@ -50,14 +50,14 @@ void system_reset(void)
    while(1);
 }
 
-inline u32 get_msp(void)
+u32 get_msp(void)
 {
    u32 msp;
    __asm volatile ("mrs %0, msp" : "=r" (msp));
    return msp;
 }
 
-inline u32 get_psp(void)
+u32 get_psp(void)
 {
    u32 psp;
    __asm volatile ("mrs %0, psp" : "=r" (psp));
@@ -75,6 +75,13 @@ void gpio_set_mode(GPIO_t* port, u8 pin, u32 mode)
 void set_psp(u32 psp)
 {
    __asm volatile ("msr psp, %0" : : "r" (psp) : "memory");
+   instr_sync_barrier();
+}
+
+void set_msp(u32 msp)
+{
+   __asm volatile ("msr msp, %0" : : "r" (msp) : "memory");
+   instr_sync_barrier();
 }
 
 u32 get_control(void)
@@ -86,5 +93,5 @@ u32 get_control(void)
 
 void set_control(u32 control)
 {
-   __asm volatile ("mrs %0, control" : : "r" (control) : "memory");
+   __asm volatile ("msr control, %0" : : "r" (control) : "memory");
 }
