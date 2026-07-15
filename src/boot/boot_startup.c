@@ -67,6 +67,11 @@ void svc_handler_c(frame_t *frame)
    }
 
    DEBUG_PRINT("stack: 0x%x, svc num: %d, ret addr: 0x%x, control=0x%x\r\n", frame, svc_num, ret_addr, get_control());
+   
+   if (frame->lr == 0xFFFFFFF9){
+      BOOTLOADER_ERROR("SECURITY VIOLATION: app is privileged!\r\n");
+      system_reset();
+   }
 
    ret res = ERROR;
    switch(svc_num) {

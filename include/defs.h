@@ -55,7 +55,10 @@ typedef enum _ret_codes {
    SKIP_EXECUTION
 } ret;
 
-#define APP_MAGIC (0xDEADBEEF)
+#define APP_MAGIC             0xDEADBEEF
+#define PRIV_DROP_SIGNATURE1  0xDEADDAD
+#define PRIV_DROP_SIGNATURE2  0xDEADFED 
+
 #define APP_DESC_ADDR  (FLASH_APP_ORIGIN)
 #define APP_STACK_ADDR (RAM_APP_ORIGIN + RAM_APP_LENGTH)
 

@@ -22,25 +22,48 @@ bool is_app_exists(app_desc_t** desc) {
    }
 
    BOOTLOADER_DEBUG("APP NOT FOUND\r\n");
-   BOOTLOADER_DEBUG("----> magic=0x%x size=%d\r\n", ptr->magic, ptr->size);
+   BOOTLOADER_DEBUG(" >>> magic=0x%x size=%d\r\n", ptr->magic, ptr->size);
    return false;
 }
 
+bool verify_privilege_dropped(const u32 entry_app)
+{
+   u32 addr = entry_app & ~1;
+   u32 *sig = (u32*)addr;
 
+   dump_memory((const void*)addr, 32, uart_writef);
+   if (sig[0] != PRIV_DROP_SIGNATURE1 || sig[5] != PRIV_DROP_SIGNATURE2) 
+   {
+      BOOTLOADER_DEBUG("app does not have drop privilege!\r\n");
+      BOOTLOADER_DEBUG("expected: 0x%x 0x%x\r\n", PRIV_DROP_SIGNATURE1, PRIV_DROP_SIGNATURE2);
+      BOOTLOADER_DEBUG("got:      0x%x 0x%x\r\n", sig[0], sig[5]);
+      return false;
+   }
+
+   BOOTLOADER_DEBUG("drop privilege signatures found\r\n");
+   return true;
+}
+   
 static void run_app(app_desc_t* desc)
 {
    if (desc == NULL) {
       BOOTLOADER_ERROR("app is null, something went wrong\r\n");
       return;
    }
+   
+   volatile u32 entry = (u32)desc->entry | 1;
 
-   u32 entry = (u32)desc->entry | 1;
+   if (!verify_privilege_dropped(entry)) {
+      BOOTLOADER_DEBUG("privilege is not dropped, erasing this app!\r\n");
+      flash_erase_app_slot(FLASH_APP_ORIGIN, FLASH_APP_LENGTH);
+      return;
+   }
+
    BOOTLOADER_DEBUG("RUNNING APP (0x%x entry)\r\n", entry);
 
    disable_irq();
    enter_app(APP_STACK_ADDR-8, entry);
    
-   // never reached
 }
 
 u32 recv_size(void) 
@@ -115,20 +138,16 @@ bool fetch_app(app_desc_t *desc)
    return true;
 }
 
-
 __attribute__((noreturn))
 int bootloader_entry()
 {
    int ret;
-
    if (!IS_ERROR(system_setup())) {
       led_blink(3, 100);
    }
 
-   check_reset_cause();
-
-   UART_PRINT("chunk size: %d!\r\n", FLASH_CHUNK_SIZE);
    BOOTLOADER_DEBUG("BOOTLOADER START\r\n");
+   check_reset_cause();
 
    app_desc_t* desc = NULL;
 

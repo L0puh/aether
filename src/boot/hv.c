@@ -123,6 +123,7 @@ ret system_setup(void)
    flash_lock();
    mpu_init();
    mpu_enable();
+
    BOOTLOADER_DEBUG("SYSTEM OK\r\n");
 
    return SUCCESS;
