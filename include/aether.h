@@ -22,17 +22,18 @@
 #include "core/utils.h"
 #include "core/crypto.h"
 
+/* SHARED */
+#include "core/hvapi_defs.h"
+
 /* PLATFORM SPECIFIC */
 #include "device_vectors.h"
 #include "memory_map.h"
 
 /* HYPERVISOR */
+#include "boot/hvapi.h"
 #include "boot/hv.h"
 #include "core/scheduler.h"
 #include "boot/flasher.h"
 #include "boot/svc.h"
-
-
-
 #endif
 

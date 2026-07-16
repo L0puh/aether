@@ -4,10 +4,10 @@
 #include <boot/hv.h>
 #include "defs.h"
 #include <core/gpio.h>
-#include <hvapi.h>
+#include <boot/hvapi.h>
 
 typedef struct {
-    periph_id_e id;
+    u32 id;
     u32 base;
     u32 size;      
 } periph_map_entry_t;

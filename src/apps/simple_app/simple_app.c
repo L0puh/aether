@@ -1,6 +1,7 @@
 #include "core/clock.h"
 #include "core/uart.h"
 #include <aether.h>
+#include <hvapi.h>
 
 int main(void)
 {

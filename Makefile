@@ -26,14 +26,16 @@ CORE_LIB 			= $(BUILD_DIR)/libcore.a
 
 LIB_DIRS = $(wildcard $(LIB_DIR)/*)
 
-CORE_SRCS_C = $(wildcard src/core/*.c)
-CORE_SRCS_S = $(wildcard src/core/*.s)
+CORE_SRCS_C   = $(wildcard src/core/*.c)
+CORE_SRCS_S   = $(wildcard src/core/*.s)
+CORE_SRCS_ASM = $(wildcard src/core/*.S)
 
-BOOT_SRCS_C = $(wildcard src/boot/*.c)
-BOOT_SRCS_S = $(wildcard src/boot/*.s)
+BOOT_SRCS_C   = $(wildcard src/boot/*.c)
+BOOT_SRCS_S   = $(wildcard src/boot/*.s)
 
 CORE_OBJS = $(CORE_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
 CORE_OBJS += $(CORE_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
+CORE_OBJS += $(CORE_SRCS_ASM:src/%.S=$(BUILD_DIR)/%.o)
 
 BOOT_OBJS = $(BOOT_SRCS_C:src/%.c=$(BUILD_DIR)/%.o)
 BOOT_OBJS += $(BOOT_SRCS_S:src/%.s=$(BUILD_DIR)/%.o)
@@ -144,6 +146,10 @@ $(BUILD_DIR)/core/%.o: src/core/%.s
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -c -o $@ $<
 
+$(BUILD_DIR)/%.o: src/core/%.S
+	@echo -e "$(YELLOW)> [CORE]: $@ $@$(RESET)"
+	@mkdir -p $(dir $@)
+	$(CC) -x assembler-with-cpp $(CFLAGS) -c $< -o $@
 # --------------------------------------------- BOOTLOADER
 
 $(BUILD_DIR)/boot/%.o: src/boot/%.c
@@ -155,6 +161,7 @@ $(BUILD_DIR)/boot/%.o: src/boot/%.s
 	@echo -e "$(CYAN)> [BOOTLOADER]: $@ $@$(RESET)"
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) -c -o $@ $<
+
 
 $(BUILD_DIR)/$(PROJECT)-boot.elf: $(BOOT_OBJS)
 	$(CC) $(BOOT_CFLAGS) $(BOOT_LDFLAGS) -o $@ $^

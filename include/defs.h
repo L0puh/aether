@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <target.h>
+#include "core/hvapi_defs.h"
 
 typedef signed int  s32;
 typedef int32_t     i32;
