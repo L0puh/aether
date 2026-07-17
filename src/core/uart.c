@@ -196,7 +196,7 @@ u32 uart_read_word(void)
    for (u8 i = 0; i < 4; i++){
       res = uart_wait_rx_ready(FLASHER_WAIT_TIMEOUT);
       if (!res) {
-         FLASHER_ERROR("recv_addr timeout\r\n");
+         ERROR_PRINT("recv_addr timeout");
          return 0;
       }
       word |= (uart_data() << (i*8));

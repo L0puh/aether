@@ -4,7 +4,7 @@ bool wait_flash_busy(u64 timeout)
 {
    while (FLASH->SR & FLASH_SR_BUSY) {
       if (--timeout == 0) {
-         UART_PRINT("busy timeout\r\n");
+         UART_PRINT("busy timeout");
          return false;
       }
    }
@@ -48,7 +48,7 @@ ret flash_write_from_buffer(u32 addr, const u8* data, u32 size)
       }
 
       if (FLASH->SR & (FLASH_SR_PGERR | FLASH_SR_WRPRTERR)) {
-         UART_PRINT("flash error @ 0x%x, SR=0x%x\r\n", addr+i, FLASH->SR);
+         UART_PRINT("flash error @ 0x%x, SR=0x%x", addr+i, FLASH->SR);
          FLASH->SR |= (FLASH_SR_PGERR | FLASH_SR_WRPRTERR);
          res = ERROR; 
          break; 
@@ -82,7 +82,7 @@ ret flash_write_from_uart(u32 addr, u32 size)
       }
       
       written += chunk_len;
-      UART_PRINT("write %lu/%lu @ 0x%x ok\r\n", written, size, (addr+written-chunk_len));
+      UART_PRINT("write %lu/%lu @ 0x%x ok", written, size, (addr+written-chunk_len));
    }
 
    flash_lock();
@@ -108,7 +108,7 @@ void flash_erase_app_slot(u32 addr, u32 size)
    flash_unlock();
 
    if (addr < FLASH_APP_ORIGIN || addr > FLASH_APP_ORIGIN + FLASH_APP_LENGTH || size > FLASH_APP_LENGTH) {
-      FLASHER_ERROR("invalid parameter, out of resources!\r\n");
+      UART_PRINT("invalid parameter, out of resources!");
       return;
    }
 
@@ -121,7 +121,7 @@ void flash_erase_app_slot(u32 addr, u32 size)
 
       while((FLASH->SR & FLASH_SR_BUSY) && --timeout);
       if (timeout == 0) {
-         FLASHER_ERROR("erase busy timeout!\r\n");
+         UART_PRINT("erase busy timeout!");
          flash_lock();
          return;
       }
@@ -136,16 +136,16 @@ void flash_erase_app_slot(u32 addr, u32 size)
       //TODO: check errors 
 
       if (timeout == 0) {
-         FLASHER_ERROR("erase timeout at 0x%x!\r\n", i);
+         UART_PRINT("erase timeout at 0x%x!", i);
          FLASH->CR &= ~(FLASH_PAGE_ERASE_MODE | FLASH_START_ERASE);
          flash_lock();
          return;
       }
 
-      CMD_PRINT("erase at 0x%x!\r\n", i);
+      UART_PRINT("erase at 0x%x!", i);
       FLASH->CR &= ~FLASH_PAGE_ERASE_MODE;
    }
 
    flash_lock();
-   CMD_PRINT("erase done!\r\n");
+   UART_PRINT("erase done!");
 }

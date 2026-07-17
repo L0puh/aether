@@ -19,15 +19,12 @@ void mpu_init(void)
     MPU->CTRL = 0;
     data_sync_barrier();
     instr_sync_barrier();
-  
-    MPU_DEBUG("setting up regions...\r\n");
+ 
+    DEBUG_PRINT("setting up regions...");
     for (u8 i = 0; i < NUM_STATIC_REGS; i++)
     {
-       if (static_regions[i].base & (0x2000 - 1)) {
-          MPU_DEBUG("WARNING: region %d is not 8KB aligned\r\n", i);
-       }
        mpu_set_static_region(i, &static_regions[i]);
-       MPU_DEBUG("region id %d: base=0x%x attr=0x%x\r\n", i, static_regions[i].base, static_regions[i].attr_size);
+       DEBUG_PRINT("region id %d: base=0x%x attr=0x%x", i, static_regions[i].base, static_regions[i].attr_size);
     }
 
     data_sync_barrier();
@@ -73,10 +70,11 @@ u32 mpu_size_for_bytes(const u32 bytes)
 
    for (u32 i = 0; i < num_sizes; i++) {
       if (bytes <= sizes[i]) {
-         MPU_DEBUG("mpu size for %d bytes: %d\r\n", bytes, sizes[i]);
+         DEBUG_PRINT("mpu size for %d bytes: %d", bytes, sizes[i]);
          return region_sizes[i];
       }
    }
 
+   ERROR_PRINT("no mpu size is found for %d bytes!", bytes);
    return 0;
 }

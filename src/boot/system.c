@@ -26,8 +26,6 @@ ret system_setup(void)
 
 #ifdef SYSTEM_CLOCK_72Mhz
    status = set_system_clock_72Mhz();
-#else
-   status = set_system_clock_25Mhz();
 #endif
 
    systick_init();
@@ -39,12 +37,15 @@ ret system_setup(void)
       return status;
 
    uart_init(USART1, 0);
+   uart_flush_tx();
+   uart_flush_rx();
 
    flash_lock();
+
+   DEBUG_PRINT("SYSTEM OK");
+   
    mpu_init();
    mpu_enable();
-
-   BOOTLOADER_DEBUG("SYSTEM OK\r\n");
 
    return SUCCESS;
 }

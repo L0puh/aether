@@ -4,13 +4,13 @@
 ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
 {
    if (periph_id == PERIPH_NONE || periph_id >= PERIPH_COUNT) {
-      DEBUG_PRINT("wrong periph id (%d), aborting memory request \r\n", periph_id);
+      DEBUG_PRINT("wrong periph id (%d), aborting memory request ", periph_id);
       return NOT_FOUND;
    }
 
    UNUSED(desc);
    if (!(desc->manifset.granted_periph_mask & (1u << periph_id))) {
-      DEBUG_PRINT("app doesn't have permission to request this region (%d)\r\n", periph_id);
+      DEBUG_PRINT("app doesn't have permission to request this region (%d)", periph_id);
       return VIOLATION;
    }
 
@@ -23,7 +23,7 @@ ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
    }
 
    if (!entry) {
-      DEBUG_PRINT("periph map is incomplete, error on hypervisor side\r\n");
+      DEBUG_PRINT("periph map is incomplete, error on hypervisor side");
       return ERROR;
    }
 
@@ -33,7 +33,7 @@ ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
    u32 size_attr = mpu_size_for_bytes(entry->size) | perms | XN_ENABLE | REGION_ENABLE;
 
    bool ok = mpu_program_dynamic_region(entry->base, size_attr, 0);
-   DEBUG_PRINT("%s dynamic region\r\n", ok ? "granted" : "not granted");
+   DEBUG_PRINT("%s dynamic region", ok ? "granted" : "not granted");
 
    return ok ? SUCCESS: ACCESS_DENIED;
 }

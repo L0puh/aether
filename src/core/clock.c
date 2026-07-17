@@ -69,16 +69,16 @@ void check_reset_cause(void)
 {
    u32 flags = RCC->CSR;
 
-   DEBUG_PRINT("[!] reset cause: ");
+   PLAIN_PRINT("[!] reset cause: ");
 
    for (u32 i = 1; i < NUM_OF_RESET_CAUSES; i++) {
       if (flags & reset_causes_g[i].mask) {
-         DEBUG_PRINT("%s\r\n", reset_causes_g[i].name);
+         PLAIN_PRINT("%s\r\n", reset_causes_g[i].name);
          goto found;
       }
    }
 
-   DEBUG_PRINT("unknown reset source (0x%08x)\r\n", flags);
+   DEBUG_PRINT("unknown reset source (0x%08x)", flags);
 
 found:
    RCC->CSR |= CSR_RMVF;

@@ -1,9 +1,18 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#include <stdint.h>
-#include <target.h>
+#include "target.h"
 #include "hv/hvapi_defs.h"
+
+#ifndef __INT32_C
+#if defined(__LP64__) || defined(_LP64)
+#define __INT32_C(c)  c   
+#else
+#define __INT32_C(c)  c ## L  
+#endif
+#endif
+
+#include <stdint.h>
 
 typedef signed int  s32;
 typedef int32_t     i32;
@@ -39,7 +48,6 @@ typedef uint64_t    u64;
 #define FETCH_TIMEOUT_MS 60000
 #define UART_TIMEOUT_MS 5000
 
-#define CMD_PRINT(...)  uart_writef(__VA_ARGS__);
 
 #define PACKED         __attribute__((packed))
 #define ALWAYS_INLINE  __attribute__((always_inline))
@@ -67,7 +75,7 @@ typedef enum _ret_codes {
 #define FLASH_CHUNK_SIZE (FLASH_HV_LENGTH/sizeof(u64))
 
 typedef int (*app_entry_t)(void);
-#define UART_PRINT(...)      uart_writef(__VA_ARGS__); // used for flashing via UART 
+#define UART_PRINT(...)      uart_writef(__VA_ARGS__); uart_writef("\r\n") // used for flashing via UART 
 
 typedef struct {
    u32 r0, r1, r2, r3, r12, lr, pc, xpsr;

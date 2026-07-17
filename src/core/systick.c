@@ -10,7 +10,7 @@ void tick_hook(void)
    /* app_state_t state = running_app->state; */
    /* u32 app_age = system_ticks_g - state.apps_start_ms; */
    /* if (state.max_runtime_ms && app_age >= state.max_runtime_ms) { */
-   /*    BOOTLOADER_ERROR("RUNTIME APP TIMEOUT!\r\n"); */
+   /*    BOOTLOADER_ERROR("RUNTIME APP TIMEOUT!"); */
    /*    //TODO: kill app */
    /* } */
 
@@ -36,21 +36,21 @@ void systick_msec_delay(u32 delay)
     u32 start = system_ticks_g;
 
     if (!(SYSTICK->CTRL & (1 << 0))) {
-        DEBUG_PRINT("error: systick not enabled!\r\n");
+        DEBUG_PRINT("error: systick not enabled!");
         return;
     }
 
     if (!(SYSTICK->CTRL & (1 << 1))) {
-        DEBUG_PRINT("error: systick interrupt not enabled!\r\n");
+        DEBUG_PRINT("error: systick interrupt not enabled!");
         return;
     }
     
-    DEBUG_PRINT("> delay [%d]... ", delay);
+    PLAIN_PRINT("- delay [%d] ... ", delay);
     while ((system_ticks_g - start) < delay) {
          cpu_wait_for_interrupt();
     }
     
-    DEBUG_PRINT("OK!\r\n");
+    PLAIN_PRINT("OK!\r\n");
 }
 
 
@@ -118,6 +118,7 @@ ret reset_system_clock()
    return timeout == 0 ? TIMEOUT: SUCCESS;
 }
 
+// that's probably depricated, should be used with caution
 ret set_system_clock_25Mhz()
 {
    u64 timeout = DEFAULT_CLOCK_TIMEOUT; 

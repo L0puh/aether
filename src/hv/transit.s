@@ -1,7 +1,7 @@
 #
 # transit point from 
 # bootloader ---> app 
-# to drop priviledges 
+# to drop privileges 
 #
 
 .syntax unified

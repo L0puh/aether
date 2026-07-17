@@ -1,7 +1,6 @@
 #ifndef AETHER_H
 #define AETHER_H
 
-
 #include "target.h"
 
 #include <stdint.h>
@@ -34,13 +33,6 @@
 #include "boot/system.h"
 #include "boot/svc.h"
 
-#ifndef __INT32_C
-#define __INT32_C(c)  c ## L
-#endif 
-
-#ifndef __UINT32_C
-#define __UINT32_C(c) c ## UL
-#endif 
 
 #endif
 

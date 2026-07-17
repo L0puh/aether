@@ -53,31 +53,31 @@ void svc_handler_c(frame_t *frame)
 
    app_desc_t *desc = (app_desc_t*)APP_DESC_ADDR;
    if (desc->magic != APP_MAGIC) {
-      DEBUG_PRINT("no app found\r\n");
+      ERROR_PRINT("no app found");
       return;
    }
 
    if (svc_num >= SVC_COUNT) {
-      DEBUG_PRINT("wrong svc number\r\n");
+      ERROR_PRINT("wrong svc number");
       frame->r0 = (u32)-1;
       return;
    }
 
-   DEBUG_PRINT("stack: 0x%x, svc num: %d, ret addr: 0x%x, control=0x%x\r\n", frame, svc_num, ret_addr, get_control());
+   DEBUG_PRINT("stack: 0x%x, svc num: %d, ret addr: 0x%x, control=0x%x", frame, svc_num, ret_addr, get_control());
    
    if (frame->lr == 0xFFFFFFF9){
-      BOOTLOADER_ERROR("SECURITY VIOLATION: app is privileged!\r\n");
+      ERROR_PRINT("SECURITY VIOLATION: app is privileged!");
       system_reset();
    }
 
    ret res = ERROR;
    switch(svc_num) {
       case SVC_REG_REQ:
-         DEBUG_PRINT("calling region request: id=%d perms=0x%x\r\n", frame->r0, frame->r1);
+         DEBUG_PRINT("calling region request: id=%d perms=0x%x", frame->r0, frame->r1);
          res = svc_region_request(desc, frame->r0, frame->r1); 
          break;
       default:
-         DEBUG_PRINT("not implemented yet\r\n");
+         DEBUG_PRINT("not implemented yet");
    }
 
    frame->r0 = res == SUCCESS ? 0 : -1;
@@ -87,7 +87,7 @@ void memmanage_handler(void)
 {
    uint32_t cfsr = SCB->CFSR;
    uint32_t mmfar = SCB->MMFAR;
-   UART_PRINT("MEMMANAGE FAULT: CFSR=0x%x MMFAR=0x%x (valid=%d)\r\n",
+   DEBUG_PRINT("MEMMANAGE FAULT: CFSR=0x%x MMFAR=0x%x (valid=%d)",
               cfsr, mmfar, (cfsr & (1 << 7)) != 0); // MMARVALID bit
    while(1) { cpu_wait_for_interrupt(); }
 }
@@ -96,7 +96,7 @@ void busfault_handler(void)
 {
    uint32_t cfsr = SCB->CFSR;
    uint32_t bfar = SCB->BFAR;
-   UART_PRINT("BUSFAULT: CFSR=0x%x BFAR=0x%x (valid=%d)\r\n",
+   DEBUG_PRINT("BUSFAULT: CFSR=0x%x BFAR=0x%x (valid=%d)",
               cfsr, bfar, (cfsr & (1 << 15)) != 0); // BFARVALID bit
    while(1) { cpu_wait_for_interrupt(); }
 }
@@ -114,7 +114,7 @@ void systick_handler(void)
 void default_handler(void)
 {
 
-   UART_PRINT("default handler!!!\r\n");
+   DEBUG_PRINT("default handler!!!");
    while(1) {
       cpu_wait_for_interrupt();
    }
@@ -141,7 +141,7 @@ void hardfault_handler(void) {
         : "memory"
     );
 
-    UART_PRINT("HARDFAULT:\n"
+    DEBUG_PRINT("HARDFAULT:\n"
                "  R0=0x%lx R1=0x%lx R2=0x%lx R3=0x%lx\n"
                "  R12=0x%lx LR=0x%lx PC=0x%lx PSR=0x%lx\n"
                "  HFSR=0x%lx CFSR=0x%lx MMFAR=0x%lx BFAR=0x%lx\n",
