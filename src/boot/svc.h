@@ -1,10 +1,9 @@
 #ifndef SVC_H
 #define SVC_H
 
-#include <boot/hv.h>
 #include "defs.h"
 #include <core/gpio.h>
-#include <boot/hvapi.h>
+#include <boot/system.h>
 
 typedef struct {
     u32 id;

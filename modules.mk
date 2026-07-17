@@ -2,6 +2,7 @@
 -include tools/patch-tool/patch-tool.mk
 
 APPS_DIR    = src/apps
+HV_DIR		= $(SRC_DIR)/hv
 APP_LINKER  = linker/app.ld
 VERSION     = 1
 SRC_DIR     = src
@@ -28,10 +29,24 @@ $(BUILD_DIR)/apps/$(1)/%.o: $(APPS_DIR)/$(1)/%.s | $(LINKER_DIR)/memory_map.ld
 	@echo -e "$(MAGENTA)> [APP:$(1)]: $$<$(RESET)"
 	$$(AS) $$(ASFLAGS) -c -o $$@ $$<
 
+$(BUILD_DIR)/apps/$(1)/%.o: $(HV_DIR)/%.s | $(LINKER_DIR)/memory_map.ld
+	@mkdir -p $$(dir $$@)
+	@echo -e "$(MAGENTA)> [APP:$(1) (HV)]: $$<$(RESET)"
+	$$(AS) $$(ASFLAGS) -c -o $$@ $$<
+
+$(BUILD_DIR)/apps/$(1)/%.o: $(HV_DIR)/%.S | $(LINKER_DIR)/memory_map.ld
+	@mkdir -p $$(dir $$@)
+	@echo -e "$(MAGENTA)> [APP:$(1) (HV)]: $$<$(RESET)"
+	$$(CC) -x assembler-with-cpp $(CFLAGS) -c $$< -o $$@
+
 APP_$(1)_SRCS_C := $$(wildcard $(APPS_DIR)/$(1)/*.c)
 APP_$(1)_SRCS_S := $$(wildcard $(APPS_DIR)/$(1)/*.s)
+HV_$(1)_SRCS_S	 := $$(wildcard $(HV_DIR)/*.s)
+HV_$(1)_SRCS_AS := $$(wildcard $(HV_DIR)/*.S)
 APP_$(1)_OBJS   := $$(APP_$(1)_SRCS_C:$(APPS_DIR)/$(1)/%.c=$(BUILD_DIR)/apps/$(1)/%.o)
 APP_$(1)_OBJS   += $$(APP_$(1)_SRCS_S:$(APPS_DIR)/$(1)/%.s=$(BUILD_DIR)/apps/$(1)/%.o)
+APP_$(1)_OBJS   += $$(HV_$(1)_SRCS_S:$(HV_DIR)/%.s=$(BUILD_DIR)/apps/$(1)/%.o)
+APP_$(1)_OBJS   += $$(HV_$(1)_SRCS_AS:$(HV_DIR)/%.S=$(BUILD_DIR)/apps/$(1)/%.o)
 
 $(BUILD_DIR)/apps/$(1).elf: $$(APP_$(1)_OBJS) $(CORE_LIB) $(LINKER_DIR)/memory_map.ld
 	@mkdir -p $$(dir $$@)

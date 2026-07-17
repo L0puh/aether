@@ -21,12 +21,13 @@ typedef struct _systick {
 #define SYSTICK           ((systick_t*) SYSTICK_BASE)
 
 void systick_msec_delay(u32 delay);
-void systick_reset();
-void systick_init();
-u32 get_tick_rate();
-ret set_system_clock_25Mhz();
-ret set_system_clock_72Mhz();
-ret reset_system_clock();
+void systick_reset(void);
+void systick_init(void);
+u32 get_tick_rate(void);
+ret set_system_clock_25Mhz(void);
+ret set_system_clock_72Mhz(void);
+ret reset_system_clock(void);
+void tick_hook(void);
 
 extern volatile u32 system_ticks_g;
 

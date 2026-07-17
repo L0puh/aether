@@ -2,10 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "hv.h"
-#include <memory_map.h>
-#include <defs.h>
-#include <hvapi.h>
+#include <aether.h>
 
 #define GRANT_USART1 ( 1 << PERIPH_USART1 )
 #define GRANT_GPIOC  ( 1 << PERIPH_GPIOC )

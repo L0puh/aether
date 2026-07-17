@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <target.h>
-#include "core/hvapi_defs.h"
+#include "hv/hvapi_defs.h"
 
 typedef signed int  s32;
 typedef int32_t     i32;
@@ -57,8 +57,9 @@ typedef enum _ret_codes {
 } ret;
 
 #define APP_MAGIC             0xDEADBEEF
-#define PRIV_DROP_SIGNATURE1  0xDEADDAD
-#define PRIV_DROP_SIGNATURE2  0xDEADFED 
+#define PRIV_DROP_SIGNATURE1  0xBAFFDAD
+#define PRIV_DROP_SIGNATURE2  0xDEAFBEE
+
 
 #define APP_DESC_ADDR  (FLASH_APP_ORIGIN)
 #define APP_STACK_ADDR (RAM_APP_ORIGIN + RAM_APP_LENGTH)

@@ -1,6 +1,3 @@
-#include "boot/svc.h"
-#include "defs.h"
-#include "hvapi.h"
 #include <aether.h>
 
 extern u32 _stext;

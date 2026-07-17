@@ -150,6 +150,7 @@ $(BUILD_DIR)/%.o: src/core/%.S
 	@echo -e "$(YELLOW)> [CORE]: $@ $@$(RESET)"
 	@mkdir -p $(dir $@)
 	$(CC) -x assembler-with-cpp $(CFLAGS) -c $< -o $@
+
 # --------------------------------------------- BOOTLOADER
 
 $(BUILD_DIR)/boot/%.o: src/boot/%.c

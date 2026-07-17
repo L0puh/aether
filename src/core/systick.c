@@ -2,7 +2,22 @@
 
 volatile u32 system_ticks_g = 0;
 
-void systick_init()
+void tick_hook(void) 
+{
+   /* app_desc_t* running_app = NULL; */
+   /* //TODO get_app(running_app) */
+   
+   /* app_state_t state = running_app->state; */
+   /* u32 app_age = system_ticks_g - state.apps_start_ms; */
+   /* if (state.max_runtime_ms && app_age >= state.max_runtime_ms) { */
+   /*    BOOTLOADER_ERROR("RUNTIME APP TIMEOUT!\r\n"); */
+   /*    //TODO: kill app */
+   /* } */
+
+   /* //TODO: also check stack canary and watchdog */ 
+}
+
+void systick_init(void)
 {
    u32 ticks = get_tick_rate() / 1000;
 

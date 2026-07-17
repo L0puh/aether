@@ -9,7 +9,7 @@ MEMORY
 
 _estack = ORIGIN(app_ram) + LENGTH(app_ram);
 
-ENTRY(main)
+ENTRY(app_start)
 
 SECTIONS
 {

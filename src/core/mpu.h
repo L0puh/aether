@@ -1,7 +1,6 @@
 #ifndef MPU_H
 #define MPU_H
 
-#include "boot/hv.h"
 #include "core/gpio.h"
 #include "defs.h"
 #include "memory_map.h"
