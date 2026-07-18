@@ -24,3 +24,4 @@ hv_wdt_kick:
 hv_exit:
     svc SVC_EXIT     
     bkpt 0          
+

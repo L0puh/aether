@@ -1,3 +1,4 @@
+#include "core/gpio.h"
 #include <aether.h>
 
 
@@ -138,6 +139,17 @@ bool fetch_app(void)
    system_reset();
 
    return true;
+}
+
+void bootloader_exit_hook(i32 code)
+{
+   DEBUG_PRINT("APP EXITED WITH CODE: %d", code);
+
+   u32 msp = get_msp();
+   u32 psp = get_psp();
+   u32 ctrl = get_control();
+
+   DEBUG_PRINT("msp = 0x%x psp=0x%x ctrl=0x%x", msp, psp, ctrl);
 }
 
 __attribute__((noreturn))

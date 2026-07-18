@@ -1,3 +1,4 @@
+#include "hv/hvapi_defs.h"
 #include <aether.h>
 
 extern u32 _stext;
@@ -46,7 +47,7 @@ const device_vectors_t vector_table = {
 };
 
 /* in: r0 = id, r1 = permissions */
-void svc_handler_c(frame_t *frame)
+u32 svc_handler_c(frame_t *frame, u32 exc_ret)
 {
    u8 *ret_addr = (u8*)frame->pc;
    u8 svc_num  = *(ret_addr-2);
@@ -54,13 +55,14 @@ void svc_handler_c(frame_t *frame)
    app_desc_t *desc = (app_desc_t*)APP_DESC_ADDR;
    if (desc->magic != APP_MAGIC) {
       ERROR_PRINT("no app found");
-      return;
+      //TODO: return other value
+      return 0;
    }
 
    if (svc_num >= SVC_COUNT) {
       ERROR_PRINT("wrong svc number");
       frame->r0 = (u32)-1;
-      return;
+      return 0;
    }
 
    DEBUG_PRINT("stack: 0x%x, svc num: %d, ret addr: 0x%x, control=0x%x", frame, svc_num, ret_addr, get_control());
@@ -76,11 +78,15 @@ void svc_handler_c(frame_t *frame)
          DEBUG_PRINT("calling region request: id=%d perms=0x%x", frame->r0, frame->r1);
          res = svc_region_request(desc, frame->r0, frame->r1); 
          break;
+      case SVC_EXIT:
+         return svc_app_exit(desc, frame, exc_ret);
       default:
          DEBUG_PRINT("not implemented yet");
+         break;
    }
 
    frame->r0 = res == SUCCESS ? 0 : -1;
+   return 0;
 }
 
 void memmanage_handler(void)

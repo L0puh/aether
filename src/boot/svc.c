@@ -1,7 +1,7 @@
 #include <aether.h>
 
 
-ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
+ret svc_region_request(const app_desc_t *desc, u32 periph_id, u32 request)
 {
    if (periph_id == PERIPH_NONE || periph_id >= PERIPH_COUNT) {
       DEBUG_PRINT("wrong periph id (%d), aborting memory request ", periph_id);
@@ -38,3 +38,20 @@ ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
    return ok ? SUCCESS: ACCESS_DENIED;
 }
 
+
+u32 svc_app_exit(const app_desc_t *desc, frame_t *frame, u32 exc_ret)
+{
+   UNUSED(desc);
+   i32 code = (i32) frame->r0;
+   DEBUG_PRINT("app exited with code %d", code);
+
+   frame->pc = (u32)exit_landing | 1;
+   frame->r0 = (u32)code;
+
+   // thread-mode priv on return 
+   u32 ctrl = get_control();
+   ctrl &= ~1u;
+   set_control(ctrl);
+
+   return exc_ret;
+}

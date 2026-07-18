@@ -25,7 +25,9 @@ static const periph_map_entry_t periph_map[] = {
 };
 #define PERIPHS_MAP_TOTAL ( sizeof(periph_map)/sizeof(periph_map[0]) )
 
-ret svc_region_request(app_desc_t *app, u32 periph_id, u32 request);
+ret svc_region_request(const app_desc_t *app, u32 periph_id, u32 request);
+u32 svc_app_exit(const app_desc_t *desc, frame_t *frame, u32 exc_ret);
 
+extern void exit_landing(void);
 
 #endif 
