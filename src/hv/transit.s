@@ -8,17 +8,19 @@
 .cpu cortex-m3
 .thumb
 
+.section .app_signatures, "a"
+.global app_signature
+app_signature:
+    .word 0x0DEAFBEE
+
 .section .app_start, "ax"
 .global app_start
 .thumb_func
 app_start:
-
-	 .word 0xDEAFBEE
     mrs   r0, control
     orr   r0, r0, #1   
     msr   control, r0
     isb
-	 .word 0xBAFFDAD 
     
     bl    main
     

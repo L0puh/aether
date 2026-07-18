@@ -26,6 +26,6 @@ enter_app:
     msr   control, r3
     isb
     
-	 @TODO: set pendSV/SVC check after app starts
+	 @ TODO: set pendSV/SVC check after app starts
     @ jump to app entry
     bx    r4

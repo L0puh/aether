@@ -65,8 +65,7 @@ typedef enum _ret_codes {
 } ret;
 
 #define APP_MAGIC             0xDEADBEEF
-#define PRIV_DROP_SIGNATURE1  0xBAFFDAD
-#define PRIV_DROP_SIGNATURE2  0xDEAFBEE
+#define PRIV_DROP_SIGNATURE   0x0DEAFBEE
 
 
 #define APP_DESC_ADDR  (FLASH_APP_ORIGIN)

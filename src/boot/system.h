@@ -2,6 +2,7 @@
 #define SYSTEM_H
 
 #include <defs.h>
+#include <stdbool.h>
 
 typedef struct PACKED _app_manifest {
    u32 granted_periph_mask;
@@ -22,6 +23,8 @@ void init_debug_led(void);
 void toggle_debug_led(void);
 ret  system_setup(void);
 void led_blink(int count, int time);
+ret preinit_periph(const app_manifest_t manifest);
+bool is_granted(u32 mask, u32 perm);
 
 extern void enter_app(u32 stack_addr, u32 entry);
 

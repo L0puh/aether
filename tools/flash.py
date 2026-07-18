@@ -123,7 +123,7 @@ def send_app(bin_file, port='/dev/ttyUSB0', baud=115200):
             print(f"\t< {line}")
         if "flashing is done" in line.lower():
             break
-        if "aborting" in line.lower():
+        if "corrupted" in line.lower():
             print("FLASHING FAILED!")
             break
 

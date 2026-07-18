@@ -25,18 +25,17 @@ bool is_app_exists(app_desc_t** desc) {
 bool verify_privilege_dropped(const u32 entry_app)
 {
    u32 addr = entry_app & ~1;
-   u32 *sig = (u32*)addr;
+   u32 *sig = (u32*)(addr - 4);
 
-   dump_memory((const void*)addr, 32, uart_writef);
-   if (sig[0] != PRIV_DROP_SIGNATURE1 || sig[5] != PRIV_DROP_SIGNATURE2) 
+   dump_memory((const void*)sig, 32, uart_writef);
+   if (sig[0] != PRIV_DROP_SIGNATURE)
    {
       ERROR_PRINT("app does not have drop privilege!");
-      DEBUG_PRINT("expected: 0x%x 0x%x", PRIV_DROP_SIGNATURE1, PRIV_DROP_SIGNATURE2);
-      DEBUG_PRINT("got:      0x%x 0x%x", sig[0], sig[5]);
+      DEBUG_PRINT("expected: 0x%x; got: 0x%x", PRIV_DROP_SIGNATURE, sig[0]);
       return false;
    }
 
-   DEBUG_PRINT("drop privilege signatures found");
+   DEBUG_PRINT("drop privilege signature found");
    return true;
 }
    
@@ -51,7 +50,7 @@ static void run_app(app_desc_t* desc)
 
    if (!verify_privilege_dropped(entry)) {
       ERROR_PRINT("privilege is not dropped, erasing this app!");
-      flash_erase_app_slot(FLASH_APP_ORIGIN, FLASH_APP_LENGTH);
+      /* flash_erase_app_slot(FLASH_APP_ORIGIN, FLASH_APP_LENGTH); */
       return;
    }
 
@@ -84,7 +83,7 @@ u32 recv_size(void)
    return size;
 }
 
-bool fetch_app(app_desc_t *desc) 
+bool fetch_app(void) 
 {
    if (!uart_wait_rx_ready(FETCH_TIMEOUT_MS)) {
       UART_PRINT("timeout to recv sync byte");
@@ -127,6 +126,13 @@ bool fetch_app(app_desc_t *desc)
    flash_write_from_uart(addr, size);
  
    dump_memory((const void*) addr, size, uart_writef);
+
+   app_desc_t *desc = (app_desc_t*) APP_DESC_ADDR;
+   if (desc->size != size || desc->magic != APP_MAGIC){
+      UART_PRINT("corrupted app (%d bytes & 0x%x magic), aborting", desc->size, desc->magic);
+      flash_erase_app_slot(addr, size);
+   }
+   
    UART_PRINT("flashing is done!");
 
    system_reset();
@@ -148,7 +154,7 @@ int bootloader_entry()
    app_desc_t* desc = NULL;
 
    while (!(ret = is_app_exists(&desc))) {
-      ret = fetch_app(desc);
+      ret = fetch_app();
       if (ret) { break; }
       DEBUG_PRINT("sleeping for 60ms before trying again...");
       systick_msec_delay(60000);
@@ -157,7 +163,12 @@ int bootloader_entry()
    if (desc == NULL) {
       ERROR_PRINT("failed to fetch app (NULL)");
    } else { 
-      run_app(desc);
+      ret = preinit_periph(desc->manifset);
+      if (IS_ERROR(ret)){
+         ERROR_PRINT("failed to preinit peripherals, aborting");
+      } else {
+         run_app(desc);
+      }
    }
 
    DEBUG_PRINT("POINT OF NO RETURN");

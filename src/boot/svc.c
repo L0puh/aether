@@ -9,7 +9,7 @@ ret svc_region_request(app_desc_t *desc, u32 periph_id, u32 request)
    }
 
    UNUSED(desc);
-   if (!(desc->manifset.granted_periph_mask & (1u << periph_id))) {
+   if (!is_granted(desc->manifset.granted_periph_mask, periph_id)) {
       DEBUG_PRINT("app doesn't have permission to request this region (%d)", periph_id);
       return VIOLATION;
    }
