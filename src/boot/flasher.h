@@ -1,9 +1,7 @@
 #ifndef FLASHER_H
 #define FLASHER_H
 
-#include "core/gpio.h"
 #include "defs.h"
-#include <stdbool.h>
 
 #define FLASH_KEY1             0x45670123
 #define FLASH_KEY2             0xCDEF89AB

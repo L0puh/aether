@@ -4,7 +4,6 @@
 #include "target.h"
 #ifdef FEATURE_SIGN_APP
 #include "defs.h"
-#include <stdbool.h>
 #include <ed25519.h>
 
 //auto-generated public key with tools/gen_keys.sh

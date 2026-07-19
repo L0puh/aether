@@ -28,7 +28,7 @@ ret set_system_clock_25Mhz(void);
 ret set_system_clock_72Mhz(void);
 ret reset_system_clock(void);
 void tick_hook(void);
-
-extern volatile u32 system_ticks_g;
+u32 get_system_ticks();
+void increment_system_ticks(void);
 
 #endif 

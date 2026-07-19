@@ -13,6 +13,7 @@
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef signed int  s32;
 typedef int32_t     i32;
@@ -32,7 +33,7 @@ typedef uint64_t    u64;
 #define HV_GET_LR(lr_var) \
    __asm volatile ("mov %0, lr\n" : "=r" (lr_var))
 
-#define MAX_BUFFER_SIZE 1024
+#define MAX_BUFFER_SIZE 256
 #define SIGNATURE_SIZE  64
 
 // TODO: refactor??
@@ -43,11 +44,12 @@ typedef uint64_t    u64;
 #endif 
 
 #define FLASHER_WAIT_TIMEOUT 10000 //ms
-#define TICK_HOOK_MS 100 
+#define TICK_HOOK_MS 30000 // 30 sec 
 #define MAX_RUNTIME_MS 5000
 #define FETCH_TIMEOUT_MS 60000
 #define UART_TIMEOUT_MS 5000
-
+#define APP_LIVENESS_TIMEOUT_MS 2000
+#define WATCHDOG_RELOAD_TIMEOUT 5000 // 5 secs
 
 #define PACKED         __attribute__((packed))
 #define ALWAYS_INLINE  __attribute__((always_inline))

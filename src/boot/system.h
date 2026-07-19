@@ -2,7 +2,6 @@
 #define SYSTEM_H
 
 #include <defs.h>
-#include <stdbool.h>
 
 typedef struct PACKED _app_manifest {
    u32 granted_periph_mask;

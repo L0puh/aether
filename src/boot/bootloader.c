@@ -57,6 +57,8 @@ static void run_app(app_desc_t* desc)
       return;
    }
 
+   DEBUG_PRINT("enabling watchdog before running");
+   watchdog_init(WATCHDOG_RELOAD_TIMEOUT);
    DEBUG_PRINT("RUNNING APP (0x%x entry)", entry);
 
    disable_irq();

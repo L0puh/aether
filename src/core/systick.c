@@ -1,20 +1,20 @@
 #include <aether.h>
 
 volatile u32 system_ticks_g = 0;
+volatile u32 last_tick = 0;
 
 void tick_hook(void) 
 {
-   /* app_desc_t* running_app = NULL; */
-   /* //TODO get_app(running_app) */
-   
-   /* app_state_t state = running_app->state; */
-   /* u32 app_age = system_ticks_g - state.apps_start_ms; */
-   /* if (state.max_runtime_ms && app_age >= state.max_runtime_ms) { */
-   /*    BOOTLOADER_ERROR("RUNTIME APP TIMEOUT!"); */
-   /*    //TODO: kill app */
-   /* } */
+   if (get_system_ticks() - last_tick < TICK_HOOK_MS){
+      return;
+   }
 
-   /* //TODO: also check stack canary and watchdog */ 
+   last_tick = get_system_ticks();
+
+   if (is_iwdg_enabled() && is_app_healthy()){
+      DEBUG_PRINT("app is healthy, kicking watchdog!");
+      watchdog_kick();
+   }
 }
 
 void systick_init(void)
@@ -147,6 +147,16 @@ ret set_system_clock_25Mhz()
    if (timeout == 0) return TIMEOUT;
 
    return SUCCESS;
+}
+
+u32 get_system_ticks()
+{
+   return system_ticks_g;
+}
+
+void increment_system_ticks(void)
+{
+   system_ticks_g++;
 }
 
 ret set_system_clock_72Mhz()

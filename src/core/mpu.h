@@ -4,7 +4,6 @@
 #include "core/gpio.h"
 #include "defs.h"
 #include "memory_map.h"
-#include <stdbool.h>
 
 #define SUBREG_BITS(mask)   ((mask) << 8)
 #define MPU_ENABLE          (1 << 0)
@@ -80,12 +79,12 @@ static const mpu_region_t static_regions[] =
    },
    [REG_HV_FLASH] = {
       .base = FLASH_HV_ORIGIN,                    
-      .attr_size = REGION_SIZE_16KB | AP_PRIV_RO | XN_DISABLE | REGION_ENABLE,
+      .attr_size = REGION_SIZE_32KB | AP_PRIV_RO | XN_DISABLE | REGION_ENABLE,
       .subreg_mask = 0,
    },
    [REG_HV_RAM] = {
       .base = RAM_HV_ORIGIN,                     
-      .attr_size = REGION_SIZE_4KB | AP_PRIV_RW | XN_ENABLE | REGION_ENABLE,
+      .attr_size = REGION_SIZE_8KB | AP_PRIV_RW | XN_ENABLE | REGION_ENABLE,
       .subreg_mask = 0,
    },
    [REG_APP_FLASH] = {
@@ -95,7 +94,7 @@ static const mpu_region_t static_regions[] =
    },
    [REG_APP_RAM] = {
       .base = RAM_APP_ORIGIN,                        
-      .attr_size = REGION_SIZE_8KB | AP_PRIV_RW_USER_RW | XN_DISABLE | REGION_ENABLE,
+      .attr_size = REGION_SIZE_4KB | AP_PRIV_RW_USER_RW | XN_DISABLE | REGION_ENABLE,
       .subreg_mask = 0,                             
    },
    [REG_RAM_GUARD] = {

@@ -77,6 +77,14 @@ typedef struct _MPU {
 } MPU_t;
 
 
+typedef struct _IWDG {
+   u32 KEY_REG;
+   u32 PRESCALER;
+   u32 RELOAD;
+   u32 STATUS;
+} IWDG_t;
+
+
 #define PIN0            (u8) 0x0000
 #define PIN1            (u8) 0x0001
 #define PIN2            (u8) 0x0002
@@ -103,6 +111,7 @@ typedef struct _MPU {
 #define SCB               ((SCB_t*) SCB_BASE)
 #define MPU               ((MPU_t*) MPU_BASE)
 
+#define IWDG_BASE         (PERIPH_BASE + 0x3000UL)
 #define RCC_BASE          (PERIPH_BASE + 0x21000)
 #define FLASH_BASE        (PERIPH_BASE + 0x22000)
 #define GPIOA_BASE        (PERIPH_BASE + 0x10800)
@@ -120,6 +129,7 @@ typedef struct _MPU {
 #define USART2            ((USART_t*) USART2_BASE)
 #define USART3            ((USART_t*) USART3_BASE)
 #define FLASH             ((FLASH_t*) FLASH_BASE) 
+#define IWDG              ((IWDG_t*)  IWDG_BASE)
 
 #define RCC_GPIOAEN           (1U << 2)
 #define RCC_GPIOBEN           (1U << 3)

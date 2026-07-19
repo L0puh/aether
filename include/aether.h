@@ -3,9 +3,6 @@
 
 #include "target.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-
 /* UTILS */
 #include "defs.h"
 #include "core/debug.h"
@@ -17,6 +14,7 @@
 #include "core/clock.h"
 #include "core/mpu.h"
 #include "core/utils.h"
+#include "core/watchdog.h"
 #include "core/crypto.h"
 
 /* HYPERVISOR */

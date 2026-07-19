@@ -2,7 +2,7 @@
 #include <aether.h>
 #include <core/systick.h>
 
-USART_t *opened_usart_g = 0;
+volatile USART_t *opened_usart_g = 0;
 
 void uart_set_baudrate(USART_t *uart, u32 pclk, u32 baudrate)
 {
@@ -75,10 +75,10 @@ bool uart_rx_ready()
 
 bool uart_wait_rx_ready(u32 timeout_ms)
 {
-    u32 start = system_ticks_g;  
+    u32 start = get_system_ticks();  
 
     while (!uart_rx_ready()) {
-        if ((system_ticks_g - start) > timeout_ms) {
+        if ((get_system_ticks() - start) > timeout_ms) {
             return false;  
         }
     }
@@ -88,7 +88,7 @@ bool uart_wait_rx_ready(u32 timeout_ms)
 
 ret uart_getchar(char *c)
 {
-   if (uart_rx_ready()) { // TODO: add watchdog (?)
+   if (uart_rx_ready()) { 
       *c = opened_usart_g->DATA;
       return SUCCESS;
    }

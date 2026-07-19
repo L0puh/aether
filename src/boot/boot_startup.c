@@ -71,6 +71,8 @@ u32 svc_handler_c(frame_t *frame, u32 exc_ret)
       ERROR_PRINT("SECURITY VIOLATION: app is privileged!");
       system_reset();
    }
+   
+   mark_app_alive();
 
    ret res = ERROR;
    switch(svc_num) {
@@ -110,11 +112,8 @@ void busfault_handler(void)
 
 void systick_handler(void)
 {
-   system_ticks_g++;
-
-   /* if (system_ticks_g % TICK_HOOK_MS == 0) { */
-   /*    hv_tick_hook(); */
-   /* } */
+   increment_system_ticks();
+   tick_hook();
 }
 
 void default_handler(void)

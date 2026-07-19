@@ -6,7 +6,6 @@
 
 
 #ifdef _DEBUG
-
    #define PRINT_MODULE(module, ...) \
       uart_writef("%s> ", module); \
       uart_writef(__VA_ARGS__); \
