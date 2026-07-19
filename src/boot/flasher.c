@@ -133,10 +133,17 @@ void flash_erase_app_slot(u32 addr, u32 size)
       timeout = FLASHER_WAIT_TIMEOUT;
       while((FLASH->SR & FLASH_SR_BUSY) && --timeout);
 
-      //TODO: check errors 
 
       if (timeout == 0) {
          UART_PRINT("erase timeout at 0x%x!", i);
+         FLASH->CR &= ~(FLASH_PAGE_ERASE_MODE | FLASH_START_ERASE);
+         flash_lock();
+         return;
+      }
+
+      if (FLASH->SR & FLASH_SR_PGERR) {
+         UART_PRINT("erase programming error at 0x%x\r\n", i);
+         FLASH->SR |= FLASH_SR_PGERR;
          FLASH->CR &= ~(FLASH_PAGE_ERASE_MODE | FLASH_START_ERASE);
          flash_lock();
          return;

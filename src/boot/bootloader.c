@@ -51,7 +51,9 @@ static void run_app(app_desc_t* desc)
 
    if (!verify_privilege_dropped(entry)) {
       ERROR_PRINT("privilege is not dropped, erasing this app!");
-      /* flash_erase_app_slot(FLASH_APP_ORIGIN, FLASH_APP_LENGTH); */
+#ifndef _DEBUG
+      flash_erase_app_slot(FLASH_APP_ORIGIN, FLASH_APP_LENGTH);
+#endif 
       return;
    }
 
