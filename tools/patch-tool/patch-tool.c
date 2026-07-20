@@ -3,12 +3,58 @@
 #include <string.h>
 #include <stdint.h>
 #include <aether.h>
+#include <stddef.h>
 
 #define GRANT_USART1 ( 1 << PERIPH_USART1 )
 #define GRANT_GPIOC  ( 1 << PERIPH_GPIOC )
 
 // !! AUTO GENERATED !!
 #include "symbols.h"
+
+#ifdef FEATURE_CRC_APP
+static uint16_t crc_ccitt_table[256];
+static int crc_table_initialized = 0;
+
+static void init_crc_table(void)
+{
+    uint16_t crc;
+    for (int i = 0; i < 256; i++) {
+        crc = (uint16_t)(i << 8);
+        for (int j = 0; j < 8; j++) {
+            if (crc & 0x8000)
+                crc = (uint16_t)((crc << 1) ^ 0x1021);
+            else
+                crc = (uint16_t)(crc << 1);
+        }
+        crc_ccitt_table[i] = crc;
+    }
+    crc_table_initialized = 1;
+}
+
+static uint16_t update_crc_ccitt_host(uint16_t crc, uint8_t data)
+{
+    return (uint16_t)((crc << 8) ^ crc_ccitt_table[(crc >> 8) ^ data]);
+}
+
+static uint16_t calc_crc(const uint8_t* data, size_t size)
+{
+    if (!crc_table_initialized) {
+        init_crc_table();
+    }
+    
+    uint16_t crc = 0xFFFF;
+    uint32_t crc_off = offsetof(app_desc_t, crc16);
+    
+    for (size_t i = 0; i < size; i++) {
+        if (i >= crc_off && i < crc_off + 2) {
+            continue;
+        }
+        crc = update_crc_ccitt_host(crc, data[i]);
+    }
+    
+    return crc;
+}
+#endif
 
 void print_help() 
 {
@@ -106,7 +152,7 @@ bool write_output(const char* output, u8 *buffer, size_t size)
    size_t written = fwrite(buffer, 1, size, out);
    fclose(out);
 
-   printf("written %zu bytes to %s\n", written, output);
+   printf("written %zu bytes to %s\n", written, output ? output : "patched.bin");
    return 1;
 }
 
@@ -143,6 +189,11 @@ int main(int argc, char *argv[])
    desc->size = size;
    desc->entry = SYM_APP_START;
    desc->manifset.granted_periph_mask = GRANT_USART1 | GRANT_GPIOC;
+   desc->crc16 = 0;  
+
+#ifdef FEATURE_CRC_APP
+   desc->crc16 = calc_crc(buffer, size);
+#endif 
   
    printf("app descriptor:\n");
    printf("  magic:   0x%08x\n", desc->magic);
@@ -150,6 +201,9 @@ int main(int argc, char *argv[])
    printf("  size:    %u bytes\n", desc->size);
    printf("  entry:   0x%08x (offset %u from start)\n", desc->entry, desc->entry);
    printf("  periph mask: 0x%08x\n", desc->manifset.granted_periph_mask);
+#ifdef FEATURE_CRC_APP
+   printf("  CRC16:   0x%04x\n", desc->crc16);
+#endif 
 
    write_output(output, buffer, size);
    return 0;

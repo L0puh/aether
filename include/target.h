@@ -8,8 +8,7 @@
 //VERIFY: #define SYSTEM_CLOCK_25Mhz 
 //#define SYSTEM_CLOCK_8Mhz 
 
-// sign apps and verify before flashing 
-//#define FEATURE_SIGN_APP
+#define FEATURE_CRC_APP
 
 #define _DEBUG
 // used for debug

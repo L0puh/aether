@@ -15,7 +15,7 @@
 #include "core/mpu.h"
 #include "core/utils.h"
 #include "core/watchdog.h"
-#include "core/crypto.h"
+#include "core/crc.h"
 
 /* HYPERVISOR */
 #include "hv/hvapi.h"

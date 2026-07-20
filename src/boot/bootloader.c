@@ -1,6 +1,23 @@
-#include "core/gpio.h"
 #include <aether.h>
 
+#ifdef FEATURE_CRC_APP
+bool verify_crc(app_desc_t* desc, u32 size)
+{
+    if (desc == NULL) {
+        return false;
+    }
+
+    uint16_t calc_crc = crc_calculate(
+        (const uint8_t*)FLASH_APP_ORIGIN,
+        size,
+        offsetof(app_desc_t, crc16),
+        2
+    );
+
+    DEBUG_PRINT("CRC orig: 0x%04x and calculated: 0x%04x!", desc->crc16, calc_crc);
+    return (calc_crc == desc->crc16);
+}
+#endif 
 
 bool is_app_exists(app_desc_t** desc) {
 
@@ -72,21 +89,17 @@ u32 recv_size(void)
 
    size = uart_read_word();
 
-#ifdef FEATURE_SIGN_APP
-   if (size < SIGNATURE_SIZE || size > MAX_APP_SIZE + SIGNATURE_SIZE) {
-      FLASHER_DEBUG("invalid size: %lu", size);
-      return 0;
-   }
-#else 
    if (size > FLASH_APP_LENGTH || size == 0) {
       ERROR_PRINT("invalid size: %lu", size);
       return 0;
    }
-#endif 
 
    UART_PRINT("size received: %lu", size);
    return size;
 }
+
+#ifdef FEATURE_CRC_APP
+#endif 
 
 bool fetch_app(void) 
 {
@@ -108,25 +121,6 @@ bool fetch_app(void)
    size = recv_size();
    if (size == 0) return false;
  
-
-#ifdef FEATURE_SIGN_APP 
-   //FIXME: should recv signature separately? 
-   //i.e. sign = recv_sign(SIGNATURE_SIZE);
-   //without buffer allocation (since memory unwise 
-   //to do that lol)
-   app_size = size - SIGNATURE_SIZE;
-   u8* app_data = buff;
-   u8* sign = buff + app_size;
-   FLASHER_DEBUG("data: 0x%x, sign: 0x%x!", buff, sign);
-   
-   if (!verify_app_buffer(app_data, app_size, sign)){
-      UART_PRINT("failed to flash app, security violation!");
-      return false;
-   }
-   
-   UART_PRINT("app is verified!");
-#endif 
-
    flash_erase_app_slot(addr, size);
    flash_write_from_uart(addr, size);
  
@@ -138,8 +132,18 @@ bool fetch_app(void)
       flash_erase_app_slot(addr, size);
    }
    
-   UART_PRINT("flashing is done!");
 
+#ifdef FEATURE_CRC_APP
+   if (!verify_crc(desc, size)){
+      ERROR_PRINT("failed to verify crc, aborting flashing");
+#ifndef _DEBUG
+      flash_erase_app_slot(addr, size);
+#endif
+   }
+   DEBUG_PRINT("crc is verified!");
+#endif 
+   
+   UART_PRINT("flashing is done!");
    system_reset();
 
    return true;

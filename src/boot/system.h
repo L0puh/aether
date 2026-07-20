@@ -13,10 +13,9 @@ typedef struct PACKED _app_desc {
    u32 entry;
    u32 size;
    app_manifest_t manifset;
-   u16 reserved;
+   u16 crc16;
    u8 version;
 } app_desc_t;
-
 
 void init_debug_led(void);
 void toggle_debug_led(void);
