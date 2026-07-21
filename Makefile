@@ -65,7 +65,7 @@ INCL   = -I./include\
 CFLAGS = -mcpu=$(CHIP)\
 			-mthumb\
 			-g\
-			-O0\
+			-Os\
 			-Wall\
 			-Wextra\
 			-nostdlib\
@@ -86,12 +86,12 @@ BOOT_CFLAGS = $(CFLAGS) -DHV_API_VERSION=1
 BOOT_LDFLAGS = -T $(BOOTLOADER_LINKER)\
 					-L $(LINKER_DIR)\
 					-nostdlib\
-					-Wl,--no-gc-sections\
+					-Wl,--gc-sections\
 					-Wl,--print-memory-usage\
 					-Wl,-Map=$(BUILD_DIR)/$(PROJECT)-boot.map
 
 APP_LDFLAGS = -nostdlib\
-				  -Wl,--no-gc-sections\
+				  -Wl,--gc-sections\
 				  -Wl,--print-memory-usage\
 				  -Wl,-Map=$(BUILD_DIR)/$(@F:.elf=.map)
 

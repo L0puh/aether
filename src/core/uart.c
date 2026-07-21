@@ -1,6 +1,4 @@
-#include "defs.h"
 #include <aether.h>
-#include <core/systick.h>
 
 volatile USART_t *opened_usart_g = 0;
 

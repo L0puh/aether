@@ -5,83 +5,83 @@
 
 // for stm32f1
 typedef struct _GPIO {
-   u32 CRL;          // config low
-   u32 CRH;          // config high
-   u32 IDR;          // input data 
-   u32 ODR;          // output data 
-   u32 BSRR;         // bit set/reset 
-   u32 BRR;          // bit reset 
-   u32 LCKR;         // lock 
+   volatile u32 CRL;          // config low
+   volatile u32 CRH;          // config high
+   volatile u32 IDR;          // input data 
+   volatile u32 ODR;          // output data 
+   volatile u32 BSRR;         // bit set/reset 
+   volatile u32 BRR;          // bit reset 
+   volatile u32 LCKR;         // lock 
 } GPIO_t;
 
 typedef struct _RCC {
-   u32 CR;            // clock control 
-   u32 CFGR;          // clock config
-   u32 CIR;           // clock interrupt
-   u32 APB2RSTR;      // apb2 peripheral reset 
-   u32 APB1RSTR;      // apb1 peripheral reset 
-   u32 AHBENR;        // ahb peripheral clock enable 
-   u32 APB2ENR;       // apb2 peripheral clock enable 
-   u32 APB1ENR;       // apb1 peripheral clock enable
-   u32 BDCR;          // backup domain control 
-   u32 CSR;           // control/status 
-   u32 AHBSTR;
-   u32 CFGR2;
+   volatile u32 CR;            // clock control 
+   volatile u32 CFGR;          // clock config
+   volatile u32 CIR;           // clock interrupt
+   volatile u32 APB2RSTR;      // apb2 peripheral reset 
+   volatile u32 APB1RSTR;      // apb1 peripheral reset 
+   volatile u32 AHBENR;        // ahb peripheral clock enable 
+   volatile u32 APB2ENR;       // apb2 peripheral clock enable 
+   volatile u32 APB1ENR;       // apb1 peripheral clock enable
+   volatile u32 BDCR;          // backup domain control 
+   volatile u32 CSR;           // control/status 
+   volatile u32 AHBSTR;
+   volatile u32 CFGR2;
 } RCC_t;
 
 typedef struct _USART {
-   u32 STATUS;
-   u32 DATA; 
-   u32 BAUD;
-   u32 CR1;    // control 
-   u32 CR2;
-   u32 CR3;
-   u32 GUARD;  // guard time and prescaler 
+   volatile u32 STATUS;
+   volatile u32 DATA; 
+   volatile u32 BAUD;
+   volatile u32 CR1;    // control 
+   volatile u32 CR2;
+   volatile u32 CR3;
+   volatile u32 GUARD;  // guard time and prescaler 
 } USART_t;
 
 typedef struct _FLASH {
-   u32 ACR;
-   u32 KEYR;
-   u32 OPTKEYR;
-   u32 SR;
-   u32 CR;
-   u32 AR;
-   u32 RESERVED;
-   u32 OBR;
-   u32 WRPR;
+   volatile u32 ACR;
+   volatile u32 KEYR;
+   volatile u32 OPTKEYR;
+   volatile u32 SR;
+   volatile u32 CR;
+   volatile u32 AR;
+   volatile u32 RESERVED;
+   volatile u32 OBR;
+   volatile u32 WRPR;
 } FLASH_t;
 
 typedef struct _SCB {
-    u32 CPUID;    
-    u32 ICSR;     
-    u32 VTOR;     
-    u32 AIRCR;    
-    u32 SCR;      
-    u32 CCR;      
-    u32 SHPR[3];  
-    u32 SHCSR;   
-    u32 CFSR;     
-    u32 HFSR;     
-    u32 DFSR;     
-    u32 MMFAR;     
-    u32 BFAR;       
-    u32 AFSR;       
+   volatile u32 CPUID;    
+   volatile u32 ICSR;     
+   volatile u32 VTOR;     
+   volatile u32 AIRCR;    
+   volatile u32 SCR;      
+   volatile u32 CCR;      
+   volatile u32 SHPR[3];  
+   volatile u32 SHCSR;   
+   volatile u32 CFSR;     
+   volatile u32 HFSR;     
+   volatile u32 DFSR;     
+   volatile u32 MMFAR;     
+   volatile u32 BFAR;       
+   volatile u32 AFSR;       
 } SCB_t;
 
 typedef struct _MPU {
-   u32 TYPE;
-   u32 CTRL;
-   u32 REGNUM;
-   u32 REGBASE;
-   u32 ATTR_AND_SIZE;
+   volatile u32 TYPE;
+   volatile u32 CTRL;
+   volatile u32 REGNUM;
+   volatile u32 REGBASE;
+   volatile u32 ATTR_AND_SIZE;
 } MPU_t;
 
 
 typedef struct _IWDG {
-   u32 KEY_REG;
-   u32 PRESCALER;
-   u32 RELOAD;
-   u32 STATUS;
+   volatile u32 KEY_REG;
+   volatile u32 PRESCALER;
+   volatile u32 RELOAD;
+   volatile u32 STATUS;
 } IWDG_t;
 
 
