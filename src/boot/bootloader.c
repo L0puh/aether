@@ -145,31 +145,9 @@ ret fetch_app(void)
    return SUCCESS;
 }
 
-void bootloader_exit_hook(i32 code)
-{
-   DEBUG_PRINT("APP EXITED WITH CODE: %d", code);
-   DEBUG_PRINT("msp = 0x%x psp=0x%x ctrl=0x%x", get_msp(), get_psp(), get_control());
-   DEBUG_PRINT("sleeping for %d ms", FETCH_TIMEOUT_MS);
-
-   u32 start = get_system_ticks();
-   while (get_system_ticks() - start < FETCH_TIMEOUT_MS) {
-      watchdog_kick();
-      systick_msec_delay_ex(500, false);
-   }
-}
-
-__attribute__((noreturn))
-int bootloader_entry()
+void start_bootloader(void)
 {
    ret res; 
-   if (!IS_ERROR(system_setup())) {
-      led_blink(3, 100);
-   }
-
-   DEBUG_PRINT("BOOTLOADER START");
-
-   check_reset_cause();
-
    app_desc_t* desc = NULL;
 
    while (!is_app_exists(&desc) && !fetch_app()) {
@@ -186,6 +164,34 @@ int bootloader_entry()
       
       ERROR_PRINT("failed to preinit peripherals");
    }
+}
+
+void bootloader_exit_hook(i32 code)
+{
+   DEBUG_PRINT("APP EXITED WITH CODE: %d", code);
+   DEBUG_PRINT("msp = 0x%x psp=0x%x ctrl=0x%x", get_msp(), get_psp(), get_control());
+   DEBUG_PRINT("sleeping for %d ms before running again", FETCH_TIMEOUT_MS);
+
+   u32 start = get_system_ticks();
+   while (get_system_ticks() - start < FETCH_TIMEOUT_MS) {
+      watchdog_kick();
+      systick_msec_delay_ex(500, false);
+   }
+
+   start_bootloader();
+}
+
+__attribute__((noreturn))
+int bootloader_entry()
+{
+   if (!IS_ERROR(system_setup())) {
+      led_blink(3, 100);
+   }
+
+   DEBUG_PRINT("BOOTLOADER START");
+
+   check_reset_cause();
+   start_bootloader();
 
    DEBUG_PRINT("POINT OF NO RETURN");
 }
