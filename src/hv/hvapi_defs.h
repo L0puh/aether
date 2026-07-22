@@ -12,8 +12,6 @@
 #define PERIPH_GPIOA  3
 #define PERIPH_GPIOB  4
 #define PERIPH_GPIOC  5
-/* #define PERIPH_SPI1   6 */
-/* #define PERIPH_I2C1   7 */
 #define PERIPH_COUNT  6
 
 #endif

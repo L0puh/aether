@@ -1,21 +1,17 @@
 #include <aether.h>
 
 #ifdef FEATURE_CRC_APP
-bool verify_crc(app_desc_t* desc, u32 size)
+ret verify_crc(app_desc_t* desc, u32 size)
 {
     if (desc == NULL) {
-        return false;
+        return NOT_FOUND;
     }
 
-    uint16_t calc_crc = crc_calculate(
-        (const uint8_t*)FLASH_APP_ORIGIN,
-        size,
-        offsetof(app_desc_t, crc16),
-        2
-    );
+    uint16_t calc_crc = crc_calculate((const uint8_t*)FLASH_APP_ORIGIN, size, 
+                                                offsetof(app_desc_t, crc16), 2);
 
     DEBUG_PRINT("CRC orig: 0x%04x and calculated: 0x%04x!", desc->crc16, calc_crc);
-    return (calc_crc == desc->crc16);
+    return (calc_crc == desc->crc16) ? SUCCESS: ERROR;
 }
 #endif 
 
@@ -57,21 +53,19 @@ bool verify_privilege_dropped(const u32 entry_app)
    return true;
 }
    
-static void run_app(app_desc_t* desc)
+static ret run_app(app_desc_t* desc)
 {
    if (desc == NULL) {
       ERROR_PRINT("app is null, something went wrong");
-      return;
+      return NOT_FOUND;
    }
    
    volatile u32 entry = (u32)desc->entry | 1;
 
    if (!verify_privilege_dropped(entry)) {
       ERROR_PRINT("privilege is not dropped, erasing this app!");
-#ifndef _DEBUG
       flash_erase_app_slot(FLASH_APP_ORIGIN, FLASH_APP_LENGTH);
-#endif 
-      return;
+      return VIOLATION;
    }
 
    DEBUG_PRINT("enabling watchdog before running");
@@ -80,7 +74,8 @@ static void run_app(app_desc_t* desc)
 
    disable_irq();
    enter_app(APP_STACK_ADDR-8, entry);
-   
+
+   return SUCCESS; 
 }
 
 u32 recv_size(void) 
@@ -101,15 +96,15 @@ u32 recv_size(void)
 #ifdef FEATURE_CRC_APP
 #endif 
 
-bool fetch_app(void) 
+ret fetch_app(void) 
 {
    if (!uart_wait_rx_ready(FETCH_TIMEOUT_MS)) {
       UART_PRINT("timeout to recv sync byte");
-      return false;
+      return TIMEOUT;
    }
    else if ((uart_data() != 'F')){
       UART_PRINT("failed to recv sync byte, wrong byte");
-      return false;
+      return WRONG_DATA;
    }
 
    UART_PRINT("flash command received, chunk size: %d!", FLASH_CHUNK_SIZE);
@@ -130,65 +125,60 @@ bool fetch_app(void)
    if (desc->size != size || desc->magic != APP_MAGIC){
       UART_PRINT("corrupted app (%d bytes & 0x%x magic), aborting", desc->size, desc->magic);
       flash_erase_app_slot(addr, size);
+      return WRONG_DATA;
    }
    
 
 #ifdef FEATURE_CRC_APP
-   if (!verify_crc(desc, size)){
+   if (IS_ERROR(verify_crc(desc, size))){
       ERROR_PRINT("failed to verify crc, aborting flashing");
-#ifndef _DEBUG
       flash_erase_app_slot(addr, size);
-#endif
-   }
+      return VIOLATION;
+   } 
+
    DEBUG_PRINT("crc is verified!");
 #endif 
    
    UART_PRINT("flashing is done!");
    system_reset();
 
-   return true;
+   return SUCCESS;
 }
 
 void bootloader_exit_hook(i32 code)
 {
    DEBUG_PRINT("APP EXITED WITH CODE: %d", code);
-
-   u32 msp = get_msp();
-   u32 psp = get_psp();
-   u32 ctrl = get_control();
-
-   DEBUG_PRINT("msp = 0x%x psp=0x%x ctrl=0x%x", msp, psp, ctrl);
+   DEBUG_PRINT("msp = 0x%x psp=0x%x ctrl=0x%x", get_msp(), get_psp(), get_control());
+   DEBUG_PRINT("sleeping for %d ms", FETCH_TIMEOUT_MS);
+   systick_msec_delay(FETCH_TIMEOUT_MS);
 }
 
 __attribute__((noreturn))
 int bootloader_entry()
 {
-   int ret;
+   ret res; 
    if (!IS_ERROR(system_setup())) {
       led_blink(3, 100);
    }
 
    DEBUG_PRINT("BOOTLOADER START");
+
    check_reset_cause();
 
    app_desc_t* desc = NULL;
 
-   while (!(ret = is_app_exists(&desc))) {
-      ret = fetch_app();
-      if (ret) { break; }
+   while (!is_app_exists(&desc) && !fetch_app()) {
       DEBUG_PRINT("sleeping for 60ms before trying again...");
       systick_msec_delay(60000);
    }
 
-   if (desc == NULL) {
-      ERROR_PRINT("failed to fetch app (NULL)");
-   } else { 
-      ret = preinit_periph(desc->manifset);
-      if (IS_ERROR(ret)){
-         ERROR_PRINT("failed to preinit peripherals, aborting");
-      } else {
+   if (desc != NULL) {
+      res = preinit_periph(desc->manifset);
+      if (!IS_ERROR(res)){
          run_app(desc);
-      }
+      } 
+      
+      ERROR_PRINT("failed to preinit peripherals");
    }
 
    DEBUG_PRINT("POINT OF NO RETURN");

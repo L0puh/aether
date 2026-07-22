@@ -35,25 +35,17 @@ typedef uint64_t    u64;
    __asm volatile ("mov %0, lr\n" : "=r" (lr_var))
 
 #define MAX_BUFFER_SIZE 256
-#define SIGNATURE_SIZE  64
 
-// TODO: refactor??
-#ifdef FEATURE_SIGN_APP
-#define MAX_APP_SIZE    (8192 + SIGNATURE_SIZE)
-#else
-#define MAX_APP_SIZE    8192
-#endif 
-
-#define FLASHER_WAIT_TIMEOUT 10000 //ms
-#define TICK_HOOK_MS 30000 // 30 sec 
-#define MAX_RUNTIME_MS 5000
-#define FETCH_TIMEOUT_MS 60000
-#define UART_TIMEOUT_MS 5000
-#define APP_LIVENESS_TIMEOUT_MS 2000
-#define WATCHDOG_RELOAD_TIMEOUT 5000 // 5 secs
+#define FETCH_TIMEOUT_MS        60000 // 1 min
+#define UART_TIMEOUT_MS         5000  // 5 sec
+#define FLASHER_WAIT_TIMEOUT    10000 // 10 sec
+#define TICK_HOOK_MS            30000 // 30 sec 
+#define APP_LIVENESS_TIMEOUT_MS 2000  // 2  sec
+#define WATCHDOG_RELOAD_TIMEOUT 5000  // 5  sec
 
 #define PACKED         __attribute__((packed))
 #define ALWAYS_INLINE  __attribute__((always_inline))
+
 typedef enum _ret_codes {
    SUCCESS,
    NOT_FOUND,
@@ -69,7 +61,6 @@ typedef enum _ret_codes {
 
 #define APP_MAGIC             0xDEADBEEF
 #define PRIV_DROP_SIGNATURE   0x0DEAFBEE
-
 
 #define APP_DESC_ADDR  (FLASH_APP_ORIGIN)
 #define APP_STACK_ADDR (RAM_APP_ORIGIN + RAM_APP_LENGTH)

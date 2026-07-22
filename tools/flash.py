@@ -135,7 +135,6 @@ def tui_intr():
         app = list_apps()[indx-1]
         send_app(app, port, baud)
     if i == 2:
-        #TODO add interrupt 
         port = input("port: ")
         baud = input("baud: ")
         if not port:
