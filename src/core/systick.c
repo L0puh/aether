@@ -2,6 +2,7 @@
 
 volatile u32 system_ticks_g = 0;
 volatile u32 last_tick = 0;
+volatile u32 app_last_pc = 0, app_last_psp = 0;
 
 void tick_hook(void) 
 {
@@ -14,6 +15,8 @@ void tick_hook(void)
    if (is_iwdg_enabled() && is_app_healthy()){
       DEBUG_PRINT("app is healthy, kicking watchdog!");
       watchdog_kick();
+   } else {
+      ERROR_PRINT("app is unhealthy!");
    }
 }
 
@@ -31,26 +34,37 @@ void systick_init(void)
 
 }
 
+void systick_msec_delay_ex(u32 delay, bool verbose)
+{
+   u32 start = system_ticks_g;
+
+   if (!(SYSTICK->CTRL & (1 << 0))) {
+
+      DEBUG_PRINT("error: systick not enabled!");
+      return;
+   }
+
+   if (!(SYSTICK->CTRL & (1 << 1))) {
+      DEBUG_PRINT("error: systick interrupt not enabled!");
+      return;
+   }
+
+   if (verbose) {
+      PLAIN_PRINT("- delay [%d] ... ", delay);
+   }
+
+   while ((system_ticks_g - start) < delay) {
+      cpu_wait_for_interrupt();
+   }
+
+   if (verbose) {
+      PLAIN_PRINT("OK!\r\n");
+   }
+}
+
 void systick_msec_delay(u32 delay)
 {
-    u32 start = system_ticks_g;
-
-    if (!(SYSTICK->CTRL & (1 << 0))) {
-        DEBUG_PRINT("error: systick not enabled!");
-        return;
-    }
-
-    if (!(SYSTICK->CTRL & (1 << 1))) {
-        DEBUG_PRINT("error: systick interrupt not enabled!");
-        return;
-    }
-    
-    PLAIN_PRINT("- delay [%d] ... ", delay);
-    while ((system_ticks_g - start) < delay) {
-         cpu_wait_for_interrupt();
-    }
-    
-    PLAIN_PRINT("OK!\r\n");
+   systick_msec_delay_ex(delay, true);
 }
 
 

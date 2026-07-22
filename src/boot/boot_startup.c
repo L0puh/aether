@@ -82,6 +82,9 @@ u32 svc_handler_c(frame_t *frame, u32 exc_ret)
          break;
       case SVC_EXIT:
          return svc_app_exit(desc, frame, exc_ret);
+      case SVC_WDT_KICK:
+         watchdog_kick();
+         break;
       default:
          DEBUG_PRINT("not implemented yet");
          break;

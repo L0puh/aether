@@ -7,6 +7,5 @@ int main(void)
         return -1;
     }
     uart_write_ex(usart, "HELLO WORLD FROM APP! I JUST GOT FREEDOM OF SPEECH\r\n");
-
     return 0;
 }

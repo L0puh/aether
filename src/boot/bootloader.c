@@ -150,7 +150,12 @@ void bootloader_exit_hook(i32 code)
    DEBUG_PRINT("APP EXITED WITH CODE: %d", code);
    DEBUG_PRINT("msp = 0x%x psp=0x%x ctrl=0x%x", get_msp(), get_psp(), get_control());
    DEBUG_PRINT("sleeping for %d ms", FETCH_TIMEOUT_MS);
-   systick_msec_delay(FETCH_TIMEOUT_MS);
+
+   u32 start = get_system_ticks();
+   while (get_system_ticks() - start < FETCH_TIMEOUT_MS) {
+      watchdog_kick();
+      systick_msec_delay_ex(500, false);
+   }
 }
 
 __attribute__((noreturn))
@@ -168,8 +173,9 @@ int bootloader_entry()
    app_desc_t* desc = NULL;
 
    while (!is_app_exists(&desc) && !fetch_app()) {
-      DEBUG_PRINT("sleeping for 60ms before trying again...");
-      systick_msec_delay(60000);
+      DEBUG_PRINT("sleeping for %d ms before trying again...", FETCH_TIMEOUT_MS);
+      watchdog_kick();
+      systick_msec_delay(FETCH_TIMEOUT_MS);
    }
 
    if (desc != NULL) {

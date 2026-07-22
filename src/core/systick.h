@@ -21,6 +21,7 @@ typedef struct _systick {
 #define SYSTICK           ((systick_t*) SYSTICK_BASE)
 
 void systick_msec_delay(u32 delay);
+void systick_msec_delay_ex(u32 delay, bool verbose);
 void systick_reset(void);
 void systick_init(void);
 u32 get_tick_rate(void);
