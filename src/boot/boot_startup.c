@@ -13,15 +13,15 @@ extern int bootloader_entry(void);
 
 void reset_handler(void);
 void default_handler(void);
-
 void nmi_handler(void) __attribute__((weak, alias("default_handler")));
-void usagefault_handler(void) __attribute__((weak, alias("default_handler")));
 void debugmon_handler(void) __attribute__((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute__((weak, alias("default_handler")));
 void systick_handler(void);
-void hardfault_handler(void);
-void memmanage_handler(void);
-void busfault_handler(void);
+
+extern void usagefault_handler(void);
+extern void hardfault_handler(void);
+extern void memmanage_handler(void);
+extern void busfault_handler(void);
 extern void svc_handler(void);
 
 __attribute__((section(".vectors"), used))
@@ -94,25 +94,6 @@ u32 svc_handler_c(frame_t *frame, u32 exc_ret)
    return 0;
 }
 
-void memmanage_handler(void)
-{
-   uint32_t cfsr = SCB->CFSR;
-   uint32_t mmfar = SCB->MMFAR;
-   DEBUG_PRINT("MEMMANAGE FAULT: CFSR=0x%x MMFAR=0x%x (valid=%d)",
-              cfsr, mmfar, (cfsr & (1 << 7)) != 0); // MMARVALID bit
-   while(1) { cpu_wait_for_interrupt(); }
-}
-
-void busfault_handler(void)
-{
-   uint32_t cfsr = SCB->CFSR;
-   uint32_t bfar = SCB->BFAR;
-   DEBUG_PRINT("BUSFAULT: CFSR=0x%x BFAR=0x%x (valid=%d)",
-              cfsr, bfar, (cfsr & (1 << 15)) != 0); // BFARVALID bit
-   while(1) { cpu_wait_for_interrupt(); }
-}
-
-
 void systick_handler(void)
 {
    increment_system_ticks();
@@ -126,37 +107,6 @@ void default_handler(void)
    while(1) {
       cpu_wait_for_interrupt();
    }
-}
-
-void hardfault_handler(void) {
-    uint32_t stacked_r0, stacked_r1, stacked_r2, stacked_r3,
-             stacked_r12, stacked_lr, stacked_pc, stacked_psr;
-    uint32_t hfsr = SCB->HFSR;
-    uint32_t cfsr = SCB->CFSR;
-    uint32_t mmfar = SCB->MMFAR;
-    uint32_t bfar = SCB->BFAR;
-
-    __asm volatile (
-        "tst   lr, #4        \n"
-        "ite   eq            \n"
-        "mrseq r0, msp       \n"
-        "mrsne r0, psp       \n"
-        "ldmia r0, {r1-r8}   \n"   // load r0..r3, r12, lr, pc, psr
-        : "=r"(stacked_r0), "=r"(stacked_r1), "=r"(stacked_r2),
-          "=r"(stacked_r3), "=r"(stacked_r12), "=r"(stacked_lr),
-          "=r"(stacked_pc), "=r"(stacked_psr)
-        : "r"(0)
-        : "memory"
-    );
-
-    DEBUG_PRINT("HARDFAULT:\n"
-               "  R0=0x%lx R1=0x%lx R2=0x%lx R3=0x%lx\n"
-               "  R12=0x%lx LR=0x%lx PC=0x%lx PSR=0x%lx\n"
-               "  HFSR=0x%lx CFSR=0x%lx MMFAR=0x%lx BFAR=0x%lx\n",
-               stacked_r0, stacked_r1, stacked_r2, stacked_r3,
-               stacked_r12, stacked_lr, stacked_pc, stacked_psr,
-               hfsr, cfsr, mmfar, bfar);
-    while(1);
 }
 
 __attribute__((noreturn))

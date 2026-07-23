@@ -27,6 +27,7 @@
 
 
 /* BOOTLOADER */
+#include "boot/fault.h"
 #include "boot/flasher.h"
 #include "boot/system.h"
 #include "boot/svc.h"

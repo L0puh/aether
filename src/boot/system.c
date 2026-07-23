@@ -28,6 +28,7 @@ ret system_setup(void)
    status = set_system_clock_72Mhz();
 #endif
 
+   enable_fault_handlers();
    systick_init();
    init_debug_led();
 
@@ -43,7 +44,7 @@ ret system_setup(void)
    flash_lock();
 
    DEBUG_PRINT("SYSTEM OK");
-   
+
    mpu_init();
    mpu_enable();
 
@@ -67,7 +68,7 @@ ret preinit_periph(const app_manifest_t manifest)
          return status;
       }
    }
-   
+
    if (is_granted(manifest.granted_periph_mask, PERIPH_GPIOB)){
       PLAIN_PRINT("GPIOB ");
       status = rcc_enable_clock_pin(GPIOB);
@@ -75,7 +76,7 @@ ret preinit_periph(const app_manifest_t manifest)
          return status;
       }
    }
-   
+
    if (is_granted(manifest.granted_periph_mask, PERIPH_GPIOC)){
       PLAIN_PRINT("GPIOC ");
       status = rcc_enable_clock_pin(GPIOC);
@@ -83,7 +84,7 @@ ret preinit_periph(const app_manifest_t manifest)
          return status;
       }
    }
-   
+
    if (is_granted(manifest.granted_periph_mask, PERIPH_USART1)){
       PLAIN_PRINT("USART1 ");
       status = rcc_init_uart_clock(USART1, GPIOA, 9, GPIOA, 10);
@@ -91,7 +92,7 @@ ret preinit_periph(const app_manifest_t manifest)
       if (IS_ERROR(status)){
          return status;
       }
-      
+
       uart_init(USART1, 0);
    }
 
@@ -102,7 +103,7 @@ ret preinit_periph(const app_manifest_t manifest)
       if (IS_ERROR(status)){
          return status;
       }
-      
+
       uart_init(USART2, 0);
    }
 
