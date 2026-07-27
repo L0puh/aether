@@ -3,15 +3,15 @@
 #ifdef FEATURE_CRC_APP
 ret verify_crc(app_desc_t* desc, u32 size)
 {
-    if (desc == NULL) {
-        return NOT_FOUND;
-    }
+   if (desc == NULL) {
+      return NOT_FOUND;
+   }
 
-    uint16_t calc_crc = crc_calculate((const uint8_t*)FLASH_APP_ORIGIN, size, 
-                                                offsetof(app_desc_t, crc16), 2);
+   uint16_t calc_crc = crc_calculate((const uint8_t*)FLASH_APP_ORIGIN, size, 
+         offsetof(app_desc_t, crc16), 2);
 
-    DEBUG_PRINT("CRC orig: 0x%04x and calculated: 0x%04x!", desc->crc16, calc_crc);
-    return (calc_crc == desc->crc16) ? SUCCESS: ERROR;
+   DEBUG_PRINT("CRC orig: 0x%04x and calculated: 0x%04x!", desc->crc16, calc_crc);
+   return (calc_crc == desc->crc16) ? SUCCESS: ERROR;
 }
 #endif 
 
@@ -28,7 +28,7 @@ bool is_app_exists(app_desc_t** desc) {
 
       *desc = ptr;
       return true;
-      
+
    }
 
    PLAIN_PRINT("NOT FOUND\r\n");
@@ -52,15 +52,18 @@ bool verify_privilege_dropped(const u32 entry_app)
    DEBUG_PRINT("drop privilege signature found");
    return true;
 }
-   
+
 static ret run_app(app_desc_t* desc)
 {
    if (desc == NULL) {
       ERROR_PRINT("app is null, something went wrong");
       return NOT_FOUND;
    }
-   
+
    volatile u32 entry = (u32)desc->entry | 1;
+   if ((entry & 1) == 0) {
+      entry |= 1;
+   }
 
    if (!verify_privilege_dropped(entry)) {
       ERROR_PRINT("privilege is not dropped, erasing this app!");
@@ -68,8 +71,10 @@ static ret run_app(app_desc_t* desc)
       return VIOLATION;
    }
 
-   DEBUG_PRINT("enabling watchdog before running");
+   DEBUG_PRINT("enabling watchdog & fault handlers before running");
    watchdog_init(WATCHDOG_RELOAD_TIMEOUT);
+   enable_fault_handlers();
+
    DEBUG_PRINT("RUNNING APP (0x%x entry)", entry);
 
    disable_irq();
@@ -115,10 +120,10 @@ ret fetch_app(void)
    addr = FLASH_APP_ORIGIN;
    size = recv_size();
    if (size == 0) return false;
- 
+
    flash_erase_app_slot(addr, size);
    flash_write_from_uart(addr, size);
- 
+
    dump_memory((const void*) addr, size, uart_writef);
 
    app_desc_t *desc = (app_desc_t*) APP_DESC_ADDR;
@@ -127,7 +132,7 @@ ret fetch_app(void)
       flash_erase_app_slot(addr, size);
       return WRONG_DATA;
    }
-   
+
 
 #ifdef FEATURE_CRC_APP
    if (IS_ERROR(verify_crc(desc, size))){
@@ -138,7 +143,7 @@ ret fetch_app(void)
 
    DEBUG_PRINT("crc is verified!");
 #endif 
-   
+
    UART_PRINT("flashing is done!");
    system_reset();
 
@@ -161,7 +166,7 @@ void start_bootloader(void)
       if (!IS_ERROR(res)){
          run_app(desc);
       } 
-      
+
       ERROR_PRINT("failed to preinit peripherals");
    }
 }
@@ -181,7 +186,7 @@ void bootloader_exit_hook(i32 code)
    start_bootloader();
 }
 
-__attribute__((noreturn))
+   __attribute__((noreturn))
 int bootloader_entry()
 {
    if (!IS_ERROR(system_setup())) {

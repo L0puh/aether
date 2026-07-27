@@ -24,12 +24,10 @@ int main(void) {
     }
     
     uart_write_ex(usart, "HELLO WORLD FROM APP! I JUST GOT FREEDOM OF SPEECH\r\n");
-    
-    uart_write_ex(usart, "triggering memmanage fault...\r\n");
    
     /* test_memmanage_fault();            // data access fault */
-    test_instruction_fetch_fault(); // instruction fetch fault
-    // test_mpu_access_fault();        // MPU protection fault
+    /* test_instruction_fetch_fault(); // instruction fetch fault */
+    /* test_mpu_access_fault();        // MPU protection fault */
     
     uart_write_ex(usart, "fault didn't work!\r\n");
     

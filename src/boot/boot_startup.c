@@ -55,7 +55,7 @@ u32 svc_handler_c(frame_t *frame, u32 exc_ret)
    app_desc_t *desc = (app_desc_t*)APP_DESC_ADDR;
    if (desc->magic != APP_MAGIC) {
       ERROR_PRINT("no app found");
-      //TODO: return other value
+      frame->r0 = (u32)-1;
       return 0;
    }
 

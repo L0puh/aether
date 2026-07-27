@@ -28,7 +28,6 @@ ret system_setup(void)
    status = set_system_clock_72Mhz();
 #endif
 
-   enable_fault_handlers();
    systick_init();
    init_debug_led();
 

@@ -15,7 +15,7 @@ void tick_hook(void)
    if (is_iwdg_enabled() && is_app_healthy()){
       DEBUG_PRINT("app is healthy, kicking watchdog!");
       watchdog_kick();
-   } else {
+   } else if (is_iwdg_enabled()) {
       ERROR_PRINT("app is unhealthy!");
    }
 }
