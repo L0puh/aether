@@ -5,6 +5,8 @@
 static uint16_t crc_table[256];
 static uint8_t crc_initialized = 0;
 
+#define CRC_POLYNOMIAL 0x1021 // x^16 + x^12 + x^5 + 1
+                                    
 void crc_init(void)
 {
     if (crc_initialized) {
@@ -16,7 +18,7 @@ void crc_init(void)
         crc = (uint16_t)(i << 8);
         for (int j = 0; j < 8; j++) {
             if (crc & 0x8000) {
-                crc = (uint16_t)((crc << 1) ^ 0x1021);
+                crc = (uint16_t)((crc << 1) ^ CRC_POLYNOMIAL);
             } else {
                 crc = (uint16_t)(crc << 1);
             }
