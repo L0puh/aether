@@ -9,7 +9,13 @@ SRC_DIR     = src
 SYMBOLS 		= $(SRC_DIR)/symbols.h
 APP_BASE		= 0x08008000
 
-APP_NAMES := $(notdir $(wildcard $(APPS_DIR)/*))
+
+CURRENT_MODULE = test_mpu
+
+APP_NAMES := $(foreach dir,$(wildcard $(APPS_DIR)/*), \
+    $(if $(strip $(wildcard $(dir)/*.c) $(wildcard $(dir)/*.s)), \
+        $(notdir $(dir)), \
+    ))
 APP_ELFS  := $(APP_NAMES:%=$(BUILD_DIR)/apps/%.elf)
 APP_BINS  := $(APP_NAMES:%=$(BUILD_DIR)/apps/%.bin)
 
@@ -81,6 +87,10 @@ $(foreach app,$(APP_NAMES),$(eval $(call APP_template,$(app))))
 
 modules: $(APP_BINS)
 	@echo -e "$(BOLD)[=] built $(words $(APP_NAMES)) module(s): $(APP_NAMES)$(RESET)"
+
+current-module: $(BUILD_DIR)/apps/$(CURRENT_MODULE).bin $(PATCH)
+	@echo -e "$(BOLD)[=] built $(CURRENT_MODULE) module $(RESET)"
+
 
 list-modules:
 	@echo -e "$(CYAN)available apps: $(APP_NAMES)$(RESET)"

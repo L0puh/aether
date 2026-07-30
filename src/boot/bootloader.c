@@ -67,8 +67,10 @@ static ret run_app(app_desc_t* desc)
 
    if (!verify_privilege_dropped(entry)) {
       ERROR_PRINT("privilege is not dropped, erasing this app!");
+#ifndef _DEBUG
       flash_erase_app_slot(FLASH_APP_ORIGIN, FLASH_APP_LENGTH);
       return VIOLATION;
+#endif 
    }
 
    DEBUG_PRINT("enabling watchdog & fault handlers before running");
@@ -150,7 +152,7 @@ ret fetch_app(void)
    return SUCCESS;
 }
 
-void start_bootloader(void)
+void start_bootloader(bool is_after_reset)
 {
    ret res; 
    app_desc_t* desc = NULL;
@@ -162,10 +164,15 @@ void start_bootloader(void)
    }
 
    if (desc != NULL) {
-      res = preinit_periph(desc->manifset);
-      if (!IS_ERROR(res)){
-         run_app(desc);
-      } 
+      if (is_after_reset) {
+         res = preinit_periph(desc->manifset);
+         if (IS_ERROR(res)){
+            ERROR_PRINT("failed to preint peripherals");
+            return;
+         }
+      }
+      
+      run_app(desc);
 
       ERROR_PRINT("failed to preinit peripherals");
    }
@@ -175,6 +182,8 @@ void bootloader_exit_hook(i32 code)
 {
    DEBUG_PRINT("APP EXITED WITH CODE: %d", code);
    DEBUG_PRINT("msp = 0x%x psp=0x%x ctrl=0x%x", get_msp(), get_psp(), get_control());
+
+#ifndef _DEBUG
    DEBUG_PRINT("sleeping for %d ms before running again", FETCH_TIMEOUT_MS);
 
    u32 start = get_system_ticks();
@@ -182,8 +191,9 @@ void bootloader_exit_hook(i32 code)
       watchdog_kick();
       systick_msec_delay_ex(500, false);
    }
+#endif 
 
-   start_bootloader();
+   start_bootloader(false);
 }
 
    __attribute__((noreturn))
@@ -196,7 +206,7 @@ int bootloader_entry()
    DEBUG_PRINT("BOOTLOADER START");
 
    check_reset_cause();
-   start_bootloader();
+   start_bootloader(true);
 
    DEBUG_PRINT("POINT OF NO RETURN");
 }

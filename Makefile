@@ -101,7 +101,7 @@ APP_LDFLAGS = -nostdlib\
 
 #----------------------- BUILD -----------------------#
 
-all: $(CORE_LIB) convert-memory-map $(BUILD_DIR)/$(PROJECT)-boot.bin modules 
+all: $(CORE_LIB) convert-memory-map $(BUILD_DIR)/$(PROJECT)-boot.bin current-module 
 
 $(CORE_LIB): $(CORE_OBJS)
 	$(AR) rcs $@ $^
