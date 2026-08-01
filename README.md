@@ -9,12 +9,12 @@ minimal bootloader with bare metal hypervisor on blue pill.
 
 ## overview
 
-it's a show case of security model which is based on MPU & SVC with
+it's a showcase of security model which is based on MPU & SVC with
 modular architecture, where app is embedded into bootloader and lacks its
 own vector table.
 
-bootloader recieves calls, ensures a loaded
-app foolows its manifest, handles interrupts and beheaves
+bootloader receives calls, ensures a loaded
+app follows its manifest, handles interrupts and behaves 
 as a supervisor for the app. 
 
 ## architecture
@@ -54,7 +54,7 @@ regions. MPU configuration is as follows:
   .subreg_mask = 0,
 },
 ```
-it ensures that critical code either non-accessible for an app or read
+it ensures that critical code is either non-accessible for an app or read
 only. it also has protection against stack overflow.
 
 ### SVC API
@@ -63,12 +63,12 @@ extern int32_t hv_request_periph(u32 id, u32 perms);
 extern int32_t hv_wdt_kick(void);
 extern void    hv_exit(int32_t code) __attribute__((noreturn));
 ```
-request peripheral call is based on preinitialized peripherals (in
-booloader), specified in manifest. manifest itself is patched in build
+request peripheral call is based on preinitialized peripherals (in bootloader),
+specified in manifest. manifest itself is patched in build
 (with patch tool) and non-accessible for an app in runtime.
 
 ### model
-bootloader is using MSP and highest control:
+bootloader uses MSP and the highest control:
 - initializes system, MPU & 
 peripherals
 - scans for app
@@ -76,8 +76,34 @@ peripherals
 - handles interrupts
 - handles watchdog, timers, SVC
 
-when app is ready to run, transit code takes places that drops priviledges
-and changes to PSP stack & hops to app.
+when app is ready to run, the transition code takes place that drops
+privileges, changes to PSP stack and hops to app.
+
+this happens in two stages, `enter_app` goes with bootloader
+```asm
+enter_app:
+    @ r0 = psp value
+    @ r1 = entry point
+
+    push  {r4, lr}
+    mov   r4, r1
+
+    msr   psp, r0
+    isb
+
+    mov   r3, #0
+    msr   primask, r3
+    msr   basepri, r3
+    cpsie i
+
+    mrs   r3, control
+    orr   r3, r3, #2
+    msr   control, r3
+    isb
+
+    bx    r4
+```
+and `app_start` is embedded into app's flash 
 ```asm
 app_start:
     mrs   r0, control
@@ -91,7 +117,7 @@ app_start:
     svc   #2
     b     .
 ```
-on exit priviledges are restored
+on exit, privileges are restored
 ```asm
 exit_landing:
     mrs   r0, control
@@ -125,10 +151,10 @@ RAM_APP_LENGTH    0x1000UL      /* 4K */
 ```
 ## building
 
-build everything with `make all`, that includes current module (`modules.mk`, in `CURRENT_MODULE`) and core
+build everything with make all, which includes the current module (`modules.mk`, in `CURRENT_MODULE`) and core
 library. 
 
-there are also such commands:
+there are also the following commands:
 ```bash
 make flash   
 make erase   
@@ -142,10 +168,9 @@ make patch-%        # to patch app with manifest, CRC and etc
 make open-serial    # opens minicom with USB0
 ```
 
-to flash an app:
+### how to run
 ```bash
 make all 
 make flash # flash bootloader
-make reset && python tools/flash.py build/apps/{app}.bin.patched
-/dev/USB{X} {BAUDRATE}
+make reset && python tools/flash.py build/apps/{app}.bin.patched /dev/USB{X} {BAUDRATE}
 ```
