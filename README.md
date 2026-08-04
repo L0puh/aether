@@ -174,3 +174,7 @@ make all
 make flash # flash bootloader
 make reset && python tools/flash.py build/apps/{app}.bin.patched /dev/USB{X} {BAUDRATE}
 ```
+
+
+# related 
+- [experiments with isolation on blue pill](https://l0puh.github.io/log/2026/08/04/experiments_with_isolation/)
